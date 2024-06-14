@@ -11,6 +11,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 @Slf4j
 @WebMvcTest
 class PostControllerTest {
@@ -36,7 +38,7 @@ class PostControllerTest {
                         .content("{\"title\":\"제목입니다\",\"content\":\"내용입니다\"}")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Hello world"))
+                .andExpect(MockMvcResultMatchers.content().string("{}"))
                 .andDo(print());
     }
     @Test
@@ -47,10 +49,12 @@ class PostControllerTest {
         // expected
         mockMvc.perform(MockMvcRequestBuilders.post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"\",\"content\":\"내용입니다\"}")
+                        // {"title" : ""} 일때 에러 발생
+                        // {"title" : null} 일때도 에러가 발생할지 확인 -> @NotBlank에서 null도 관리해준다
+                        .content("{\"title\":null,\"content\":\"내용입니다\"}")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Hello world"))
+                .andExpect(jsonPath("$.title").value("제목을 입력해주세요."))
                 .andDo(print());
     }
 }
