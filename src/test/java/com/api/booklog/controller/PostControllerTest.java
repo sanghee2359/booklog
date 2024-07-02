@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -39,7 +40,7 @@ class PostControllerTest {
     @Test
     @DisplayName("/gets 요청 시 Hello world를 출력함")
     void getTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/gets"))
+        mockMvc.perform(get("/gets"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("HEllo world"))
                 .andDo(print());
@@ -56,7 +57,7 @@ class PostControllerTest {
         String json = objectMapper.writeValueAsString(request);
         System.out.println(json);
         // expected
-        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+        mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                 )
@@ -73,7 +74,7 @@ class PostControllerTest {
                 .build();
         String json = objectMapper.writeValueAsString(request);
         // expected
-        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+        mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                 )
@@ -94,7 +95,7 @@ class PostControllerTest {
                 .build();
         String json = objectMapper.writeValueAsString(request);
         // when
-        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+        mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                 )
@@ -106,5 +107,30 @@ class PostControllerTest {
         Post post = postRepository.findAll().get(0);
         assertEquals("제목입니다.",post.getTitle());
         assertEquals("내용입니다",post.getContent());
+    }
+
+    @Test
+    @DisplayName("글 1개 조회")
+    void findById() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("title")
+                .content("content")
+                .build();
+        postRepository.save(post);
+
+        // 클라이언트 요구사항
+        //json응답에서 title 값의 길이를 10글자로 제한해주세요.
+        // Post entity <=> PostResponse class
+
+        // expected (when과 then이 mix됨)
+        mockMvc.perform(get("/posts/{postId}", post.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(post.getId()))
+                .andExpect(jsonPath("$.title").value("title"))
+                .andExpect(jsonPath("$.content").value("content"))
+                .andDo(print());
     }
 }
