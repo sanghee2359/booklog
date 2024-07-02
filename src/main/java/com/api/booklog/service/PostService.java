@@ -15,7 +15,10 @@ public class PostService {
     public void write(PostCreate postCreate) {
         // repository.save(postCreate)
         // postCreate 라는 클래스를 entity 형태로 변환
-        Post post = new Post(postCreate.getTitle(), postCreate.getContent());
+        Post post = Post.builder()
+                .title(postCreate.getTitle())
+                .content(postCreate.getContent())
+                .build();
         postRepository.save(post);
     }
 }
