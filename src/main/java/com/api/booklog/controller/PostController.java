@@ -1,30 +1,28 @@
 package com.api.booklog.controller;
 
 import com.api.booklog.request.PostCreate;
+import com.api.booklog.service.PostService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.springframework.util.ReflectionUtils.getField;
 
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class PostController {
+    private final PostService postService;
     @GetMapping("/gets")
     public String get() {
         return "HEllo world";
     }
     @PostMapping("/posts")
-    public Map<String, String> post(@RequestBody @Valid PostCreate params) throws Exception {
-
+    public Map<String, String> post(@RequestBody @Valid PostCreate request) throws Exception {
+        postService.write(request);
         return Map.of();
     }
 }

@@ -1,30 +1,45 @@
 package com.api.booklog.controller;
 
+import com.api.booklog.domain.Post;
+import com.api.booklog.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Slf4j
-@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 class PostControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private PostRepository postRepository;
+    @BeforeEach
+    void clean() {
+        postRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("/gets 요청 시 Hello world를 출력함")
     void getTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/gets"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("HEllo world"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("HEllo world"))
                 .andDo(print());
     }
     @Test
@@ -37,9 +52,10 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"제목입니다\",\"content\":\"내용입니다\"}")
                 )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("{}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("{}"))
                 .andDo(print());
+        assertEquals(1L, postRepository.count());
     }
     @Test
     @DisplayName("/posts 요청 시 title 값은 필수다.")
@@ -53,11 +69,29 @@ class PostControllerTest {
                         // {"title" : null} 일때도 에러가 발생할지 확인 -> @NotBlank에서 null도 관리해준다
                         .content("{\"title\":null,\"content\":null}")
                 )
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
                 .andExpect(jsonPath("$.validation.title").value("제목을 입력해주세요."))
                 .andExpect(jsonPath("$.validation.content").value("내용을 입력해주세요."))
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("/posts 요청 시 DB에 값이 저장된다.")
+    void save() throws Exception {
+        // when
+        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"제목입니다.\",\"content\":\"내용입니다\"}")
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+        // then
+        assertEquals(1L, postRepository.count());
+        // DB 저장된 내용 검증
+        Post post = postRepository.findAll().get(0);
+        assertEquals("제목입니다.",post.getTitle());
+        assertEquals("내용입니다",post.getContent());
     }
 }
