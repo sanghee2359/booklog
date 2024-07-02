@@ -53,9 +53,9 @@ class PostControllerTest {
                         // {"title" : null} 일때도 에러가 발생할지 확인 -> @NotBlank에서 null도 관리해준다
                         .content("{\"title\":null,\"content\":null}")
                 )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.title").value("제목을 입력해주세요."))
-                .andExpect(jsonPath("$.content").value("내용을 입력해주세요."))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
                 .andDo(print());
     }
 }

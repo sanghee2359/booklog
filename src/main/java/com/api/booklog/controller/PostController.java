@@ -23,7 +23,7 @@ public class PostController {
         return "HEllo world";
     }
     @PostMapping("/posts")
-    public Map<String, String> post(@RequestBody @Valid PostCreate params, BindingResult result) throws Exception {
+    public Map<String, String> post(@RequestBody @Valid PostCreate params) throws Exception {
 
         return Map.of();
     }
