@@ -51,10 +51,11 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         // {"title" : ""} 일때 에러 발생
                         // {"title" : null} 일때도 에러가 발생할지 확인 -> @NotBlank에서 null도 관리해준다
-                        .content("{\"title\":null,\"content\":\"내용입니다\"}")
+                        .content("{\"title\":null,\"content\":null}")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.title").value("제목을 입력해주세요."))
+                .andExpect(jsonPath("$.content").value("내용을 입력해주세요."))
                 .andDo(print());
     }
 }
