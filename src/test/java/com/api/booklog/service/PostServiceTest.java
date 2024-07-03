@@ -8,6 +8,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class PostServiceTest {
@@ -57,6 +59,28 @@ class PostServiceTest {
         Post responsePost = postRepository.findAll().get(0);
         assertEquals("제목입니다", responsePost.getTitle());
         assertEquals("내용입니다", responsePost.getContent());
+    }
+
+    @Test
+    @DisplayName("글 여러 개 조회")
+    void findAll() {
+        // given
+        postRepository.saveAll(List.of(
+                Post.builder()
+                        .title("1")
+                        .content("1")
+                        .build(),
+                Post.builder()
+                        .title("2")
+                        .content("2")
+                        .build()));
+
+        // when
+        List<PostResponse> posts = postService.getList();
+
+        // then
+        assertEquals(2, posts.size());
+
     }
 
 }
