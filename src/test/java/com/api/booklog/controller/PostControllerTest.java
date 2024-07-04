@@ -16,6 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -136,34 +139,27 @@ class PostControllerTest {
                 .andDo(print());
     }
     @Test
-    @DisplayName("글 여러 개 조회")
+    @DisplayName("페이지를 0으로 요청하여도 첫 페이지를 가져온다.")
     void findAll() throws Exception {
         // given
-        Post post1 = postRepository.save(Post.builder()
-                .title("title1")
-                .content("content1")
-                .build());
-        Post post2 = postRepository.save(Post.builder()
-                .title("title2")
-                .content("content2")
-                .build());
+        List<Post> requestPosts = IntStream.range(0, 10)
+                .mapToObj(i -> Post.builder()
+                        .title("제목 - "+ i)
+                        .content("데이터" + i)
+                        .build())
+                .toList();
+        postRepository.saveAll(requestPosts);
 
 
         // expected
-        mockMvc.perform(get("/posts")
+        mockMvc.perform(get("/posts?page=1&sort=id,desc&size=10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                /**
-                 * post object가 List에 들어있으므로 다음과 같은 json 형태
-                 * [{id: ..., title: ...}, {}]
-                 */
-                .andExpect(jsonPath("$.length()", is(2)))
-                .andExpect(jsonPath("$[0].id").value(post1.getId()))
-                .andExpect(jsonPath("$[0].title").value("title1"))
-                .andExpect(jsonPath("$[0].content").value("content1"))
-                .andExpect(jsonPath("$[1].id").value(post2.getId()))
-                .andExpect(jsonPath("$[1].title").value("title2"))
-                .andExpect(jsonPath("$[1].content").value("content2"))
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].id").value(10))
+                .andExpect(jsonPath("$[0].title").value("제목 - 9"))
+                .andExpect(jsonPath("$[0].content").value("데이터9"))
+
                 .andDo(print());
     }
 }

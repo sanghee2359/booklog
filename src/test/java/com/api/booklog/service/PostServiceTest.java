@@ -3,14 +3,22 @@ package com.api.booklog.service;
 import com.api.booklog.domain.Post;
 import com.api.booklog.repository.PostRepository;
 import com.api.booklog.request.PostCreate;
+import com.api.booklog.request.PostSearch;
 import com.api.booklog.response.PostResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.data.domain.Sort.Direction.*;
+
 @SpringBootTest
 class PostServiceTest {
     @Autowired
@@ -62,25 +70,26 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("글 여러 개 조회")
-    void findAll() {
+    @DisplayName("페이징 - 글 1 페이지 조회")
+    void paging() {
         // given
-        postRepository.saveAll(List.of(
-                Post.builder()
-                        .title("1")
-                        .content("1")
-                        .build(),
-                Post.builder()
-                        .title("2")
-                        .content("2")
-                        .build()));
+        List<Post> requestPosts = IntStream.range(0, 20)
+                .mapToObj(i -> Post.builder()
+                            .title("제목 - "+ i)
+                            .content("데이터" + i)
+                            .build())
+                .toList();
+        postRepository.saveAll(requestPosts);
+        PostSearch postSearch = PostSearch.builder().page(1).size(10).build();
 
         // when
-        List<PostResponse> posts = postService.getList();
+        List<PostResponse> posts = postService.getList(postSearch);
 
         // then
-        assertEquals(2, posts.size());
+        assertEquals(10, posts.size());
+        assertEquals("제목 - 19", posts.get(0).getTitle());
 
     }
+
 
 }
