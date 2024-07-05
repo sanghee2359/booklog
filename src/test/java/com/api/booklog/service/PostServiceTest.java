@@ -3,21 +3,21 @@ package com.api.booklog.service;
 import com.api.booklog.domain.Post;
 import com.api.booklog.repository.PostRepository;
 import com.api.booklog.request.PostCreate;
+import com.api.booklog.request.PostEdit;
 import com.api.booklog.request.PostSearch;
 import com.api.booklog.response.PostResponse;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.data.domain.Sort.Direction.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 class PostServiceTest {
@@ -70,8 +70,8 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("페이징 - 글 1 페이지 조회")
-    void paging() {
+    @DisplayName("페이징 - 글 첫 번째 페이지 조회")
+    void update() {
         // given
         List<Post> requestPosts = IntStream.range(0, 20)
                 .mapToObj(i -> Post.builder()
@@ -91,5 +91,72 @@ class PostServiceTest {
 
     }
 
+    @Test
+    @DisplayName("글 제목 수정")
+    void editTitle() {
+        // given
+        Post post = Post.builder()
+                .title("제목 1")
+                .content("데이터 1")
+                .build();
+        postRepository.save(post);
 
+        PostEdit postEdit = PostEdit.builder()
+                .title("안녕하세여")
+                .content("데이터 1")
+                .build(); // 제목 수정
+        // when
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+        assertEquals("안녕하세여", changedPost.getTitle());
+        assertEquals("데이터 1", changedPost.getContent());
+    }
+
+    @Test
+    @DisplayName("글 내용 수정")
+    void editContent() {
+        // given
+        Post post = Post.builder()
+                .title("제목 1")
+                .content("데이터 1")
+                .build();
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목 1")
+                .content("데이터 수정")
+                .build(); // 내용 수정
+        // when
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+        assertEquals("제목 1", changedPost.getTitle());
+        assertEquals("데이터 수정", changedPost.getContent());
+    }
+
+    @Test
+    @DisplayName("수정하지 않을 데이터에 null값이 들어올 경우")
+    void editNull() {
+        // given
+        Post post = Post.builder()
+                .title("제목 1")
+                .content("데이터 1")
+                .build();
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title(null) // 수정 안했을 때 null이 들어오는 상황으로 가정
+                .content("데이터 수정")
+                .build();
+        // when
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+        assertEquals("제목 1", changedPost.getTitle());
+        assertEquals("데이터 수정", changedPost.getContent());
+    }
 }

@@ -3,9 +3,9 @@ package com.api.booklog.controller;
 import com.api.booklog.domain.Post;
 import com.api.booklog.repository.PostRepository;
 import com.api.booklog.request.PostCreate;
+import com.api.booklog.request.PostEdit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,12 +14,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -139,7 +138,7 @@ class PostControllerTest {
                 .andDo(print());
     }
     @Test
-    @DisplayName("페이지를 0으로 요청하여도 첫 페이지를 가져온다.")
+    @DisplayName("글 조회 - 페이지를 0으로 요청하여도 첫 페이지를 가져온다.")
     void findAll() throws Exception {
         // given
         List<Post> requestPosts = IntStream.range(0, 10)
@@ -160,6 +159,29 @@ class PostControllerTest {
                 .andExpect(jsonPath("$[0].title").value("제목 - 9"))
                 .andExpect(jsonPath("$[0].content").value("데이터9"))
 
+                .andDo(print());
+    }
+    @Test
+    @DisplayName("글 제목 수정")
+    void editTitle() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("제목 1")
+                .content("데이터 1")
+                .build();
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목 수정")
+                .content("데이터 1")
+                .build(); // 제목 수정
+
+        // expected (when과 then이 mix됨)
+        mockMvc.perform(patch("/posts/{postId}", post.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit)) // 수정할 데이터
+                )
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 }

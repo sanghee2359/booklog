@@ -23,4 +23,14 @@ public class Post {
         this.content = content;
     }
 
+    public PostEditor.PostEditorBuilder toEditor() {
+         return PostEditor.builder()
+                .title(title)
+                .content(content);
+    }
+
+    public void edit(PostEditor postEditor) { // PostEditor 하나만 인자로 받는 메서드로 개선.
+        title = postEditor.getTitle();
+        content = postEditor.getContent();
+    }
 }
