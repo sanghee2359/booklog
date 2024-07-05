@@ -25,7 +25,7 @@ public class ExceptionController {
                 .build();
 
         for(FieldError fieldError : e.getFieldErrors()) {
-            response.addValidation(fieldError.getField(), fieldError.getDefaultMessage());
+            response.addValid(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return response;
     }

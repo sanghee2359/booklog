@@ -3,6 +3,7 @@ package com.api.booklog.response;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,7 +22,7 @@ public class ErrorResponse {
     private final String code;
     private final String message;
     private final Map<String, String> validation;
-    public void addValidation(String fieldName, String errorMessage) {
+    public void addValid(String fieldName, String errorMessage) {
 
         validation.put(fieldName, errorMessage);
     }
@@ -29,6 +30,6 @@ public class ErrorResponse {
     public ErrorResponse(String code, String message, Map<String, String> validation) {
         this.code = code;
         this.message = message;
-        this.validation = validation;
+        this.validation = validation != null ? validation : new HashMap<>();
     }
 }
