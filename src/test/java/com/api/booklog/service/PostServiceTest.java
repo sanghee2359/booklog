@@ -109,7 +109,7 @@ class PostServiceTest {
         postService.edit(post.getId(), postEdit);
         // then
         Post changedPost = postRepository.findById(post.getId())
-                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+                .orElseThrow(PostNotFound::new);
         assertEquals("안녕하세여", changedPost.getTitle());
         assertEquals("데이터 1", changedPost.getContent());
     }
@@ -132,7 +132,7 @@ class PostServiceTest {
         postService.edit(post.getId(), postEdit);
         // then
         Post changedPost = postRepository.findById(post.getId())
-                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+                .orElseThrow(PostNotFound::new);
         assertEquals("제목 1", changedPost.getTitle());
         assertEquals("데이터 수정", changedPost.getContent());
     }
@@ -155,7 +155,7 @@ class PostServiceTest {
         postService.edit(post.getId(), postEdit);
         // then
         Post changedPost = postRepository.findById(post.getId())
-                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+                .orElseThrow(PostNotFound::new);
         assertEquals("제목 1", changedPost.getTitle());
         assertEquals("데이터 수정", changedPost.getContent());
     }
@@ -176,7 +176,7 @@ class PostServiceTest {
         assertEquals(0, postRepository.count());
     }
 
-    // 예외처리
+    // 예외 처리
     // 실패 케이스 작성
     @Test
     @DisplayName("글 1개 조회")

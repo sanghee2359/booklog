@@ -22,8 +22,9 @@ public class PostController {
     public String get() {
         return "HEllo world";
     }
-    @PostMapping("/posts") // post 요청엔 return 값 x
+    @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) throws Exception {
+        request.validate();
         postService.write(request);
     }
     // 조회 API
