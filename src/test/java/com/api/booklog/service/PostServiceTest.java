@@ -1,6 +1,7 @@
 package com.api.booklog.service;
 
 import com.api.booklog.domain.Post;
+import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.repository.PostRepository;
 import com.api.booklog.request.PostCreate;
 import com.api.booklog.request.PostEdit;
@@ -16,8 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class PostServiceTest {
@@ -176,4 +176,59 @@ class PostServiceTest {
         assertEquals(0, postRepository.count());
     }
 
+    // 예외처리
+    // 실패 케이스 작성
+    @Test
+    @DisplayName("글 1개 조회")
+    void findById_Fail() {
+        // given
+        Post post = Post.builder()
+                .title("제목입니다")
+                .content("내용입니다")
+                .build();
+        postRepository.save(post);
+
+        // expected
+        assertThrows(PostNotFound.class, () ->{
+            postService.get(post.getId() + 1L);
+        });
+    }
+
+    @Test
+    @DisplayName("글 수정 - 존재 하지 않는 글")
+    void editContent_Fail() {
+        // given
+        Post post = Post.builder()
+                .title("제목 1")
+                .content("데이터 1")
+                .build();
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목 1")
+                .content("데이터 수정")
+                .build();
+        // expected
+        assertThrows(PostNotFound.class, () ->{
+            postService.edit(post.getId() + 1L, postEdit);
+
+        });
+    }
+
+
+    @Test
+    @DisplayName("글 삭제 - 존재 하지 않는 글")
+    void delete_Fail() {
+        // given
+        Post post = Post.builder()
+                .title("제목 1")
+                .content("데이터 1")
+                .build();
+        postRepository.save(post);
+
+        //expected
+        assertThrows(PostNotFound.class, () ->{
+            postService.delete(post.getId() + 1L);
+        });
+    }
 }

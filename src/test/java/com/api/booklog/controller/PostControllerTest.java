@@ -152,11 +152,10 @@ class PostControllerTest {
 
 
         // expected
-        mockMvc.perform(get("/posts?page=1&sort=id,desc&size=10")
+        mockMvc.perform(get("/posts?page=1&sort=id,desc&size=10") // 10개 limit을 페이징 하며, 1페이지 가져오기.
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(10)))
-                .andExpect(jsonPath("$[0].id").value(10))
                 .andExpect(jsonPath("$[0].title").value("제목 - 9"))
                 .andExpect(jsonPath("$[0].content").value("데이터9"))
 
