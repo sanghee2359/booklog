@@ -18,6 +18,6 @@ public class PostSearch {
     private Integer size = 10;
 
     public long getOffSet() {
-        return (long) (max(1, page) - 1) * min(size, MAX_SIZE);
+        return (long) (max(1, page) - 1) * min(this.size, MAX_SIZE);
     }
 }
