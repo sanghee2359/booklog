@@ -5,7 +5,6 @@ import com.api.booklog.domain.Post;
 import com.api.booklog.repository.PostRepository;
 import com.api.booklog.request.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,22 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.restdocs.request.RequestDocumentation;
+import org.springframework.restdocs.snippet.Attributes;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,8 +93,10 @@ public class PostControllerDocTest {
                 // 요청 파라미터
                 .andDo(document("post-create",
                                 requestFields(
-                                        fieldWithPath("title").type(JsonFieldType.STRING).description("제목"),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("내용").optional()
+                                        fieldWithPath("title").type(JsonFieldType.STRING).description("제목")
+                                                // 제약사항 or 반드시 넘여겨야 할 enum값을 표기할 때
+                                                .attributes(Attributes.key("constraint").value("욕설 없는 제목 입력해주세요")),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("내용").optional()  // 옵션, 즉 써도 되고 안써도 됨
                                 )
                 ));
     }

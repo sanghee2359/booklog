@@ -1,6 +1,11 @@
 // snippets 경로를 참조한 후 request adoc 파일을 포함.
 = 프로젝트 API
-:toc:
+:doctype: book
+:icon: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
 
 == 글 단건 조회
 
