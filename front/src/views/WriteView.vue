@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import {ref} from "vue";
-
+import {useRouter} from "vue-router";
 import axios from "axios";
 
 const title = ref(" ");
 const content = ref(" ");
+const router = useRouter()
 const write = function() {
   axios.post("/api/posts", {
     title: title.value,
     content: content.value
-  });
-}
+  }).then(() => {
+    router.replace({name:"home"}); // 글 작성 후 home으로 이동(뒤로가기 x)
+  })
+
+};
 </script>
 
 <template>
