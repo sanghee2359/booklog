@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import axios from "axios";
 import {ref} from "vue";
-const posts = ref([]); // 반응형 데이터로 받고
+import {useRouter} from "vue-router";
+const posts = ref([]); // 반응형 데이터로 받기
+const router = useRouter();
 
 axios.get("/api/posts?page=1&size=5")
 .then(response => {
@@ -9,13 +11,16 @@ axios.get("/api/posts?page=1&size=5")
     posts.value.push(r); // 값을 출력
   })
 })
+const moveToRead = () => {
+  router.push((r));
+}
 </script>
 
 <template>
   <ul>
     <li v-for="post in posts" :key="post.id">
       <div>
-        {{post.title}}
+        <router-link :to="{name:'read', params: {postId :post.id}}">{{post.title}}</router-link>
       </div>
       <div>
         {{post.content}}
