@@ -14,8 +14,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "bootstrap": "^5.3.3",
+    "element-plus": "^2.7.6",
     "pinia": "^2.1.7",
-    "vue": "^3.4.29",
+    "vue": "^3.4.31",
     "vue-router": "^4.3.3"
   },
   "devDependencies": {
@@ -36,7 +38,6 @@
     "prettier": "^3.2.5",
     "typescript": "~5.4.0",
     "vite": "^5.3.1",
-    "vite-plugin-vue-devtools": "^7.3.1",
     "vitest": "^1.6.0",
     "vue-tsc": "^2.0.21"
   }

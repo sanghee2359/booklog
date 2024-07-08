@@ -8,6 +8,9 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/write">글 작성</RouterLink>
       </nav>
+    <RouterView/>
   </header>
-  <RouterView />
+  <div><p>안녕하세요</p></div>
+
 </template>
+
