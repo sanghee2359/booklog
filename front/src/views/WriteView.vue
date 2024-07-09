@@ -13,19 +13,21 @@ const write = function() {
   }).then(() => {
     router.replace({name:"home"}); // 글 작성 후 home으로 이동(뒤로가기 x)
   })
-
 };
 </script>
 
 <template>
   <div>
-    <el-input v-model="title" placeholder="제목을 입력해주세요"/>  </div>
+    <el-input v-model="title" type="text" placeholder="제목을 입력해주세요."/>
+  </div>
 
   <div class="mt-2">
     <el-input v-model="content" type="textarea" rows="15"></el-input>
   </div>
   <div class="mt-2">
-    <el-button type="primary" @click="write()">글 작성 완료</el-button>
+    <div class="d-flex justify-content-end">
+    <el-button type="primary" @click="write()">작성 완료</el-button>
+  </div>
   </div>
 </template>
 <style>

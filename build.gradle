@@ -69,6 +69,7 @@ asciidoctor {
 
 bootJar {
 	dependsOn asciidoctor
+	enabled = true;
 
 	copy{
 		from asciidoctor.outputDir
@@ -76,3 +77,6 @@ bootJar {
 	}
 }
 
+jar{
+	enabled = false; // plain jar을 생성하지 않음
+}
