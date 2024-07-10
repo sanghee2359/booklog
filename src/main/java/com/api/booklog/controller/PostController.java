@@ -23,7 +23,7 @@ public class PostController {
         return "HEllo world";
     }
     @PostMapping("/posts")
-    public void post(@RequestBody @Valid PostCreate request, @RequestParam String authorization) throws Exception {
+    public void post(@RequestBody @Valid PostCreate request, @RequestHeader String authorization) throws Exception {
         if(authorization.equals("author")) {
             request.validate();
             postService.write(request);
