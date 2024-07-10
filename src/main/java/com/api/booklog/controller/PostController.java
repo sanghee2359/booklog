@@ -23,9 +23,11 @@ public class PostController {
         return "HEllo world";
     }
     @PostMapping("/posts")
-    public void post(@RequestBody @Valid PostCreate request) throws Exception {
-        request.validate();
-        postService.write(request);
+    public void post(@RequestBody @Valid PostCreate request, @RequestParam String authorization) throws Exception {
+        if(authorization.equals("author")) {
+            request.validate();
+            postService.write(request);
+        }
     }
     // 조회 API
     @GetMapping("/posts/{postId}")
