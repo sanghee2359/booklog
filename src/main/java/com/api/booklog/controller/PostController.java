@@ -18,12 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
-    @GetMapping("/test")
-    public String test() {
-        return "hello";
-    }
     @GetMapping("/foo") // 여기에는 인증되지 않은 사용자도 내용을 볼 수 있도록 하려면?
-    public String foo() {
+    public String foo(@RequestAttribute("userName") String userName) {
+        log.info(">>>{}", userName);
         return "foo";
     }
     @PostMapping("/posts")

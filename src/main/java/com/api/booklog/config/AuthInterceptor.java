@@ -22,7 +22,8 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info(">> preHandle");
         String accessToken = request.getParameter("accessToken");
-        if(accessToken != null && accessToken.equals("booklog")) {
+        if(accessToken != null && !accessToken.equals("")) {
+            request.setAttribute("userName", accessToken);
             return true;
         }
         throw new Unauthorized();
