@@ -1,5 +1,6 @@
 package com.api.booklog.controller;
 
+import com.api.booklog.config.data.UserSession;
 import com.api.booklog.request.PostCreate;
 import com.api.booklog.request.PostEdit;
 import com.api.booklog.request.PostSearch;
@@ -19,9 +20,9 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
     @GetMapping("/foo") // 여기에는 인증되지 않은 사용자도 내용을 볼 수 있도록 하려면?
-    public String foo(@RequestAttribute("userName") String userName) {
-        log.info(">>>{}", userName);
-        return "foo";
+    public String foo(UserSession userSession) {
+        log.info(">>>{}", userSession.name);
+        return userSession.name;
     }
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) throws Exception {
