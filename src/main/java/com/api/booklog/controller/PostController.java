@@ -18,16 +18,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
-    @GetMapping("/gets")
-    public String get() {
-        return "HEllo world";
+    @GetMapping("/test")
+    public String test() {
+        return "hello";
+    }
+    @GetMapping("/foo") // 여기에는 인증되지 않은 사용자도 내용을 볼 수 있도록 하려면?
+    public String foo() {
+        return "foo";
     }
     @PostMapping("/posts")
-    public void post(@RequestBody @Valid PostCreate request, @RequestHeader String authorization) throws Exception {
-        if(authorization.equals("author")) {
-            request.validate();
-            postService.write(request);
-        }
+    public void post(@RequestBody @Valid PostCreate request) throws Exception {
+        request.validate();
+        postService.write(request);
     }
     // 조회 API
     @GetMapping("/posts/{postId}")
@@ -43,13 +45,17 @@ public class PostController {
     // 수정 API
     @PatchMapping("/posts/{postId}")
     public void edit(@PathVariable Long postId
-            , @RequestBody @Valid PostEdit request) {
-        postService.edit(postId, request);
+            , @RequestBody @Valid PostEdit request, @RequestHeader String authorization) {
+        if(authorization.equals("author")) {
+            postService.edit(postId, request);
+        }
     }
 
     @DeleteMapping("/posts/{postId}")
-    public void delete(@PathVariable Long postId) {
-        postService.delete(postId);
+    public void delete(@PathVariable Long postId, @RequestHeader String authorization) {
+        if(authorization.equals("author")) {
+            postService.delete(postId);
+        }
     }
 }
 
