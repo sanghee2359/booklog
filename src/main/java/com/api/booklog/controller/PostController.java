@@ -20,9 +20,9 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
     @GetMapping("/foo") // 여기에는 인증되지 않은 사용자도 내용을 볼 수 있도록 하려면?
-    public String foo(UserSession userSession) {
-        log.info(">>>{}", userSession.name);
-        return userSession.name;
+    public Long foo(UserSession userSession) {
+        log.info(">>>{}", userSession.id);
+        return userSession.id;
     }
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) throws Exception {
