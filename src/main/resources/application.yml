@@ -8,8 +8,16 @@ spring:
       pageable:
         one-indexed-parameters: true
         default-page-size: 5
+
   datasource:
     url: jdbc:h2:mem:booklog
     username: sanghee
     password:
     driver-class-name: org.h2.Driver
+
+#  jpa:
+#    defer-datasource-initialization: true
+#
+#  sql:
+#    init:
+#      mode: always

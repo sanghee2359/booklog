@@ -1,8 +1,10 @@
 package com.api.booklog.exception;
 
 import lombok.Getter;
+import org.springframework.validation.FieldError;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 @Getter
 public abstract class RootException extends RuntimeException{
@@ -20,4 +22,5 @@ public abstract class RootException extends RuntimeException{
     public void addValidation(String fieldName, String message) {
         validation.put(fieldName, message);
     }
+
 }
