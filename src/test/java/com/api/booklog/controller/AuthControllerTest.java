@@ -1,5 +1,6 @@
 package com.api.booklog.controller;
 
+import com.api.booklog.domain.Session;
 import com.api.booklog.domain.Users;
 import com.api.booklog.repository.SessionRepository;
 import com.api.booklog.repository.UserRepository;
@@ -94,12 +95,11 @@ class AuthControllerTest {
     @DisplayName("로그인 성공 후 세션 1개 생성")
     void login_success2() throws Exception {
         // given
-        Users user = Users.builder()
+        Users user = userRepository.save(Users.builder()
                 .name("user1")
                 .email("user1@naver.com")
                 .password("user1")
-                .build();
-        userRepository.save(user);
+                .build());
 
         // scrypt, bscrypt 를 통한 암호화도 가능
 
@@ -126,12 +126,11 @@ class AuthControllerTest {
     @DisplayName("로그인 성공 후 세션 응답")
     void login_session() throws Exception {
         // given
-        Users user = Users.builder()
+        Users user = userRepository.save(Users.builder()
                 .name("user1")
                 .email("user1@naver.com")
                 .password("user1")
-                .build();
-        userRepository.save(user);
+                .build());
 
         // scrypt, bscrypt 를 통한 암호화도 가능
 
@@ -153,4 +152,47 @@ class AuthControllerTest {
 
     }
 
+    @Test
+    @DisplayName("로그인 후 권한이 필요한 페이지에 접속한다")
+    void login_session2() throws Exception {
+        // given
+        Users user = Users.builder()
+                .name("user1")
+                .email("user1@naver.com")
+                .password("user1")
+                .build();
+        Session session = user.addSession();
+        userRepository.save(user);
+
+        // expected
+        mockMvc.perform(get("/foo")
+                        .header("Authorization", session.getAccessToken())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    // 실패 케이스 작성
+    @Test
+    @DisplayName("검증 되지 않은 세션 값으로 권한이 필요한 페이지에 접속할 수 없다.")
+    void login_session_fail() throws Exception {
+        // given
+        Users user = Users.builder()
+                .name("user1")
+                .email("user1@naver.com")
+                .password("user1")
+                .build();
+        Session session = user.addSession();
+        userRepository.save(user);
+
+        // expected
+        mockMvc.perform(get("/foo")
+                        .header("Authorization", session.getAccessToken()+"another")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
+    }
+
+
 }
+

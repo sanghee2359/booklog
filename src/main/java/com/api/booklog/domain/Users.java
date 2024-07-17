@@ -37,7 +37,7 @@ public class Users {
         Session session = Session.builder()
                 .user(this)
                 .build();
-        sessions.add(session);
+        sessions.add(session); // session 리스트에 저장
         return session;
     }
 }

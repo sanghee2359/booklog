@@ -1,18 +1,22 @@
 package com.api.booklog.config;
 
 import com.api.booklog.config.data.UserSession;
+import com.api.booklog.domain.Session;
 import com.api.booklog.exception.Unauthorized;
+import com.api.booklog.repository.SessionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+@RequiredArgsConstructor
 public class AuthResolver implements HandlerMethodArgumentResolver {
+    private final SessionRepository sessionRepository;
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterType().equals(UserSession.class);
-//        return false;
     }
 
     @Override
@@ -22,11 +26,10 @@ public class AuthResolver implements HandlerMethodArgumentResolver {
             throw new Unauthorized();
         }
         // DB 사용자 확인 작업
-        // ...
+        Session session = sessionRepository.findByAccessToken(accessToken)
+                .orElseThrow(Unauthorized::new);
 
-        // 지금은 넘어온 값이 없어서 1L 저장
-        UserSession userSession = new UserSession(1L);
-        userSession.name = accessToken;
-        return userSession;
+        // 세션 검증이 끝난 후
+        return new UserSession(session.getUser().getId());
     }
 }
