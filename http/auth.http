@@ -6,3 +6,8 @@ Content-Type: application/json
   "email" : "wjdtkdgml7352@naver.com",
   "password" : "sanghee065"
 }
+
+### 인증 페이지 요청
+GET http://localhost:8080/foo
+Content-Type: application/json
+Cookie: SESSION=d0c898e1-f63b-4509-a291-78b1a5100686
