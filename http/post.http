@@ -3,11 +3,3 @@ GET http://localhost:8080/foo
 Content-Type: application/json
 Authorization: asdf
 
-### 로그인
-POST http://localhost:8080/auth/login
-Content-Type: application/json
-
-{
-"email" : "wjdtkdgml7325@naver.com",
-"password" : "sanghee065"
-}
