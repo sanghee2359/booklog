@@ -7,11 +7,12 @@ import lombok.*;
 @Setter
 @Getter
 @ToString
+@NoArgsConstructor
 public class Login {
     @NotBlank(message = "이메일을 입력해주세요.")
-    private final String email;
+    private String email;
     @NotBlank(message = "비밀번호를 입력해주세요.")
-    private final String password;
+    private String password;
 
     @Builder
     public Login(String email, String password) {

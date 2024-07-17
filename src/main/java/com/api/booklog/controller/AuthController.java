@@ -1,9 +1,12 @@
 package com.api.booklog.controller;
 
+import com.api.booklog.domain.Session;
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.InvalidLoginInformation;
 import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.Login;
+import com.api.booklog.response.SessionResponse;
+import com.api.booklog.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +20,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
-    private final UserRepository userRepository;
+    private final AuthService authService;
     @PostMapping("/auth/login")
-    public Users login(@RequestBody @Valid Login login) {
-//        log.info(">>login : {}", login.toString());
-        login.validate();
-        Users user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
-                .orElseThrow(InvalidLoginInformation::new);
-        return user;
+    public SessionResponse login(@RequestBody @Valid Login login) {
+        String accessToken = authService.signIn(login);
+        return new SessionResponse(accessToken);
     }
 }
