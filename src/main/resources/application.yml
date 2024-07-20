@@ -21,3 +21,7 @@ spring:
   sql:
     init:
       mode: always
+
+book-log:
+  jwt-key: ${secret-key}
+
