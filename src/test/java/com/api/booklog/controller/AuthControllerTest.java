@@ -4,8 +4,7 @@ import com.api.booklog.domain.Session;
 import com.api.booklog.domain.Users;
 import com.api.booklog.repository.SessionRepository;
 import com.api.booklog.repository.UserRepository;
-import com.api.booklog.request.Login;
-import com.api.booklog.request.PostCreate;
+import com.api.booklog.request.auth.Login;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -71,24 +69,25 @@ class AuthControllerTest {
 
     }
 
-//    @Test
-//    @DisplayName("로그인 시 이메일 입력은 필수다.")
-//    void login_fail() throws Exception {
-//        // given
-//        Login request = Login.builder()
-//                .password("sanghee065")
-//                .build();
-//        String json = objectMapper.writeValueAsString(request);
-//        // expected
-//        mockMvc.perform(post("/auth/login")
-//                        .contentType(APPLICATION_JSON)
-//                        .content(json)
-//                )
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.code").value("400"))
-//                .andExpect(jsonPath("$.message").value("아이디/비밀번호가 올바르지 않습니다."))
-//                .andDo(print());
-//    }
+    @Test
+    @DisplayName("로그인 시 이메일 입력은 필수다.")
+    void login_fail() throws Exception {
+        // given
+        Login request = Login.builder()
+                .password("sanghee065")
+                .build();
+        String json = objectMapper.writeValueAsString(request);
+        // expected
+        mockMvc.perform(post("/auth/login")
+                        .contentType(APPLICATION_JSON)
+                        .content(json)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.message").value("아이디/비밀번호가 올바르지 않습니다."))
+                .andExpect(jsonPath("$.validation.email").value("이메일을 입력해주세요."))
+                .andDo(print());
+    }
 
     @Test
     @Transactional

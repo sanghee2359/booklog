@@ -1,4 +1,4 @@
-package com.api.booklog.request;
+package com.api.booklog.request.post;
 
 import lombok.Builder;
 import lombok.Getter;

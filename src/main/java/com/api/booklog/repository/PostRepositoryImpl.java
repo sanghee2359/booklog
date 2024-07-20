@@ -2,7 +2,7 @@ package com.api.booklog.repository;
 
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.QPost;
-import com.api.booklog.request.PostSearch;
+import com.api.booklog.request.post.PostSearch;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 

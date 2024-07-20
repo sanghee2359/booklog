@@ -1,4 +1,4 @@
-package com.api.booklog.request;
+package com.api.booklog.request.post;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;

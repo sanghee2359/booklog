@@ -4,7 +4,8 @@ import com.api.booklog.domain.Session;
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.InvalidLoginInformation;
 import com.api.booklog.repository.UserRepository;
-import com.api.booklog.request.Login;
+import com.api.booklog.request.auth.Login;
+import com.api.booklog.request.auth.SignUp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,6 @@ public class AuthService {
 
     @Transactional
     public Long signIn(Login login) {
-        login.validate();
         Users user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
                 .orElseThrow(InvalidLoginInformation::new);
         // 로그인 처리가 잘 되면 세션 생성
@@ -24,4 +24,12 @@ public class AuthService {
         return user.getId();
     }
 
+    public void signUp(SignUp signUp) {
+        Users user = Users.builder()
+                .name(signUp.getName())
+                .email(signUp.getEmail())
+                .password(signUp.getPassword())
+                .build();
+        userRepository.save(user);
+    }
 }

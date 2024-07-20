@@ -1,7 +1,7 @@
 package com.api.booklog.repository;
 
 import com.api.booklog.domain.Post;
-import com.api.booklog.request.PostSearch;
+import com.api.booklog.request.post.PostSearch;
 
 import java.util.List;
 

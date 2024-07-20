@@ -1,7 +1,8 @@
 package com.api.booklog.controller;
 
 import com.api.booklog.config.AppConfig;
-import com.api.booklog.request.Login;
+import com.api.booklog.request.auth.Login;
+import com.api.booklog.request.auth.SignUp;
 import com.api.booklog.response.SessionResponse;
 import com.api.booklog.service.AuthService;
 import io.jsonwebtoken.Jwts;
@@ -24,13 +25,8 @@ public class AuthController {
     private final AppConfig config;
     @PostMapping("/auth/login")
     public SessionResponse login(@RequestBody Login login) {
+        login.validate();
         Long userId = authService.signIn(login);
-        // Key : 최초에 1번 생성
-        // key 생성 -> byte형태로 전환 -> String으로 변환(java에서 제공)
-
-//        Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-//        byte[] encodedKey = key.getEncoded();
-//        String strKey = Base64.getEncoder().encodeToString(encodedKey);
         SecretKey key = Keys.hmacShaKeyFor(config.getJwtKey());
 
         String jws = Jwts.builder()
@@ -40,5 +36,10 @@ public class AuthController {
                 .compact();
 
         return new SessionResponse(jws);
+    }
+
+    @PostMapping("/auth/signup")
+    public void signup(@RequestBody SignUp signUp) {
+        authService.signUp(signUp);
     }
 }

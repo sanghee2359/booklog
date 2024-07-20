@@ -1,4 +1,4 @@
-package com.api.booklog.request;
+package com.api.booklog.request.auth;
 
 import com.api.booklog.exception.InvalidLoginInformation;
 import com.api.booklog.exception.InvalidRequest;
@@ -9,9 +9,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 public class Login {
-    @NotBlank(message = "이메일을 입력해주세요.")
     private String email;
-    @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;
 
     @Builder
@@ -21,10 +19,10 @@ public class Login {
     }
     public void validate() {
         if(email == null) {
-            throw new InvalidRequest("email", "이메일을 입력해주세요.");
+            throw new InvalidLoginInformation("email", "이메일을 입력해주세요.");
         }
         if(password == null) {
-            throw new InvalidRequest("password", "비밀번호를 입력해주세요.");
+            throw new InvalidLoginInformation("password", "비밀번호를 입력해주세요.");
         }
     }
 }
