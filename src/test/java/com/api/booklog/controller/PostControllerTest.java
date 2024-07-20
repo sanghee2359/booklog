@@ -2,8 +2,8 @@ package com.api.booklog.controller;
 
 import com.api.booklog.domain.Post;
 import com.api.booklog.repository.PostRepository;
-import com.api.booklog.request.PostCreate;
-import com.api.booklog.request.PostEdit;
+import com.api.booklog.request.post.PostCreate;
+import com.api.booklog.request.post.PostEdit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;

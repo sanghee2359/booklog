@@ -25,3 +25,7 @@ spring:
 book-log:
   jwt-key: ${secret-key}
 
+
+book-log:
+  jwt-key: ${secret-key}
+

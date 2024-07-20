@@ -3,7 +3,7 @@ package com.api.booklog.controller;
 
 import com.api.booklog.domain.Post;
 import com.api.booklog.repository.PostRepository;
-import com.api.booklog.request.PostCreate;
+import com.api.booklog.request.post.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

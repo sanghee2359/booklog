@@ -1,9 +1,9 @@
 package com.api.booklog.controller;
 
 import com.api.booklog.config.data.UserSession;
-import com.api.booklog.request.PostCreate;
-import com.api.booklog.request.PostEdit;
-import com.api.booklog.request.PostSearch;
+import com.api.booklog.request.post.PostCreate;
+import com.api.booklog.request.post.PostEdit;
+import com.api.booklog.request.post.PostSearch;
 import com.api.booklog.response.PostResponse;
 import com.api.booklog.service.PostService;
 import jakarta.validation.Valid;
