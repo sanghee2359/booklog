@@ -12,10 +12,11 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
-    private final SessionRepository sessionRepository;
+//    private final SessionRepository sessionRepository;
+    private final AppConfig config;
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new AuthResolver(sessionRepository));
+        resolvers.add(new AuthResolver(config));
     }
 
 //    @Override

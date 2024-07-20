@@ -15,13 +15,13 @@ public class AuthService {
     private final UserRepository userRepository;
 
     @Transactional
-    public String signIn(Login login) {
+    public Long signIn(Login login) {
         login.validate();
         Users user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
                 .orElseThrow(InvalidLoginInformation::new);
         // 로그인 처리가 잘 되면 세션 생성
         Session session = user.addSession();
-        return session.getAccessToken();
+        return user.getId();
     }
 
 }
