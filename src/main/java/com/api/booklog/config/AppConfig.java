@@ -1,12 +1,14 @@
 package com.api.booklog.config;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Base64;
 
 @Data
-@ConfigurationProperties(prefix = "book-log")
+@Slf4j
+@ConfigurationProperties(prefix = "jwt")
 public class AppConfig {
     private byte[] jwtKey;
 

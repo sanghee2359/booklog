@@ -20,7 +20,7 @@ public class AuthService {
         Users user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
                 .orElseThrow(InvalidLoginInformation::new);
         // 로그인 처리가 잘 되면 세션 생성
-        Session session = user.addSession();
+//        Session session = user.addSession();
         return user.getId();
     }
 

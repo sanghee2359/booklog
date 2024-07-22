@@ -20,12 +20,11 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
 
-book-log:
+jwt:
   jwt-key: ${secret-key}
 
 
-book-log:
-  jwt-key: ${secret-key}
+
 

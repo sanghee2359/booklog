@@ -46,6 +46,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	// H2
 	runtimeOnly 'com.h2database:h2'
+	testImplementation 'com.h2database:h2'
 
 	// queryDSL
 	implementation 'com.querydsl:querydsl-core'
