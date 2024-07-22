@@ -5,6 +5,7 @@ import com.api.booklog.domain.Users;
 import com.api.booklog.repository.SessionRepository;
 import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.auth.Login;
+import com.api.booklog.request.auth.SignUp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
@@ -192,6 +193,23 @@ class AuthControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("회원가입")
+    void signup_success() throws Exception {
+        // given
+        SignUp signUp = SignUp.builder()
+                .name("정상희")
+                .password("1234")
+                .email("wjdtkdgml7352@naver.com").
+                build();
+
+        // expected
+        mockMvc.perform(post("/auth/signup")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUp)))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 
 }
 

@@ -2,13 +2,19 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Session;
 import com.api.booklog.domain.Users;
+import com.api.booklog.exception.AlreadyExistEmail;
 import com.api.booklog.exception.InvalidLoginInformation;
+import com.api.booklog.exception.InvalidRequest;
+import com.api.booklog.exception.Unauthorized;
 import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.auth.Login;
 import com.api.booklog.request.auth.SignUp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.rmi.AlreadyBoundException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +31,10 @@ public class AuthService {
     }
 
     public void signUp(SignUp signUp) {
+        Optional<Users> usersOptional = userRepository.findByEmail(signUp.getEmail());
+        if(usersOptional.isPresent()) {
+            throw new AlreadyExistEmail();
+        }
         Users user = Users.builder()
                 .name(signUp.getName())
                 .email(signUp.getEmail())
