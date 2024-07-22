@@ -22,10 +22,7 @@ public class ErrorResponse {
     private final String code;
     private final String message;
     private final Map<String, String> validation;
-    public void addValid(String fieldName, String errorMessage) {
 
-        validation.put(fieldName, errorMessage);
-    }
     @Builder
     public ErrorResponse(String code, String message, Map<String, String> validation) {
         this.code = code;

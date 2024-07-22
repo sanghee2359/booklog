@@ -1,5 +1,5 @@
 ### test 요청
 GET http://localhost:8080/foo
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzIxNDYwNjc3fQ.Ug1yZSaHMFdeVH60NBub_eBU_N0QFVd6ZVoKRHPxt-g
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzIxNjM5MDI0fQ.RblzajBi85XMyQBfhMy68p4uUpoqTsrIqPuplxAnyp4
 
