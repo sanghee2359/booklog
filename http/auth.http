@@ -7,6 +7,17 @@ Content-Type: application/json
   "password" : "sanghee065"
 }
 
+### 회원가입
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "name" : "정상희",
+  "email": "wjdtkdgml7352@naver.com",
+  "password": "sanghee065"
+
+}
+
 ### 인증 페이지 요청
 GET http://localhost:8080/foo
 Content-Type: application/json
