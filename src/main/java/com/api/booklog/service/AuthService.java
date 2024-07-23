@@ -10,6 +10,7 @@ import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.auth.Login;
 import com.api.booklog.request.auth.SignUp;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +24,15 @@ public class AuthService {
 
     @Transactional
     public Long signIn(Login login) {
-        Users user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
+//        Users user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
+//                .orElseThrow(InvalidLoginInformation::new);
+        Users user = userRepository.findByEmail(login.getEmail())
                 .orElseThrow(InvalidLoginInformation::new);
-        // 로그인 처리가 잘 되면 세션 생성
-//        Session session = user.addSession();
+
+        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(16, 8, 1, 32, 64);
+        var matches = encoder.matches(login.getPassword(), user.getPassword());
+        if(!matches) throw new InvalidLoginInformation();
+
         return user.getId();
     }
 
@@ -35,10 +41,13 @@ public class AuthService {
         if(usersOptional.isPresent()) {
             throw new AlreadyExistEmail();
         }
+
+        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(16, 8, 1, 32, 64);
+        String encryptedPass = encoder.encode(signUp.getPassword());
         Users user = Users.builder()
                 .name(signUp.getName())
                 .email(signUp.getEmail())
-                .password(signUp.getPassword())
+                .password(encryptedPass) // 암호화
                 .build();
         userRepository.save(user);
     }

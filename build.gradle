@@ -58,7 +58,11 @@ dependencies {
 	// jwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6' // or 'io.jsonwebtoken:jjwt-gson:0.12.6' for gson
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	// spring security - scrypt
+	implementation 'org.springframework.security:spring-security-crypto'
+	implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
 
 	// make meta data file
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
