@@ -1,6 +1,5 @@
 package com.api.booklog.controller;
 
-import com.api.booklog.config.data.UserSession;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
@@ -19,11 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
-    @GetMapping("/foo") // 여기에는 인증되지 않은 사용자도 내용을 볼 수 있도록 하려면?
-    public Long foo(UserSession userSession) {
-        log.info(">>>{}", userSession.id);
-        return userSession.id;
-    }
+
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) throws Exception {
         request.validate();

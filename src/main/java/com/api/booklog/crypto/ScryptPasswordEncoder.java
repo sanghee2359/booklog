@@ -1,11 +1,10 @@
 package com.api.booklog.crypto;
 
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
-@Profile("default")
+import org.springframework.stereotype.Component;
+
 @Component
-public class ScryptPasswordEncoder implements PasswordEncoder{
+public class ScryptPasswordEncoder {
     private static final SCryptPasswordEncoder encoder =
             new SCryptPasswordEncoder(
                     16,
@@ -13,11 +12,11 @@ public class ScryptPasswordEncoder implements PasswordEncoder{
                     1,
                     32,
                     64);
-    @Override
+
     public String encrypt(String password) {
         return encoder.encode(password);
     }
-    @Override
+
     public boolean matches(String rawPassword, String encryptPassword) {
         return encoder.matches(rawPassword, encryptPassword);
     }

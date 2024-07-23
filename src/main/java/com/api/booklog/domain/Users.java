@@ -1,14 +1,15 @@
 package com.api.booklog.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -22,22 +23,11 @@ public class Users {
     private String password;
     private LocalDateTime createdAt;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Session> sessions = new ArrayList<>();
     @Builder
     public Users(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.createdAt = LocalDateTime.now();
-    }
-
-    public Session addSession() {
-//        uuid
-        Session session = Session.builder()
-                .user(this)
-                .build();
-        sessions.add(session); // session 리스트에 저장
-        return session;
     }
 }

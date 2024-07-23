@@ -1,12 +1,9 @@
 package com.api.booklog.service;
 
-import com.api.booklog.crypto.PasswordEncoder;
 import com.api.booklog.crypto.ScryptPasswordEncoder;
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.AlreadyExistEmail;
-import com.api.booklog.exception.InvalidLoginInformation;
 import com.api.booklog.repository.UserRepository;
-import com.api.booklog.request.auth.Login;
 import com.api.booklog.request.auth.SignUp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +44,7 @@ class AuthServiceTest {
         Users user = userRepository.findAll().iterator().next();
         assertEquals("wjdtkdgml7352@naver.com", user.getEmail());
         assertNotNull(user.getPassword());
-        assertEquals("1234", user.getPassword());
+        assertNotEquals("1234", user.getPassword());
     }
 
     @Test
@@ -71,51 +68,4 @@ class AuthServiceTest {
         // expected
         assertThrows(AlreadyExistEmail.class, ()-> authService.signUp(signUp));
     }
-
-    @Test
-    @DisplayName("로그인 성공 - cryptography")
-    void login_success() {
-        // given
-        ScryptPasswordEncoder encoder = new ScryptPasswordEncoder();
-        // profile = "test"일 때는 평문 패스워드로 테스트
-
-        userRepository.save(Users.builder()
-                .name("user1")
-                .email("user1@naver.com")
-                .password("user1")
-                .build());
-
-        Login login = Login.builder()
-                .password("user1")
-                .email("user1@naver.com").
-                build();
-
-        // when
-        Long userId = authService.signIn(login);
-
-        // then
-        assertNotNull(userId);
-    }
-
-
-    @Test
-    @DisplayName("로그인 실패 - cryptography")
-    void login_failed() {
-        // given
-        ScryptPasswordEncoder encoder = new ScryptPasswordEncoder();
-        userRepository.save(Users.builder()
-                .name("정상희")
-                .email("wjdtkdgml7352@naver.com")
-                .password(encoder.encrypt("11111")) // user정보를 저장하는 시점에 암호화
-                .build());
-        Login login = Login.builder()
-                .email("wjdtkdgml7352@naver.com")
-                .password("25345")
-                .build();
-
-        // expected -> 행동을 하는 순간 오류가 발생한다면
-        assertThrows(InvalidLoginInformation.class,
-                () -> authService.signIn(login));
-    }
-
 }
