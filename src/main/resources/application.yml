@@ -8,6 +8,8 @@ spring:
       pageable:
         one-indexed-parameters: true
         default-page-size: 5
+  session:
+    timeout: 86400 # 세션 기간 : 24시간
 
   datasource:
     url: jdbc:h2:mem:booklog
@@ -25,6 +27,8 @@ spring:
 jwt:
   jwt-key: ${secret-key}
 
-
-
-
+server:
+  servlet:
+    session:
+      cookie:
+        max-age: 172800 # 쿠키 기간 : 48시간

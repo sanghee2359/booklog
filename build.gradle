@@ -62,6 +62,7 @@ dependencies {
 	// spring security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
+	implementation 'org.springframework.session:spring-session-jdbc'
 
 	// make meta data file
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
