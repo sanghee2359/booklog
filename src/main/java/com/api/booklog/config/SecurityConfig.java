@@ -4,6 +4,7 @@ import com.api.booklog.config.filter.EmailPasswordAuthFilter;
 import com.api.booklog.config.handler.Http401Handler;
 import com.api.booklog.config.handler.Http403Handler;
 import com.api.booklog.config.handler.LoginFailHandler;
+import com.api.booklog.config.handler.LoginSuccessHandler;
 import com.api.booklog.domain.Users;
 import com.api.booklog.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,19 +49,9 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests((auth)-> auth.
-                        requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/signup").permitAll()
-//                        .requestMatchers("/user").hasRole("USER")
-//                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated())
+        return http.authorizeHttpRequests((auth)-> auth
+                        .anyRequest().permitAll())
 
-//                .formLogin((login) -> login.usernameParameter("username")
-//                        .passwordParameter("password")
-//                        .loginPage("/auth/login")
-//                        .loginProcessingUrl("/auth/login")
-//                        .defaultSuccessUrl("/")
-//                        .failureHandler(new LoginFailHandler(objectMapper)))
                 // UsernamePasswordAuthenticationFilter 뒤에 동작하도록 체인 걸기
                 .addFilterBefore(userNamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .rememberMe(rm -> rm.rememberMeParameter("remember")
@@ -79,7 +70,7 @@ public class SecurityConfig {
     public EmailPasswordAuthFilter userNamePasswordAuthenticationFilter() {
         EmailPasswordAuthFilter filter = new EmailPasswordAuthFilter("/auth/login", objectMapper);
         filter.setAuthenticationManager(authenticationManager());
-        filter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/"));
+        filter.setAuthenticationSuccessHandler(new LoginSuccessHandler());
         filter.setAuthenticationFailureHandler(new LoginFailHandler(objectMapper));
         // 인증 완료 후, 요청 내에서 인증이 유효하기 위해 반드시 필요 -> 세션 발급하기
         filter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());

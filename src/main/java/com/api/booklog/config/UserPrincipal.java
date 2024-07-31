@@ -15,7 +15,7 @@ public class UserPrincipal extends User { // security 의 User
     public UserPrincipal(Users user) { // 도메인 user
         super(user.getEmail(), user.getPassword(),
                 List.of(
-                        new SimpleGrantedAuthority("ROLE_USER") // 권한 -> 역할
+                        new SimpleGrantedAuthority("ROLE_ADMIN") // 권한 -> 역할
                 ));
         this.userId = user.getId();
     }

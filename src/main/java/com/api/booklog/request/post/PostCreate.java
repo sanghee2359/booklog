@@ -7,6 +7,7 @@ import lombok.*;
 @Setter
 @Getter
 @ToString
+@NoArgsConstructor
 public class PostCreate {
     private String title;
 
