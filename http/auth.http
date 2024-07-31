@@ -2,7 +2,7 @@
 POST http://localhost:8080/auth/login
 Content-Type: application/x-www-form-urlencoded
 
-username=sanghee&password=1234&remember=1
+username=wjdtkdgml7352@naver.com&password=sanghee065&remember=1
 
 
 ### 메인 페이지
