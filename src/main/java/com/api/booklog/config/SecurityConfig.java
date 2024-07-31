@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -33,6 +34,7 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 
 @Configuration
 @EnableWebSecurity // 배포환경에서만 사용 (debug = true)
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final ObjectMapper objectMapper;
@@ -49,8 +51,8 @@ public class SecurityConfig {
         return http.authorizeHttpRequests((auth)-> auth.
                         requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/signup").permitAll()
-                        .requestMatchers("/user").hasRole("USER")
-                        .requestMatchers("/admin").hasRole("ADMIN")
+//                        .requestMatchers("/user").hasRole("USER")
+//                        .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
 //                .formLogin((login) -> login.usernameParameter("username")
