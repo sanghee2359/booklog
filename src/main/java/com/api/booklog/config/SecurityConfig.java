@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -32,6 +33,9 @@ public class SecurityConfig {
         return http.authorizeHttpRequests((auth)-> auth.
                         requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/signup").permitAll()
+                        .requestMatchers("/admin").access(new WebExpressionAuthorizationManager(
+                                "hasRole('ADMIN') AND hasAuthority('WRITE')"
+                        ))
                         .anyRequest().authenticated())
 
                 .formLogin((login) -> login.usernameParameter("username")

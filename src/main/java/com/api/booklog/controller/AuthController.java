@@ -26,4 +26,6 @@ public class AuthController {
     public void signup(@RequestBody SignUp signUp) {
         authService.signUp(signUp);
     }
+
+
 }
