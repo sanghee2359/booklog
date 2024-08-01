@@ -2,6 +2,7 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.PostEditor;
+import com.api.booklog.exception.InvalidRequest;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.repository.PostRepository;
 import com.api.booklog.request.post.PostCreate;
@@ -28,10 +29,15 @@ public class PostService {
     public void write(PostCreate postCreate) {
         // repository.save(postCreate)
         // postCreate 라는 클래스를 entity 형태로 변환
+
+        if(postCreate.getTitle() == null) {
+            throw new InvalidRequest("title", "제목을 입력해주세요.");
+        }
         Post post = Post.builder()
                 .title(postCreate.getTitle())
                 .content(postCreate.getContent())
                 .build();
+
         postRepository.save(post);
     }
     // 게시글 조회

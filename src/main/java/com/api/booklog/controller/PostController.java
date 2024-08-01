@@ -28,7 +28,7 @@ public class PostController {
     }
     // 조회 API
     @GetMapping("/posts/{postId}")
-    public PostResponse get(@PathVariable Long postId) {
+    public PostResponse get(@PathVariable(name="postId") Long postId) {
         return postService.get(postId);
     }
 
@@ -41,19 +41,15 @@ public class PostController {
     // 수정 API
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/posts/{postId}")
-    public void edit(@PathVariable Long postId
-            , @RequestBody @Valid PostEdit request, @RequestHeader String authorization) {
-        if(authorization.equals("author")) {
-            postService.edit(postId, request);
-        }
+    public void edit(@PathVariable(name="postId") Long postId
+            , @RequestBody @Valid PostEdit request) {
+        postService.edit(postId, request);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/posts/{postId}")
-    public void delete(@PathVariable Long postId, @RequestHeader String authorization) {
-        if(authorization.equals("author")) {
+    public void delete(@PathVariable(name="postId") Long postId) {
             postService.delete(postId);
-        }
     }
 }
 
