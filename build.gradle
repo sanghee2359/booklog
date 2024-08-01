@@ -74,8 +74,8 @@ tasks.named('test') {
 	outputs.dir snippetsDir
 }
 
-tasks.withType(JavaCompile) {
-	options.compilerArgs << "-parameters"
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs.add("-parameters")
 }
 
 asciidoctor {
