@@ -17,6 +17,7 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.restdocs.snippet.Attributes;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -72,6 +73,7 @@ public class PostControllerDocTest {
     }
 
     @Test
+    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
     @DisplayName("글 등록")
     void Doc_writeTest() throws Exception {
         // given

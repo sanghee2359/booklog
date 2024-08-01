@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -42,6 +43,7 @@ class PostControllerTest {
     }
 
     @Test
+    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
     @DisplayName("글 작성 요청 시 title 값은 필수다.")
     void postTitleTest() throws Exception {
         // given
@@ -62,7 +64,8 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성 요청 시 DB에 값이 저장된다.")
+    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @DisplayName("글 작성")
     void save() throws Exception {
         // given
         PostCreate request = PostCreate.builder()
@@ -96,9 +99,6 @@ class PostControllerTest {
                 .build();
         postRepository.save(post);
 
-        // 클라이언트 요구사항
-        //json응답에서 title 값의 길이를 10글자로 제한해주세요.
-        // Post entity <=> PostResponse class
 
         // expected (when과 then이 mix됨)
         mockMvc.perform(get("/posts/{postId}", post.getId())
@@ -134,6 +134,7 @@ class PostControllerTest {
                 .andDo(print());
     }
     @Test
+    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
     @DisplayName("글 제목 수정")
     void editTitle() throws Exception {
         // given
@@ -158,6 +159,7 @@ class PostControllerTest {
     }
 
     @Test
+    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
     @DisplayName("글 삭제")
     void deleteTest() throws Exception {
         // given
@@ -187,6 +189,7 @@ class PostControllerTest {
     }
 
     @Test
+    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
     @DisplayName("존재하지 않는 글 수정")
     void edit_fail() throws Exception {
         // given
@@ -204,6 +207,7 @@ class PostControllerTest {
     }
 
     @Test
+    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
     @DisplayName("게시글 작성 시 제목에 '바보'는 포함될 수 없다.")
     void write_fail() throws Exception {
         // given

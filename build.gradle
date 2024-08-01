@@ -74,6 +74,10 @@ tasks.named('test') {
 	outputs.dir snippetsDir
 }
 
+tasks.withType(JavaCompile) {
+	options.compilerArgs << "-parameters"
+}
+
 asciidoctor {
 	configurations 'asciidoctorExt'
 	baseDirFollowsSourceFile()
