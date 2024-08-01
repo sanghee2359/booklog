@@ -6,13 +6,13 @@ import lombok.Getter;
 public class InvalidRequest extends RootException{
     private static final String MESSAGE = "잘못된 요청입니다.";
     public String fieldName;
-    public String message;
+    public String validMessage;
     public InvalidRequest() {
         super(MESSAGE);
     }
-    public InvalidRequest(String fieldName, String message) {
+    public InvalidRequest(String fieldName, String validMessage) {
         super(MESSAGE);
-        addValidation(fieldName, message);
+        addValidation(fieldName, validMessage);
     }
     @Override
     public int getStatusCode() {
