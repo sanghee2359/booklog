@@ -1,15 +1,15 @@
 package com.api.booklog.request.post;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import static java.lang.Math.*;
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class PostSearch {
+
     private static final int MAX_SIZE = 2000;
     @Builder.Default
     private int page = 1;
