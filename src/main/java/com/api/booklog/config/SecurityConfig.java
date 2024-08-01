@@ -35,7 +35,6 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 
 @Configuration
 @EnableWebSecurity // 배포환경에서만 사용 (debug = true)
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final ObjectMapper objectMapper;

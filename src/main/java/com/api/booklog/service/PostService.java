@@ -1,10 +1,13 @@
 package com.api.booklog.service;
 
+import com.api.booklog.config.UserPrincipal;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.PostEditor;
 import com.api.booklog.exception.InvalidRequest;
 import com.api.booklog.exception.PostNotFound;
+import com.api.booklog.exception.UserNotFound;
 import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
@@ -24,16 +27,21 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
     // 게시글 생성
 
-    public void write(PostCreate postCreate) {
+    public void write(Long userId, PostCreate postCreate) {
         // repository.save(postCreate)
         // postCreate 라는 클래스를 entity 형태로 변환
 
         if(postCreate.getTitle() == null) {
             throw new InvalidRequest("title", "제목을 입력해주세요.");
         }
+        var user = userRepository.findById(userId)
+                .orElseThrow(UserNotFound::new);
+
         Post post = Post.builder()
+                .user(user)
                 .title(postCreate.getTitle())
                 .content(postCreate.getContent())
                 .build();

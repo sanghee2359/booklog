@@ -1,5 +1,6 @@
 package com.api.booklog.controller;
 
+import com.api.booklog.config.UserPrincipal;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +24,9 @@ public class PostController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/posts")
-    public void post(@RequestBody @Valid PostCreate request) throws Exception {
+    public void post(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid PostCreate request) throws Exception {
         request.validate();
-        postService.write(request);
+        postService.write(userPrincipal.getUserId(),request);
     }
     // 조회 API
     @GetMapping("/posts/{postId}")
@@ -39,16 +41,20 @@ public class PostController {
     }
 
     // 수정 API
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#postId, 'POST', 'PATCH')")
     @PatchMapping("/posts/{postId}")
-    public void edit(@PathVariable(name="postId") Long postId
+    public void edit(@PathVariable Long postId
             , @RequestBody @Valid PostEdit request) {
         postService.edit(postId, request);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/posts/{postId}")
-    public void delete(@PathVariable(name="postId") Long postId) {
+
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#postId, 'POST', 'DELETE')")
+
+@DeleteMapping("/posts/{postId}")
+    public void delete(@PathVariable Long postId) {
             postService.delete(postId);
     }
 }
