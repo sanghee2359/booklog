@@ -24,8 +24,8 @@ spring:
     init:
       mode: never
 
-jwt:
-  jwt-key: ${secret-key}
+#jwt:
+#  jwt-key: ${secret-key}
 
 server:
   servlet:

@@ -8,7 +8,7 @@ import java.util.Base64;
 
 @Data
 @Slf4j
-@ConfigurationProperties(prefix = "jwt")
+//@ConfigurationProperties(prefix = "jwt")
 public class AppConfig {
     private byte[] jwtKey;
 

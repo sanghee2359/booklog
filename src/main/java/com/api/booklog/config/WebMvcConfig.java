@@ -8,6 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 //    private final SessionRepository sessionRepository;
-    private final AppConfig config;
+//    private final AppConfig config;
 
 }
