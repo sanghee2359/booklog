@@ -28,5 +28,18 @@ public class ExceptionController {
         return response;
     }
 
+    @ResponseBody
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> allException(Exception e) {
+        ErrorResponse responseBody = ErrorResponse.builder()
+                .code("500")
+                .message(e.getMessage())
+                .build();
+
+
+        ResponseEntity<ErrorResponse> response = ResponseEntity.status(500).body(responseBody);
+        return response;
+    }
+
 
 }

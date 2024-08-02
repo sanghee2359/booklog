@@ -42,7 +42,7 @@ class PostServiceTest {
                 .password("sanghee065")
                 .build();
         userRepository.save(user);
-        System.out.println(user.getId());
+
         PostCreate postCreate = PostCreate.builder()
                 .title("제목입니다.")
                 .content("내용입니다.")
