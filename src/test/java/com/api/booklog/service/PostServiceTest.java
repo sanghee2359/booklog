@@ -1,18 +1,18 @@
 package com.api.booklog.service;
 
 import com.api.booklog.domain.Post;
+import com.api.booklog.domain.Users;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
 import com.api.booklog.response.PostResponse;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -25,21 +25,31 @@ class PostServiceTest {
     private PostService postService;
     @Autowired
     private PostRepository postRepository;
-    @BeforeEach
+    @Autowired
+    private UserRepository userRepository;
+    @AfterEach
     void clean() {
         postRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
     @DisplayName("글 작성")
     void write() {
         // given
+        var user = Users.builder()
+                .name("정상희")
+                .email("wjdtkdgml7352.naver.com")
+                .password("sanghee065")
+                .build();
+        userRepository.save(user);
+        System.out.println(user.getId());
         PostCreate postCreate = PostCreate.builder()
                 .title("제목입니다.")
                 .content("내용입니다.")
                 .build();
         // when
-        postService.write(postCreate);
+        postService.write(user.getId(), postCreate);
 
         // then
         Assertions.assertEquals(1L,postRepository.count());

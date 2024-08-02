@@ -1,10 +1,13 @@
 package com.api.booklog.controller;
 
 
+import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
 import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,9 +41,17 @@ public class PostControllerDocTest {
     @Autowired
 //    private WebApplicationContext context;
     PostRepository postRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @AfterEach
+    void clean() {
+        postRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     @DisplayName("글 단건 조회")
@@ -54,7 +65,7 @@ public class PostControllerDocTest {
 
         // exptected
         mockMvc.perform(RestDocumentationRequestBuilders
-                        .get("/posts/{postId}", 1L)
+                        .get("/posts/{postId}", post.getId())
                         .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -73,7 +84,7 @@ public class PostControllerDocTest {
     }
 
     @Test
-    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @CustomWithMockUser
     @DisplayName("글 등록")
     void Doc_writeTest() throws Exception {
         // given

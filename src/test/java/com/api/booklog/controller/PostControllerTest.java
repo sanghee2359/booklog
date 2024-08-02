@@ -1,11 +1,15 @@
 package com.api.booklog.controller;
 
+import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
+import com.api.booklog.domain.Users;
 import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,20 +41,26 @@ class PostControllerTest {
 
     @Autowired
     private PostRepository postRepository;
-    @BeforeEach
+
+    @Autowired
+    private UserRepository userRepository;
+    @AfterEach
     void clean() {
         postRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @CustomWithMockUser
     @DisplayName("글 작성 요청 시 title 값은 필수다.")
     void postTitleTest() throws Exception {
         // given
         PostCreate request = PostCreate.builder()
                 .content("내용입니다.")
                 .build();
+
         String json = objectMapper.writeValueAsString(request);
+
         // expected
         mockMvc.perform(post("/posts")
                         .contentType(APPLICATION_JSON)
@@ -64,7 +74,7 @@ class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @CustomWithMockUser
     @DisplayName("글 작성")
     void save() throws Exception {
         // given
@@ -72,17 +82,20 @@ class PostControllerTest {
                 .title("제목입니다.")
                 .content("내용입니다")
                 .build();
+
         String json = objectMapper.writeValueAsString(request);
+
         // when
         mockMvc.perform(post("/posts")
-                        .header("authorization", "author")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
+
         // then
         assertEquals(1L, postRepository.count());
+
         // DB 저장된 내용 검증
         Post post = postRepository.findAll().get(0);
         assertEquals("제목입니다.",post.getTitle());
@@ -92,10 +105,17 @@ class PostControllerTest {
     @Test
     @DisplayName("글 1개 조회")
     void findById() throws Exception {
+        Users user = Users.builder()
+                .name("정상희")
+                .email("wjdtkdgml7352.naver.com")
+                .password("sanghee065")
+                .build();
+        userRepository.save(user);
         // given
         Post post = Post.builder()
                 .title("title")
                 .content("content")
+                .user(user)
                 .build();
         postRepository.save(post);
 
@@ -114,10 +134,18 @@ class PostControllerTest {
     @DisplayName("글 조회 - 페이지를 0으로 요청하여도 첫 페이지를 가져온다.")
     void findAll() throws Exception {
         // given
+        Users user = Users.builder()
+                .name("정상희")
+                .email("wjdtkdgml7352.naver.com")
+                .password("sanghee065")
+                .build();
+        userRepository.save(user);
+
         List<Post> requestPosts = IntStream.range(0, 10)
                 .mapToObj(i -> Post.builder()
                         .title("제목 - "+ i)
                         .content("데이터" + i)
+                        .user(user)
                         .build())
                 .toList();
         postRepository.saveAll(requestPosts);
@@ -134,13 +162,17 @@ class PostControllerTest {
                 .andDo(print());
     }
     @Test
-    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @CustomWithMockUser
     @DisplayName("글 제목 수정")
     void editTitle() throws Exception {
         // given
+        // MockUser에서 만든 user을 꺼내온다 -> 왜 7/16일 user이 userRepository에 남은거지?
+        Users user = userRepository.findAll().get(1);
+
         Post post = Post.builder()
                 .title("제목 1")
                 .content("데이터 1")
+                .user(user)
                 .build();
         postRepository.save(post);
 
@@ -159,13 +191,16 @@ class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @CustomWithMockUser
     @DisplayName("글 삭제")
     void deleteTest() throws Exception {
         // given
+        Users user = userRepository.findAll().get(0);
+
         Post post = Post.builder()
                 .title("제목 1")
                 .content("데이터 1")
+                .user(user)
                 .build();
         postRepository.save(post);
 
@@ -189,7 +224,7 @@ class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @CustomWithMockUser
     @DisplayName("존재하지 않는 글 수정")
     void edit_fail() throws Exception {
         // given
@@ -207,7 +242,7 @@ class PostControllerTest {
     }
 
     @Test
-    @WithMockUser(username="wjdtkdgml7352@naver.com", roles={"ADMIN"})
+    @CustomWithMockUser
     @DisplayName("게시글 작성 시 제목에 '바보'는 포함될 수 없다.")
     void write_fail() throws Exception {
         // given
