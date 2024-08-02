@@ -12,5 +12,3 @@ spring:
   jpa:
     defer-datasource-initialization: true
 
-jwt:
-  jwt-key: ${secret-key}

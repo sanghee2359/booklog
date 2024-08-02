@@ -1,10 +1,11 @@
 package com.api.booklog.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,12 +22,17 @@ public class Post {
     @ManyToOne
     @JoinColumn
     private Users user;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    private List<Comment> comments;
     @Builder
     public Post(String title, String content, Users user) {
         this.title = title;
         this.content = content;
         this.user = user;
     }
+
+
 
 
     public PostEditor.PostEditorBuilder toEditor() {
@@ -42,5 +48,10 @@ public class Post {
 
     public Long getUserId() {
         return this.user.getId();
+    }
+
+    public void addComment(Comment comment) {
+        comment.setPost(this); // comment가 현재 포스트임을 명시
+        this.comments.add(comment); // comment list에 add
     }
 }
