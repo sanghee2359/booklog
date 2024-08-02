@@ -1,6 +1,6 @@
 package com.api.booklog.config;
 
-import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

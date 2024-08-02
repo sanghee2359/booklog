@@ -3,7 +3,7 @@ package com.api.booklog.controller;
 
 import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
-import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,6 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.restdocs.snippet.Attributes;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;

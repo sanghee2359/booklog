@@ -1,7 +1,7 @@
 package com.api.booklog.config;
 
 import com.api.booklog.exception.PostNotFound;
-import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.PermissionEvaluator;

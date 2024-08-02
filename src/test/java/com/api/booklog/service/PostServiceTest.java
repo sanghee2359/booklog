@@ -3,7 +3,7 @@ package com.api.booklog.service;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.PostNotFound;
-import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
@@ -12,7 +12,6 @@ import com.api.booklog.response.PostResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 import java.util.stream.IntStream;

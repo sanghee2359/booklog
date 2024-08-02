@@ -1,12 +1,11 @@
 package com.api.booklog.service;
 
-import com.api.booklog.config.UserPrincipal;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.PostEditor;
 import com.api.booklog.exception.InvalidRequest;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.exception.UserNotFound;
-import com.api.booklog.repository.PostRepository;
+import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;

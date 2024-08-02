@@ -1,4 +1,4 @@
-package com.api.booklog.repository;
+package com.api.booklog.repository.post;
 
 import com.api.booklog.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;

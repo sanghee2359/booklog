@@ -1,4 +1,4 @@
-package com.api.booklog.repository;
+package com.api.booklog.repository.post;
 
 import com.api.booklog.domain.Post;
 import com.api.booklog.request.post.PostSearch;
