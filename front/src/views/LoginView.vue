@@ -14,12 +14,11 @@ const router = useRouter()
 function doLogin() {
   const httpClient = new AxiosHttpClient()
   httpClient
-    .request({
-      method: 'POST',
-      data: state.login,
-      url: '/api/auth/login'
+    .post({
+      path: '/api/auth/login',
+      body: state.login
     })
-    .then((response: AxiosResponse) => {
+    .then((data: any) => {
       // 성공했을 때
       ElMessage({ type: 'success', message: '로그인이 완료되었습니다! 😊' })
       router.replace('/') // home으로 이동
