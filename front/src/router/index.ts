@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import 'reflect-metadata'
 import HomeView from '../views/HomeView.vue'
 import WriteView from '../views/WriteView.vue'
 import ReadView from '../views/ReadView.vue'

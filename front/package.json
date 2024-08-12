@@ -18,6 +18,8 @@
     "bootstrap": "^5.3.3",
     "element-plus": "^2.7.6",
     "pinia": "^2.1.7",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.8.0",
     "vue": "^3.4.31",
     "vue-router": "^4.3.3"
   },
@@ -32,6 +34,7 @@
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.5.1",
+    "babel-plugin-transform-typescript-metadata": "^0.3.2",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
     "jsdom": "^24.1.0",

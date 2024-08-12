@@ -1,6 +1,7 @@
-import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
 import axios from 'axios'
 import HttpError from '@/http/HttpError'
+import { singleton } from 'tsyringe'
 
 export type HttpRequestConfig = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
@@ -8,6 +9,7 @@ export type HttpRequestConfig = {
   params?: any
   body?: any
 }
+@singleton()
 export default class AxiosHttpClient {
   private readonly client: AxiosInstance = axios.create({
     timeout: 3000,

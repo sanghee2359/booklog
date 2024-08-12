@@ -2,23 +2,20 @@
 import { reactive } from 'vue'
 import Login from '@/entity/user/Login'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
-import type { AxiosResponse } from 'axios'
-import AxiosHttpClient from '@/http/AxiosHttpClient'
 import type HttpError from '@/http/HttpError'
 import UserRepository from '@/repository/UserRepository'
+import { container } from 'tsyringe'
 
 const state = reactive({
   login: new Login()
 })
-const router = useRouter()
-const USER_REPOSITORY = new UserRepository()
+const USER_REPOSITORY = container.resolve(UserRepository)
 function doLogin() {
   USER_REPOSITORY.login(state.login)
-    .then((data: any) => {
+    .then(() => {
       // 성공했을 때
       ElMessage({ type: 'success', message: '로그인이 완료되었습니다! 😊' })
-      router.replace('/') // home으로 이동
+      location.href = '/' // home으로 이동
     })
     .catch((e: HttpError) => {
       // 실패했을 때
