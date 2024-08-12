@@ -6,18 +6,15 @@ import { useRouter } from 'vue-router'
 import type { AxiosResponse } from 'axios'
 import AxiosHttpClient from '@/http/AxiosHttpClient'
 import type HttpError from '@/http/HttpError'
+import UserRepository from '@/repository/UserRepository'
 
 const state = reactive({
   login: new Login()
 })
 const router = useRouter()
+const USER_REPOSITORY = new UserRepository()
 function doLogin() {
-  const httpClient = new AxiosHttpClient()
-  httpClient
-    .post({
-      path: '/api/auth/login',
-      body: state.login
-    })
+  USER_REPOSITORY.login(state.login)
     .then((data: any) => {
       // 성공했을 때
       ElMessage({ type: 'success', message: '로그인이 완료되었습니다! 😊' })

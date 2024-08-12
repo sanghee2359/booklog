@@ -13,7 +13,7 @@ export default class AxiosHttpClient {
     timeout: 3000,
     timeoutErrorMessage: 'error'
   })
-  private async request(config: HttpRequestConfig) {
+  public async request(config: HttpRequestConfig) {
     // 에러 요청
     return this.client
       .request({
