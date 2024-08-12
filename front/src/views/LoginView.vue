@@ -1,26 +1,32 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import Login from '@/entity/user/Login'
-import axios, { AxiosError, AxiosResponse } from 'axios'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import type { AxiosResponse } from 'axios'
+import AxiosHttpClient from '@/http/AxiosHttpClient'
+import type HttpError from '@/http/HttpError'
 
 const state = reactive({
   login: new Login()
 })
 const router = useRouter()
 function doLogin() {
-  axios
-    .post('/api/auth/login', state.login)
+  const httpClient = new AxiosHttpClient()
+  httpClient
+    .request({
+      method: 'POST',
+      data: state.login,
+      url: '/api/auth/login'
+    })
     .then((response: AxiosResponse) => {
       // 성공했을 때
       ElMessage({ type: 'success', message: '로그인이 완료되었습니다! 😊' })
       router.replace('/') // home으로 이동
     })
-    .catch((e: AxiosError) => {
+    .catch((e: HttpError) => {
       // 실패했을 때
-      // console.log('>>', e.response.data)
-      ElMessage({ type: 'error', message: e.response?.data.message })
+      ElMessage({ type: 'error', message: e.getMessage() })
     })
 }
 </script>
