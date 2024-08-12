@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import WriteView from '../views/WriteView.vue';
-import ReadView from '../views/ReadView.vue';
-import EditView from "@/views/EditView.vue";
+import WriteView from '../views/WriteView.vue'
+import ReadView from '../views/ReadView.vue'
+import EditView from '@/views/EditView.vue'
+import LoginView from '@/views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,23 +22,34 @@ const router = createRouter({
     //   component: () => import('../views/AboutView.vue')
     // },
     {
-      path: "/write",
-      name: "write",
-      component: WriteView,
+      path: '/write',
+      name: 'write',
+      component: WriteView
     },
     {
-      path: "/read/:postId", // 해당 postId 값이 보이도록
-      name: "read",
+      path: '/read/:postId', // 해당 postId 값이 보이도록
+      name: 'read',
       component: ReadView,
-      props: true, // read 컴포넌트의 props에서 값을 받을 수 있다
+      props: true // read 컴포넌트의 props에서 값을 받을 수 있다
     },
     {
-      path: "/edit/:postId",
-      name: "edit",
-      component: EditView,
-      props: true, // edit 컴포넌트의 props에서 값을 받을 수 있다
+      path: '/login',
+      name: 'login',
+      component: LoginView
     },
-  ],
-});
+    // {
+    //   path: '/post/:postId',
+    //   name: 'post',
+    //   component: ReadView,
+    //   props: true
+    // },
+    {
+      path: '/edit/:postId',
+      name: 'edit',
+      component: EditView,
+      props: true // edit 컴포넌트의 props에서 값을 받을 수 있다
+    }
+  ]
+})
 
 export default router
