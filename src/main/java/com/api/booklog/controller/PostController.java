@@ -4,6 +4,7 @@ import com.api.booklog.config.UserPrincipal;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
+import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
 import com.api.booklog.service.PostService;
 import jakarta.validation.Valid;
@@ -36,7 +37,7 @@ public class PostController {
 
 
     @GetMapping("/posts")
-    public List<PostResponse> getList(@ModelAttribute PostSearch postSearch) {
+    public PagingResponse<PostResponse> getList(@ModelAttribute PostSearch postSearch) {
         return postService.getList(postSearch);
     }
 

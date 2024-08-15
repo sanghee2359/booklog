@@ -5,8 +5,11 @@ import com.api.booklog.domain.QPost;
 import com.api.booklog.request.post.PostSearch;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
+
+import static com.api.booklog.domain.QPost.post;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom{
@@ -14,12 +17,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
 
     @Override
-    public List<Post> getList(PostSearch postSearch) {
-        return jpaQueryFactory.selectFrom(QPost.post)
+    public PageImpl<Post> getList(PostSearch postSearch) {
+        long totalCount = jpaQueryFactory.select(post.count())
+                .from(post)
+                .fetchFirst();
+        List<Post> items =  jpaQueryFactory.selectFrom(post)
                 .limit(postSearch.getSize())
                 .offset(postSearch.getOffSet())
-                .orderBy(QPost.post.id.desc()) // 최신 작성 글부터 먼저 나오도록
+                .orderBy(post.id.desc()) // 최신 작성 글부터 먼저 나오도록
                 .fetch();
+        return new PageImpl(items, postSearch.getPageable(), totalCount);
     }
     // 10개만 페이징 처리가 되는 쿼리
 }

@@ -10,9 +10,11 @@ import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
+import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,12 +58,11 @@ public class PostService {
         return new PostResponse(post);
 
     }
-    public List<PostResponse> getList(PostSearch postSearch) {
-//        Pageable pageable = PageRequest.of(page, 5 , Sort.by(Sort.Direction.DESC,"id"));
-        return postRepository.getList(postSearch).stream()
-                .map(PostResponse::new)
-                .collect(Collectors.toList());
-
+    public PagingResponse<PostResponse> getList(PostSearch postSearch) {
+;
+        Page<Post> postPage = postRepository.getList(postSearch);
+        PagingResponse<PostResponse> postList = new PagingResponse<>(postPage, PostResponse.class);
+        return postList;
     }
     // 게시글 수정
     @Transactional

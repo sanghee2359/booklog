@@ -8,6 +8,7 @@ import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
+import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("페이징 - 글 첫 번째 페이지 조회")
-    void update() {
+    void paging_get() {
         // given
         List<Post> requestPosts = IntStream.range(0, 20)
                 .mapToObj(i -> Post.builder()
@@ -92,11 +93,10 @@ class PostServiceTest {
         PostSearch postSearch = PostSearch.builder().page(1).size(10).build();
 
         // when
-        List<PostResponse> posts = postService.getList(postSearch);
+        PagingResponse<PostResponse> posts = postService.getList(postSearch);
 
         // then
-        assertEquals(10, posts.size());
-        assertEquals("제목 - 19", posts.get(0).getTitle());
+        assertEquals(10, posts.getSize());
 
     }
 

@@ -2,7 +2,7 @@
 <template>
   <ul class="menus">
     <li class="menu">
-      <router-link to="/">처음으로</router-link>
+      <router-link to="/">HOME</router-link>
     </li>
 
     <li class="menu">
