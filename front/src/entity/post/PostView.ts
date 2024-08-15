@@ -31,4 +31,13 @@ export default class PostView {
 
     return this.regDate.format(DateTimeFormatter.ofPattern('yyyy년 MM월 dd일 HH시'))
   }
+  public getDisplaySimpleRegDate() {
+    return this.regDate.format(DateTimeFormatter.ofPattern('yyyy-MM-dd'))
+  }
+
+  public getShortenContent() {
+    if (this.content.length > 150) {
+      return this.content.substring(0, 150) + '...'
+    }
+  }
 }

@@ -1,12 +1,31 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-const router = useRouter()
+import { onMounted, reactive } from 'vue'
+import { container } from 'tsyringe'
+import PostRepository from '@/repository/PostRepository'
+import Post from '@/components/Post.vue'
+
+const POST_REPOSITORY = container.resolve(PostRepository)
+const state = reactive({
+  postList: []
+})
+function getList(): post {
+  POST_REPOSITORY.getList().then((postList) => {
+    state.postList = postList
+    console.log('>>>', state.postList)
+  })
+}
+
+onMounted(() => {
+  getList()
+})
 </script>
 
 <template>
   <div class="content">
     <ul class="posts">
-      <li><Post /></li>
+      <li v-for="post in state.postList" :key="post.id">
+        <Post :post="post" />
+      </li>
     </ul>
   </div>
 </template>
