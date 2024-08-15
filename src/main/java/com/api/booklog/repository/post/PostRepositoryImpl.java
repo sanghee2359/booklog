@@ -5,6 +5,7 @@ import com.api.booklog.domain.QPost;
 import com.api.booklog.request.post.PostSearch;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
@@ -17,16 +18,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
 
     @Override
-    public PageImpl<Post> getList(PostSearch postSearch) {
+    public Page<Post> getList(PostSearch postSearch) {
         long totalCount = jpaQueryFactory.select(post.count())
                 .from(post)
                 .fetchFirst();
+
         List<Post> items =  jpaQueryFactory.selectFrom(post)
                 .limit(postSearch.getSize())
                 .offset(postSearch.getOffSet())
                 .orderBy(post.id.desc()) // 최신 작성 글부터 먼저 나오도록
                 .fetch();
-        return new PageImpl(items, postSearch.getPageable(), totalCount);
+        return new PageImpl<>(items, postSearch.getPageable(), totalCount);
     }
-    // 10개만 페이징 처리가 되는 쿼리
 }

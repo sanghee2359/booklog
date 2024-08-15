@@ -12,7 +12,7 @@ public class PagingResponse<T> {
     private final long totalCount;
     private final List<T> items;
     public PagingResponse(Page<?> page, Class<T> classes) {
-        this.page = page.getNumber();
+        this.page = page.getNumber() + 1;
         this.size = page.getSize();
         this.totalCount = page.getTotalElements();
         this.items = page.getContent().stream()

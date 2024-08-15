@@ -23,6 +23,6 @@ public class PostSearch {
         return (long) (max(1, page) - 1) * min(this.size, MAX_SIZE);
     }
     public Pageable getPageable() {
-        return PageRequest.of(page, size);
+        return PageRequest.of(page - 1, size);
     }
 }
