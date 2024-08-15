@@ -14,7 +14,7 @@ export default class UserRepository {
   }
 
   getProfile() {
-    return this.httpRepository.get(
+    return this.httpRepository.get<UserProfile>(
       {
         path: '/api/users/me'
       },
