@@ -16,26 +16,21 @@ export default class PostRepository {
     })
   }
 
-  public get(postId: number): Promise<PostView> {
-    return this.httpRepository
-      .get({
+  public get(postId: number) {
+    return this.httpRepository.get<PostView>(
+      {
         path: `/api/posts/${postId}`
-      })
-      .then((response) => {
-        return plainToInstance(PostView, response)
-      })
+      },
+      PostView
+    )
   }
 
-  public getList(page: number): Promise<Paging<PostView>> {
-    return this.httpRepository
-      .get({
+  public getList(page: number) {
+    return this.httpRepository.getList<PostView>(
+      {
         path: `/api/posts?page=${page}&size=3`
-      })
-      .then((response) => {
-        const paging = plainToInstance<Paging<PostView>, any>(Paging, response)
-        const items = plainToInstance<PostView, any[]>(PostView, response.items)
-        paging.setItems(items)
-        return paging
-      })
+      },
+      PostView
+    )
   }
 }

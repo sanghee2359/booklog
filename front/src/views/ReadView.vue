@@ -18,7 +18,7 @@ const state = reactive<StateType>({
   post: new PostView()
 })
 function getPost() {
-  POST_REPOSITORY.get(props.postId)
+  POST_REPOSITORY.get(props.postId, PostView)
     .then((post: PostView) => {
       console.log(props.postId)
       state.post = post

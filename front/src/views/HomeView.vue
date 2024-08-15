@@ -2,7 +2,7 @@
 import { onMounted, reactive } from 'vue'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
-import Post from '@/components/Post.vue'
+import Post from '@/components/PostView.vue'
 import Paging from '@/entity/data/Paging'
 import type PostView from '@/entity/post/PostView'
 import { handleCurrentChange } from 'element-plus/es/components/tree/src/model/util'
@@ -35,6 +35,7 @@ onMounted(() => {
       </li>
     </ul>
   </div>
+
   <div class="pagination-container">
     <el-pagination
       v-model:current-page="state.postList.page"
