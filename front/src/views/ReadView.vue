@@ -1,82 +1,111 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
-import axios from "axios";
+import { onMounted, reactive } from 'vue'
+import { container } from 'tsyringe'
+import PostRepository from '@/repository/PostRepository'
+import PostView from '@/entity/post/PostView'
+import { ElMessage } from 'element-plus'
 
-const router = useRouter();
+const props = defineProps<{
+  postId: number
+}>()
 
-const props = defineProps({
-  postId: {
-    type: [Number,String], // url path로 넘어가서 String 변환됨
-    require: true,
-  },
-});
+const POST_REPOSITORY = container.resolve(PostRepository)
 
-const post = ref({ // 데이터 초기화
-  id : 0,
-  title: "",
-  content: "",
-});
-
-const moveToEdit = () => {
-  router.push({name: "edit", params: {postId: props.postId}})
+type StateType = {
+  post: PostView | null
 }
-
+const state = reactive<StateType>({
+  post: new PostView()
+})
+function getPost() {
+  POST_REPOSITORY.get(props.postId)
+    .then((post: PostView) => {
+      console.log(props.postId)
+      state.post = post
+    })
+    .catch((e) => {
+      console.log(e)
+      ElMessage({ type: 'error', message: `${props.postId}번 글 조회실패` })
+    })
+}
 onMounted(() => {
-  axios.get(`/api/posts/${props.postId}`).then(response => {
-    post.value = response.data;
-  });
-});
-
+  getPost()
+  // alert(props.postId)
+})
 </script>
 <template>
   <el-row>
-    <el-col>
-    <h2 class="title">{{post.title}}</h2>
-      <div class="sub d-flex ">
-          <div class="category">개발</div>
-          <div class="regDate">2024-07-09</div>
+    <el-col :span="22" :offset="1">
+      <h2 class="title">{{ state.post?.title }}</h2>
+    </el-col>
+  </el-row>
+  <el-row>
+    <el-col :span="10" :offset="7">
+      <div class="title">
+        <div class="regDate">{{ state.post?.getDisplayRegDate() }}</div>
       </div>
     </el-col>
   </el-row>
 
-  <el-row class="mt-3">
+  <el-row>
     <el-col>
-    <div class="content">{{ post.content }}</div>
-    </el-col>
-  </el-row>
+      <div class="content">{{ state.post?.content }}</div>
 
-  <el-row class="mt-3">
-    <el-col>
-      <div class="d-flex justify-content-end">
-      <el-button type="warning" @click="moveToEdit">수정</el-button>
+      <div class="footer">
+        <div class="edit">수정</div>
+        <div class="delete" @click="remove()">삭제</div>
       </div>
     </el-col>
   </el-row>
-</template>`
+
+  <el-row class="comments">
+    <el-col>
+      <!--      <Comments />-->
+    </el-col>
+  </el-row>
+</template>
 
 <style scoped lang="scss">
-.title{
-  font-size: 1.6rem;
-  font-weight: 600;
-  color:#222324;
-  margin: 0;
+.title {
+  font-size: 1.8rem;
+  font-weight: 400;
+  text-align: center;
 }
-.content {
-  font-size : 0.95rem;
-  margin-top : 12px;
-  margin-left : 3px;
-  color: #616161;
-  white-space: break-spaces; // 띄어쓰기 , 줄간격 등
-  line-height: 1.5;
-}
-.sub{
-  margin-top: 6px;
-  font-size: 0.78rem;
 
-  .regDate {
-    margin-left: 10px;
-    color :#6b6b6b;
+.regDate {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 300;
+}
+
+.content {
+  margin-top: 1.88rem;
+  font-weight: 300;
+
+  word-break: break-all;
+  white-space: break-spaces;
+  line-height: 1.4;
+  min-height: 5rem;
+}
+
+hr {
+  border-color: #f9f9f9;
+  margin: 1.2rem 0;
+}
+
+.footer {
+  margin-top: 1rem;
+  display: flex;
+  font-size: 0.78rem;
+  justify-content: flex-end;
+  gap: 0.8rem;
+
+  .delete {
+    color: red;
   }
+}
+
+.comments {
+  margin-top: 4.8rem;
 }
 </style>

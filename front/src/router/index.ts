@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
 import 'reflect-metadata'
+import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import WriteView from '../views/WriteView.vue'
 import ReadView from '../views/ReadView.vue'
@@ -14,14 +14,6 @@ const router = createRouter({
       name: 'home',
       component: HomeView
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue')
-    // },
     {
       path: '/write',
       name: 'write',
@@ -38,12 +30,12 @@ const router = createRouter({
       name: 'login',
       component: LoginView
     },
-    // {
-    //   path: '/post/:postId',
-    //   name: 'post',
-    //   component: ReadView,
-    //   props: true
-    // },
+    {
+      path: '/posts/:postId',
+      name: 'post',
+      component: ReadView,
+      props: true
+    },
     {
       path: '/edit/:postId',
       name: 'edit',

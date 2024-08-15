@@ -14,9 +14,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@js-joda/core": "^5.6.3",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "class-transformer": "^0.5.1",
     "element-plus": "^2.7.6",
+    "es6-shim": "^0.35.8",
     "pinia": "^2.1.7",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.8.0",

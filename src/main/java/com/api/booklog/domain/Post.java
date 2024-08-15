@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -16,6 +17,8 @@ public class Post {
     private Long id;
     private String title;
 
+    @Column(nullable = false)
+    private LocalDateTime regDate;
     @Lob
     private String content;
 
@@ -30,6 +33,7 @@ public class Post {
         this.title = title;
         this.content = content;
         this.user = user;
+        this.regDate = LocalDateTime.now();
     }
 
 
