@@ -24,7 +24,7 @@ onBeforeMount(() => {
 })
 
 function logout() {
-  ElMessage({ type: message, message: '로그아웃 되었습니다.' })
+  ElMessage({ type: 'message', message: '로그아웃 되었습니다.' })
   PROFILE_REPOSITORY.clear()
   location.href = '/api/logout'
 }

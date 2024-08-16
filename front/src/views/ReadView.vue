@@ -3,7 +3,7 @@ import { onMounted, reactive } from 'vue'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import PostView from '@/entity/post/PostView'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
   postId: number
@@ -26,6 +26,27 @@ function getPost() {
     .catch((e) => {
       console.log(e)
       ElMessage({ type: 'error', message: `${props.postId}번 글 조회실패` })
+    })
+}
+
+function remove() {
+  ElMessageBox.confirm('삭제하시겠습니까?', 'Warning', {
+    title: '삭제',
+    confirmButtonText: '삭제',
+    cancelButtonText: '취소',
+    type: 'warning'
+  })
+    .then(() => {
+      POST_REPOSITORY.delete(props.postId).then(() => {
+        ElMessage({ type: 'success', message: '성공적으로 삭제되었습니다!' })
+        location.href = '/'
+      })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '삭제가 취소되었습니다.'
+      })
     })
 }
 onMounted(() => {

@@ -33,4 +33,10 @@ export default class PostRepository {
       PostView
     )
   }
+
+  delete(postId: number) {
+    return this.httpRepository.delete({
+      path: `/api/posts/${postId}`
+    })
+  }
 }
