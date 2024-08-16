@@ -1,9 +1,8 @@
 import HttpRepository from '@/repository/HttpRepository'
 import { inject, singleton } from 'tsyringe'
-import { plainToClass, plainToInstance } from 'class-transformer'
 import type PostWrite from '@/entity/post/PostWrite'
+import type PostEdit from '@/entity/post/PostEdit'
 import PostView from '@/entity/post/PostView'
-import Paging from '@/entity/data/Paging'
 
 @singleton()
 export default class PostRepository {
@@ -16,7 +15,7 @@ export default class PostRepository {
     })
   }
 
-  public get(postId: number) {
+  public get(postId: number, PostView: PostView) {
     return this.httpRepository.get<PostView>(
       {
         path: `/api/posts/${postId}`
@@ -37,6 +36,12 @@ export default class PostRepository {
   delete(postId: number) {
     return this.httpRepository.delete({
       path: `/api/posts/${postId}`
+    })
+  }
+  edit(postId: number, request: PostEdit) {
+    return this.httpRepository.patch({
+      path: `/api/posts/${postId}`,
+      body: request
     })
   }
 }

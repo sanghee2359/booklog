@@ -17,7 +17,7 @@ function write() {
       location.href = '/'
     })
     .catch((e: HttpError) => {
-      ElMessage({ type: 'error', message: e.getMessage })
+      ElMessage({ type: 'error', message: e.getMessage() })
     })
 }
 </script>

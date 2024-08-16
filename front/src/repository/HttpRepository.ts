@@ -15,10 +15,13 @@ export default class HttpRepository {
       .request({ ...config, method: 'GET' })
       .then((response) => plainToInstance(classes, response))
   }
-  public getList<T>(config: HttpRequestConfig, classes: { new (...args: any[]) }): Promise<T> {
+  public getList<T>(
+    config: HttpRequestConfig,
+    clazz: { new (...args: any[]) }
+  ): Promise<Paging<T>> {
     return this.httpClient.request({ ...config, method: 'GET' }).then((response) => {
       const paging = plainToInstance<Paging<T>, any>(Paging, response)
-      const items = plainToInstance<T, any>(classes, response.items)
+      const items = plainToInstance<T, any>(clazz, response.items)
       paging.setItems(items)
       return paging
     })

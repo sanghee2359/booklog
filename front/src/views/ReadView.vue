@@ -4,6 +4,8 @@ import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import PostView from '@/entity/post/PostView'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import EditView from '@/views/EditView.vue'
+import router from '@/router'
 
 const props = defineProps<{
   postId: number
@@ -20,7 +22,7 @@ const state = reactive<StateType>({
 function getPost() {
   POST_REPOSITORY.get(props.postId, PostView)
     .then((post: PostView) => {
-      console.log(props.postId)
+      console.log(post)
       state.post = post
     })
     .catch((e) => {
@@ -54,6 +56,7 @@ onMounted(() => {
   // alert(props.postId)
 })
 </script>
+
 <template>
   <el-row>
     <el-col :span="22" :offset="1">
@@ -62,7 +65,7 @@ onMounted(() => {
   </el-row>
   <el-row>
     <el-col :span="10" :offset="7">
-      <div class="title">
+      <div class="regDate">
         <div class="regDate">{{ state.post?.getDisplayRegDate() }}</div>
       </div>
     </el-col>
@@ -73,7 +76,7 @@ onMounted(() => {
       <div class="content">{{ state.post?.content }}</div>
 
       <div class="footer">
-        <div class="edit">수정</div>
+        <router-link :to="{ name: 'edit' }">수정</router-link>
         <div class="delete" @click="remove()">삭제</div>
       </div>
     </el-col>
@@ -81,7 +84,7 @@ onMounted(() => {
 
   <el-row class="comments">
     <el-col>
-      <!--      <Comments />-->
+      <Comments />
     </el-col>
   </el-row>
 </template>

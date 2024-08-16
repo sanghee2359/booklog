@@ -5,13 +5,12 @@ import PostRepository from '@/repository/PostRepository'
 import Post from '@/components/PostView.vue'
 import Paging from '@/entity/data/Paging'
 import type PostView from '@/entity/post/PostView'
-import { handleCurrentChange } from 'element-plus/es/components/tree/src/model/util'
 
 type StateType = {
   postList: Paging<PostView>
 }
 const POST_REPOSITORY = container.resolve(PostRepository)
-const state = reactive(<StateType>{
+const state = reactive<StateType>({
   postList: new Paging<PostView>()
 })
 function getList(page = 1): post {
@@ -40,7 +39,7 @@ onMounted(() => {
     <el-pagination
       v-model:current-page="state.postList.page"
       v-model:page-size="state.postList.size"
-      :disabled="disabled"
+      :disabled="false"
       :background="true"
       layout="prev, pager, next, jumper"
       :total="state.postList.totalCount"
