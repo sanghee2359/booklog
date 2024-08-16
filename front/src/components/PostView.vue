@@ -34,12 +34,14 @@ const props = defineProps<{
   }
 }
 .regDate {
+  padding-left: 3px;
   margin-top: 0.5rem;
   font-size: 0.78rem;
   font-weight: 300;
 }
 .content {
-  margin-top: 0.88rem;
+  padding-left: 1px;
+  margin-top: 0.1rem;
   word-break: normal;
   white-space: break-spaces;
 }

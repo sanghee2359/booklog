@@ -56,14 +56,14 @@ onMounted(() => {
 .pagination-container {
   display: flex;
   justify-content: center;
-  margin-top: 20px; /* 여백 조절 가능 */
+  margin-top: 1px; /* 여백 조절 가능 */
 }
 .totalCount {
   font-size: 0.88rem;
 }
 .posts {
   list-style: none;
-  padding: 0;
+  padding: 20px;
   li {
     margin-bottom: 2.2rem;
     &:last-child {
