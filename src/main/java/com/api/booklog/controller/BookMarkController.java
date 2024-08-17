@@ -15,13 +15,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class BookMarkController {
-    private BookMarkService bookmarkService;
-    @PostMapping("users/bookmarks/add")
-    public void addBookmark(@RequestParam Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    private final BookMarkService bookmarkService;
+    @PostMapping("/users/bookmarks/{postId}")
+    public void addBookmark(@PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         bookmarkService.addBookmark(userPrincipal.getUserId(), postId);
     }
 
-    @GetMapping("users/bookmarks")
+    @GetMapping("/users/bookmarks")
     public ResponseEntity<BookMarkResponse> getBookmarks(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         if(userPrincipal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -29,8 +29,8 @@ public class BookMarkController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("users/bookmarks/remove")
-    public void removeBookmark(@RequestParam Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    @DeleteMapping("/users/bookmarks/{postId}")
+    public void removeBookmark(@PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         bookmarkService.removeBookmark(userPrincipal.getUserId(), postId);
     }
 

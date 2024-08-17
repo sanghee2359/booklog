@@ -1,0 +1,12 @@
+### 북마크 리스트 출력
+GET http://localhost:8080/users/bookmarks
+
+
+
+### 북마크 추가
+POST http://localhost:8080/users/bookmarks/3
+Content-Type: application/json
+
+
+### 북마크 삭제
+DELETE http://localhost:8080/users/bookmarks/3

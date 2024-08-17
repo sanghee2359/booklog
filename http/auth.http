@@ -17,6 +17,28 @@ Content-Type: application/json
   "password": "sanghee065"
 
 }
+### user 2
+### 로그인
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email" : "jsanghui@daum.net",
+  "password" : "sanghee065"
+}
+
+### 회원가입
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "name" : "이상한",
+  "email": "jsanghui@daum.net",
+  "password": "sanghee065"
+
+}
+
+
 
 
 ### 메인 페이지
@@ -36,3 +58,5 @@ GET http://localhost:8080/foo
 Content-Type: application/json
 Cookie: SESSION=d0c898e1-f63b-4509-a291-78b1a5100686
 
+### 사용자  프로필 출력
+GET http://localhost:8080/users/me
