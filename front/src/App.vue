@@ -2,9 +2,16 @@
 import Header from '@/components/Header.vue'
 import Menu from '@/components/Menu.vue'
 import Content from '@/components/Content.vue'
+import UserProfile from '@/components/UserProfile.vue'
 </script>
 
 <template>
+  <div class="drawer-button">
+    <el-row>
+      <UserProfile />
+    </el-row>
+  </div>
+
   <el-row>
     <el-col :span="22" :offset="1">
       <Header />
@@ -48,5 +55,12 @@ body {
     'Segoe UI Emoji',
     'Segoe UI Symbol',
     sans-serif;
+}
+
+.drawer-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 16px; /* 버튼과 서랍 사이의 여백 */
 }
 </style>

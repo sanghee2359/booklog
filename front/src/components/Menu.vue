@@ -22,12 +22,6 @@ onBeforeMount(() => {
     state.profile = profile
   })
 })
-
-function logout() {
-  ElMessage({ type: 'message', message: '로그아웃 되었습니다.' })
-  PROFILE_REPOSITORY.clear()
-  location.href = '/api/logout'
-}
 </script>
 <template>
   <ul class="menus">
@@ -39,11 +33,12 @@ function logout() {
       <router-link to="/write">글 작성</router-link>
     </li>
 
-    <li class="menu" v-if="state.profile === null">
-      <router-link to="/login">로그인</router-link>
+    <li class="menu" v-if="state.profile !== null">
+      <router-link to="/write">북마크</router-link>
     </li>
-    <li class="menu" v-else>
-      <a href="#" @click="logout()"> {{ state.profile!.name }} 로그아웃 </a>
+
+    <li class="menu" v-if="state.profile !== null">
+      <router-link to="/write">마이페이지</router-link>
     </li>
   </ul>
 </template>
