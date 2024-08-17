@@ -23,6 +23,9 @@ public class Users {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Post> posts;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<BookMark> bookMarks;
+
     @Builder
     public Users(String name, String email, String password) {
         this.name = name;

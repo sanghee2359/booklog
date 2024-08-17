@@ -8,6 +8,12 @@ spring:
       pageable:
         one-indexed-parameters: true
         default-page-size: 5
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+        lettuce
+
   session:
     timeout: 86400 # 세션 기간 : 24시간
 

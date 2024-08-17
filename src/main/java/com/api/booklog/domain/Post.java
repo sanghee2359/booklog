@@ -28,6 +28,9 @@ public class Post {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<Comment> comments;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    private List<BookMark> bookMarks;
     @Builder
     public Post(String title, String content, Users user) {
         this.title = title;

@@ -67,6 +67,11 @@ dependencies {
 
 	// make meta data file
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// Spring Boot Starter Data Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// Lettuce: Redis 클라이언트 라이브러리
+	implementation 'io.lettuce.core:lettuce-core'
 }
 
 tasks.named('test') {
