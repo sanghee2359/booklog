@@ -43,9 +43,9 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	// H2
-	runtimeOnly 'com.h2database:h2'
-	testImplementation 'com.h2database:h2'
+
+	// MySQL JDBC Driver
+	runtimeOnly 'com.mysql:mysql-connector-j:8.2.0'
 
 	// queryDSL
 	implementation 'com.querydsl:querydsl-core'
@@ -70,8 +70,10 @@ dependencies {
 
 	// Spring Boot Starter Data Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// Lettuce: Redis 클라이언트 라이브러리
-	implementation 'io.lettuce.core:lettuce-core'
+	implementation 'io.lettuce:lettuce-core:6.4.0.RELEASE'
+
 }
 
 tasks.named('test') {
