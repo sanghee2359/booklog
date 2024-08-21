@@ -1,6 +1,8 @@
 package com.api.booklog.controller;
 
 import com.api.booklog.config.UserPrincipal;
+import com.api.booklog.exception.Unauthorized;
+import com.api.booklog.response.BookmarkResponse;
 import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
 import com.api.booklog.service.BookMarkService;
@@ -33,6 +35,34 @@ public class BookMarkController {
     @DeleteMapping("/users/bookmarks/{postId}")
     public void removeBookmark(@PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         bookmarkService.removeBookmark(userPrincipal.getUserId(), postId);
+    }
+    @PostMapping("/bookmarks/{postId}")
+    public ResponseEntity<BookmarkResponse> toggleBookmark(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        if (userPrincipal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long userId = userPrincipal.getUserId();
+        BookmarkResponse response;
+
+        response = bookmarkService.toggleBookmark(userId, postId);
+
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/users/bookmarks/{postId}")
+    public boolean checkBookmarkStatus(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal == null) {
+            throw new Unauthorized();
+        }
+
+        return bookmarkService.isMemberOfZSet(bookmarkService.makeKey(
+                        userPrincipal.getUserId()),
+                        postId);
     }
 
 }
