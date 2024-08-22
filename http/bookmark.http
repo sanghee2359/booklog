@@ -12,7 +12,7 @@ Content-Type: application/json
 DELETE http://localhost:8080/users/bookmarks/1
 
 ### 북마크 상태 체크
-GET http://localhost:8080/users/bookmarks/1
+GET http://localhost:8080/users/bookmarks/2
 
 ### 북마크 토글
-POST http://localhost:8080/bookmarks/1
+POST http://localhost:8080/bookmarks/2

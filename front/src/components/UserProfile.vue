@@ -47,11 +47,11 @@ const visible = ref(false)
         </el-button>
       </template>
 
-      <div v-if="state.profile === null">
+      <div class="security" v-if="state.profile === null">
         <router-link to="/login">로그인</router-link>
       </div>
 
-      <div v-else>
+      <div class="security" v-else>
         <el-col :span="12">
           <div class="block">
             <el-avatar shape="square" :size="100" :src="squareUrl" />
@@ -93,5 +93,10 @@ const visible = ref(false)
 }
 .demo-basic .el-col:not(:last-child) {
   border-right: 1px solid var(--el-border-color);
+}
+.security {
+  a {
+    color: inherit;
+  }
 }
 </style>

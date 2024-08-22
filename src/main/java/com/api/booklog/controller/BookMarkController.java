@@ -46,9 +46,10 @@ public class BookMarkController {
         }
 
         Long userId = userPrincipal.getUserId();
-        BookmarkResponse response;
 
-        response = bookmarkService.toggleBookmark(userId, postId);
+        BookmarkResponse response = bookmarkService.toggleBookmark(userId, postId);
+        // 로그로 응답 확인
+        System.out.println("Response: " + response);
 
         return ResponseEntity.ok(response);
     }

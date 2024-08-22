@@ -6,18 +6,24 @@ import PostView from '@/entity/post/PostView'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import router from '@/router'
 import Comments from '@/components/Comments.vue'
-
+import BookmarkButton from '@/components/BookmarkButton.vue'
+import HeartButton from '@/components/HeartButton.vue'
+import { Check, Delete, Edit, Message, Search, Star } from '@element-plus/icons-vue'
+import BookmarkRepository from '@/repository/BookmarkRepository'
 const props = defineProps<{
   postId: number
 }>()
 
 const POST_REPOSITORY = container.resolve(PostRepository)
+const BOOKMARK_REPOSITORY = container.resolve(BookmarkRepository)
 
 type StateType = {
   post: PostView | null
+  isBookmarked: boolean
 }
 const state = reactive<StateType>({
-  post: null
+  post: null,
+  isBookmarked: false
 })
 
 function getPost() {
@@ -27,6 +33,16 @@ function getPost() {
     })
     .catch((e) => {
       ElMessage({ type: 'error', message: `${props.postId}번 글 조회 실패` })
+    })
+}
+function checkBookmarkStatus() {
+  BOOKMARK_REPOSITORY.getBookmarkStatus(props.postId)
+    .then((response) => {
+      state.isBookmarked = response
+      console.log('>>>isbookmarked: {}', response)
+    })
+    .catch(() => {
+      ElMessage({ type: 'error', message: `북마크 상태 확인 실패` })
     })
 }
 
@@ -49,6 +65,7 @@ function remove() {
 }
 
 onMounted(() => {
+  checkBookmarkStatus()
   getPost()
 })
 </script>
@@ -65,12 +82,18 @@ onMounted(() => {
     </el-main>
 
     <el-footer class="footer">
-      <el-button type=""
-        ><router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button"
-          >수정</router-link
-        >
-      </el-button>
-      <el-button type="danger" @click="remove" class="delete-button">삭제</el-button>
+      <div class="bookmark-container">
+        <BookmarkButton :postId="Number(props.postId)" :initialStatus="state.isBookmarked" />
+      </div>
+      <div class="radius-container">
+        <HeartButton />
+      </div>
+
+      <router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button">
+        <el-button type="" :icon="Edit" circle />
+      </router-link>
+      <el-button type="danger" :icon="Delete" circle @click="remove" />
+      <!--      <el-button type="danger" @click="remove" class="delete-button">삭제</el-button>-->
     </el-footer>
 
     <el-main class="comments">
@@ -119,6 +142,14 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  .bookmark-container {
+    position: absolute; /* footer 안에서 위치를 고정 */
+    left: 30px; /* 왼쪽 아래에 위치 */
+    height: 30px; /* footer와 같은 높이 */
+    //bottom: 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
 }
 
 .edit-button {
@@ -141,13 +172,20 @@ onMounted(() => {
   border-color: #000; //
 }
 
-.delete-button {
-  font-size: 0.875rem;
-}
-
 .comments {
   padding: 20px;
   background-color: #fafafa;
   border-top: 1px solid #ddd;
+}
+
+.radius-container {
+  padding: 10px;
+  padding-top: 16px;
+  width: 80px; /* 둥근 경계의 너비 */
+  height: 35px; /* 둥근 경계의 높이 */
+  border: 2px solid #dcdfe6; /* 경계선 색상 */
+  border-radius: var(--el-border-radius-round); /* 둥근 경계선 */
+  display: flex;
+  align-items: center; /* 아이콘 버튼이 가운데 오도록 */
 }
 </style>
