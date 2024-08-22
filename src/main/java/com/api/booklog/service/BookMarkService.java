@@ -116,6 +116,6 @@ public class BookMarkService {
             addBookmark(userId, postId);
             newStatus = true;
         }
-        return new BookmarkResponse(true, newStatus);
+        return new BookmarkResponse(postId, newStatus);
     }
 }
