@@ -34,7 +34,7 @@ onBeforeMount(() => {
     </li>
 
     <li class="menu" v-if="state.profile !== null">
-      <router-link to="/write">북마크</router-link>
+      <router-link to="/users/bookmarks">북마크</router-link>
     </li>
 
     <li class="menu" v-if="state.profile !== null">

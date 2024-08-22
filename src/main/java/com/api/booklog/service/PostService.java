@@ -30,6 +30,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final BookMarkService bookMarkService;
     // 게시글 생성
 
     public void write(Long userId, PostCreate postCreate) {
@@ -81,9 +82,10 @@ public class PostService {
 //        return new PostResponse(post);
     }
 
-    public void delete(Long id) {
-        Post post = postRepository.findById(id)
+    public void delete(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
                 .orElseThrow((PostNotFound::new));
+        bookMarkService.removeBookmark(userId, postId);
         postRepository.delete(post);
     }
 }

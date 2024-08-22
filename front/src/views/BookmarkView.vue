@@ -1,106 +1,101 @@
 <template>
+  <span class="totalCount">북마크 수: {{ paging.items.length }} </span>
   <div class="bookmark-container" @scroll="handleScroll">
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-for="bookmark in bookmarks" :key="bookmark.userId">
-      <div v-for="post in bookmark.bookmarks" :key="post.id">
-        <div class="post">
-          <h3>{{ post.title }}</h3>
-          <p>{{ post.content }}</p>
-        </div>
-      </div>
+    <!-- 북마크 포스트 리스트 -->
+    <PostView v-for="post in paging.items" :key="post.id" :post="post" />
+
+    <!-- 로딩 인디케이터 -->
+    <div v-if="loading" class="loading">
+      <p>Loading...</p>
     </div>
-    <div v-if="hasNextPage" class="loading-more">Scroll down to load more...</div>
+
+    <!-- 무한 스크롤이 끝났다는 메시지 -->
+    <div v-if="!loading && !paging.hasNextPage" class="end-of-list">
+      <p>No more posts to load</p>
+    </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue'
-import axios from 'axios'
+<script lang="ts">
+import { ref, onMounted } from 'vue'
+import { container } from 'tsyringe'
+import BookmarkRepository from '@/repository/BookmarkRepository'
+import Paging from '@/entity/data/Paging'
+import PostView from '@/entity/data/PostView'
 
-// TypeScript types
-interface PostResponse {
-  id: number
-  title: string
-  content: string
-}
+// PostView 컴포넌트 import
+import PostViewComponent from '@/components/PostView.vue'
 
-interface BookMarkResponse {
-  userId: number
-  bookmarks: PostResponse[]
-}
+export default {
+  components: {
+    PostView: PostViewComponent
+  },
+  setup() {
+    const BOOKMARK_REPOSITORY = container.resolve(BookmarkRepository)
+    const paging = ref(new Paging<PostView>())
+    const loading = ref(false)
+    const page = ref(1)
+    const pageSize = 10
 
-interface PagingResponse<T> {
-  page: number
-  size: number
-  totalCount: number
-  items: T[]
-  hasNextPage: boolean
-}
+    const fetchBookmarks = async (pageNumber: number) => {
+      loading.value = true
+      try {
+        const response = await BOOKMARK_REPOSITORY.getBookmarks(pageNumber, pageSize)
+        const { items, hasNextPage } = response
 
-const bookmarks = ref<BookMarkResponse[]>([])
-const page = ref(1)
-const size = ref(10)
-const hasNextPage = ref(true)
-const loading = ref(false)
-
-const fetchBookmarks = async () => {
-  if (loading.value || !hasNextPage.value) return
-
-  loading.value = true
-
-  try {
-    const response = await axios.get<PagingResponse<BookMarkResponse>>('/api/users/bookmarks', {
-      params: {
-        page: page.value,
-        size: size.value
+        if (items.length) {
+          if (pageNumber === 0) {
+            paging.value.setItems(items)
+          } else {
+            paging.value.setItems([...paging.value.items, ...items])
+          }
+          paging.value.setHasNextPage(hasNextPage)
+          page.value += 1
+        } else {
+          paging.value.setHasNextPage(false)
+        }
+      } catch (error) {
+        console.error('Error fetching bookmarks:', error)
+      } finally {
+        loading.value = false
       }
-    })
-
-    const { items, hasNextPage: nextPageAvailable } = response.data
-
-    if (items.length > 0) {
-      bookmarks.value.push(...items)
     }
 
-    hasNextPage.value = nextPageAvailable
-    page.value += 1
-  } catch (error) {
-    console.error('Error fetching bookmarks:', error)
-  } finally {
-    loading.value = false
+    const handleScroll = () => {
+      const bottomOfWindow =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight
+      if (bottomOfWindow && !loading.value && paging.value.hasNextPage) {
+        fetchBookmarks(page.value)
+      }
+    }
+
+    onMounted(() => {
+      fetchBookmarks(page.value)
+      window.addEventListener('scroll', handleScroll)
+    })
+
+    return {
+      paging,
+      loading
+    }
   }
 }
-
-const handleScroll = (event: Event) => {
-  const target = event.target as HTMLElement
-
-  if (target.scrollHeight - target.scrollTop <= target.clientHeight) {
-    fetchBookmarks()
-  }
-}
-
-// Fetch initial bookmarks
-onMounted(() => {
-  fetchBookmarks()
-})
 </script>
 
 <style scoped>
 .bookmark-container {
   height: 100vh;
-  overflow-y: auto;
-  padding: 1em;
+  overflow-y: auto; /* Scrollable container */
 }
 
-.post {
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 1em;
-  padding-bottom: 1em;
-}
-
-.loading,
-.loading-more {
+.loading {
   text-align: center;
-  margin: 1em 0;
+  padding: 16px;
+}
+
+.end-of-list {
+  text-align: center;
+  padding: 16px;
+  color: #888;
 }
 </style>

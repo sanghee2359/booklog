@@ -173,6 +173,12 @@ class PostServiceTest {
     @DisplayName("글 삭제")
     void delete() {
         // given
+        var user = Users.builder()
+                .name("정상희")
+                .email("wjdtkdgml7352.naver.com")
+                .password("sanghee065")
+                .build();
+        userRepository.save(user);
         Post post = Post.builder()
                 .title("제목 1")
                 .content("데이터 1")
@@ -180,7 +186,7 @@ class PostServiceTest {
         postRepository.save(post);
 
         // when
-        postService.delete(post.getId());
+        postService.delete(user.getId(), post.getId());
         // then
         assertEquals(0, postRepository.count());
     }
@@ -229,6 +235,12 @@ class PostServiceTest {
     @DisplayName("글 삭제 - 존재 하지 않는 글")
     void delete_Fail() {
         // given
+        var user = Users.builder()
+                .name("정상희")
+                .email("wjdtkdgml7352.naver.com")
+                .password("sanghee065")
+                .build();
+        userRepository.save(user);
         Post post = Post.builder()
                 .title("제목 1")
                 .content("데이터 1")
@@ -237,7 +249,7 @@ class PostServiceTest {
 
         //expected
         assertThrows(PostNotFound.class, () ->{
-            postService.delete(post.getId() + 1L);
+            postService.delete(user.getId(), post.getId() + 1L);
         });
     }
 }
