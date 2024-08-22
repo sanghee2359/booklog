@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
+import { onBeforeMount, onMounted, reactive } from 'vue'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import PostView from '@/entity/post/PostView'
@@ -10,22 +10,34 @@ import BookmarkButton from '@/components/BookmarkButton.vue'
 import HeartButton from '@/components/HeartButton.vue'
 import { Check, Delete, Edit, Message, Search, Star } from '@element-plus/icons-vue'
 import BookmarkRepository from '@/repository/BookmarkRepository'
+import UserRepository from '@/repository/UserRepository'
+import ProfileRepository from '@/repository/ProfileRepository'
+import UserProfile from '@/entity/user/UserProfile'
+
 const props = defineProps<{
   postId: number
 }>()
-
+const USER_REPOSITORY = container.resolve(UserRepository)
+const PROFILE_REPOSITORY = container.resolve(ProfileRepository)
 const POST_REPOSITORY = container.resolve(PostRepository)
 const BOOKMARK_REPOSITORY = container.resolve(BookmarkRepository)
 
 type StateType = {
+  profile: UserProfile | null
   post: PostView | null
   isBookmarked: boolean
 }
 const state = reactive<StateType>({
+  profile: null,
   post: null,
   isBookmarked: false
 })
-
+onBeforeMount(() => {
+  USER_REPOSITORY.getProfile().then((profile) => {
+    PROFILE_REPOSITORY.setProfile(profile)
+    state.profile = profile
+  })
+})
 function getPost() {
   POST_REPOSITORY.get(props.postId, PostView)
     .then((post: PostView) => {
@@ -89,11 +101,16 @@ onMounted(() => {
         <HeartButton />
       </div>
 
-      <router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button">
-        <el-button type="" :icon="Edit" circle />
-      </router-link>
-      <el-button type="danger" :icon="Delete" circle @click="remove" />
-      <!--      <el-button type="danger" @click="remove" class="delete-button">삭제</el-button>-->
+      <div
+        class="edit"
+        v-if="state.profile && state.post && state.profile.id === state.post.userId"
+      >
+        <router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button">
+          <el-button type="" :icon="Edit" circle />
+        </router-link>
+        <el-button type="danger" :icon="Delete" circle @click="remove" />
+        <!--      <el-button type="danger" @click="remove" class="delete-button">삭제</el-button>-->
+      </div>
     </el-footer>
 
     <el-main class="comments">

@@ -1,14 +1,16 @@
 import { DateTimeFormatter, LocalDateTime } from '@js-joda/core'
 import { Transform } from 'class-transformer'
-
+const USER_REPOSITORY = container.resolve()
 export default class PostView {
-  public id = 0
+  public userId = 0
+  public postId = 0
   public title = ''
   public content = ''
   @Transform(({ value }) => LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME), {
     toClassOnly: true
   })
   public regDate = LocalDateTime.now()
+  public getuser() {}
 
   public getDisplayRegDate() {
     // 몇 분 전

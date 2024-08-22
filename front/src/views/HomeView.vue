@@ -29,7 +29,7 @@ onMounted(() => {
   <div class="content">
     <span class="totalCount">게시글 수: {{ state.postList.totalCount }} </span>
     <ul class="posts">
-      <li v-for="post in state.postList.items" :key="post.id">
+      <li v-for="post in state.postList.items" :key="post.postId">
         <Post :post="post" />
       </li>
     </ul>

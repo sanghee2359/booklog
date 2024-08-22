@@ -12,14 +12,16 @@ import java.time.LocalDateTime;
 @Slf4j
 @Getter
 public class PostResponse {
-    private final Long id;
+    private final Long userId;
+    private final Long postId;
     private final String title;
     private final String content;
     private final LocalDateTime regDate;
 
     // 생성자 오버로딩
     public PostResponse(Post post) {
-        this.id = post.getId();
+        this.userId = post.getUserId();
+        this.postId = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.regDate = post.getRegDate();

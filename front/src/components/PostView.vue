@@ -7,16 +7,18 @@ const props = defineProps<{
 </script>
 <template>
   <div class="title">
-    <router-link :to="{ name: 'post', params: { postId: props.post.id } }">
+    <router-link :to="{ name: 'post', params: { postId: props.post.postId } }">
       {{ props.post.title }}
     </router-link>
   </div>
-  <div class="regDate">{{ props.post.getDisplaySimpleRegDate() }}</div>
+  <div class="regDate">{{ props.post.getDisplaySimpleRegDate() }} by {{props.}}</div>
   <div class="content">
     {{ props.post.getShortenContent() }}
   </div>
   <div class="readMore">
-    <router-link :to="{ name: 'post', params: { postId: props.post.id } }"> Read more </router-link>
+    <router-link :to="{ name: 'post', params: { postId: props.post.postId } }">
+      Read more
+    </router-link>
   </div>
 </template>
 

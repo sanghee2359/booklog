@@ -6,6 +6,7 @@ import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
 import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
+import com.api.booklog.response.UserResponse;
 import com.api.booklog.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,10 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     public PostResponse get(@PathVariable(name="postId") Long postId) {
         return postService.get(postId);
+    }
+    @GetMapping("/posts/{postId}/getuser")
+    public UserResponse getUser(@PathVariable(name="postId") Long postId) {
+        return postService.getUser(postId);
     }
 
 

@@ -2,7 +2,7 @@
   <span class="totalCount">북마크 수: {{ paging.items.length }} </span>
   <div class="bookmark-container" @scroll="handleScroll">
     <!-- 북마크 포스트 리스트 -->
-    <PostView v-for="post in paging.items" :key="post.id" :post="post" />
+    <PostView v-for="post in paging.items" :key="post.postId" :post="post" />
 
     <!-- 로딩 인디케이터 -->
     <div v-if="loading" class="loading">

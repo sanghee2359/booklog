@@ -12,6 +12,7 @@ import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
 import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
+import com.api.booklog.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -57,6 +58,12 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow((PostNotFound::new));
         return new PostResponse(post);
+
+    }
+    public UserResponse getUser(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow((PostNotFound::new));
+        return new UserResponse(post.getUserId(), post.getUser().getName());
 
     }
     public PagingResponse<PostResponse> getList(PostSearch postSearch) {
