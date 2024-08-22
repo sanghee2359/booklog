@@ -11,7 +11,7 @@ const props = defineProps<{
       {{ props.post.title }}
     </router-link>
   </div>
-  <div class="regDate">{{ props.post.getDisplaySimpleRegDate() }} by {{props.}}</div>
+  <div class="regDate">{{ props.post.getDisplaySimpleRegDate() }}</div>
   <div class="content">
     {{ props.post.getShortenContent() }}
   </div>

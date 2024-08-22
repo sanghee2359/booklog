@@ -3,6 +3,7 @@ import { inject, singleton } from 'tsyringe'
 import type PostWrite from '@/entity/post/PostWrite'
 import type PostEdit from '@/entity/post/PostEdit'
 import PostView from '@/entity/post/PostView'
+import UserProfile from '@/entity/user/UserProfile.ts'
 
 @singleton()
 export default class PostRepository {
@@ -21,6 +22,14 @@ export default class PostRepository {
         path: `/api/posts/${postId}`
       },
       PostView
+    )
+  }
+  public getUserName(postId: number, UserProfile: UserProfile): Promise<UserProfile> {
+    return this.httpRepository.get<UserProfile>(
+      {
+        path: `/api/posts/${postId}/getuser`
+      },
+      UserProfile
     )
   }
 

@@ -26,11 +26,13 @@ type StateType = {
   profile: UserProfile | null
   post: PostView | null
   isBookmarked: boolean
+  author: String | null
 }
 const state = reactive<StateType>({
   profile: null,
   post: null,
-  isBookmarked: false
+  isBookmarked: false,
+  author: null
 })
 onBeforeMount(() => {
   USER_REPOSITORY.getProfile().then((profile) => {
@@ -75,8 +77,21 @@ function remove() {
       ElMessage({ type: 'info', message: '삭제가 취소되었습니다.' })
     })
 }
+function getUserName(postId: number) {
+  // POST_REPOSITORY를 통해 postId에 해당하는 유저 이름을 가져옴
+  POST_REPOSITORY.getUserName(postId, UserProfile)
+    .then((profile) => {
+      state.author = profile.name
+    })
+    .catch((error) => {
+      console.error(state.author)
+      console.error(error)
+      return 'Unknown User'
+    })
+}
 
 onMounted(() => {
+  getUserName(props.postId)
   checkBookmarkStatus()
   getPost()
 })
@@ -86,7 +101,7 @@ onMounted(() => {
   <el-container>
     <el-header class="header">
       <h1 class="title">{{ state.post?.title }}</h1>
-      <div class="regDate">{{ state.post?.getDisplayRegDate() }}</div>
+      <div class="regDate">{{ state.post?.getDisplayRegDate() }} Posted by {{ state.author }}</div>
     </el-header>
 
     <el-main class="content">

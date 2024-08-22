@@ -1,6 +1,6 @@
 import { DateTimeFormatter, LocalDateTime } from '@js-joda/core'
 import { Transform } from 'class-transformer'
-const USER_REPOSITORY = container.resolve()
+
 export default class PostView {
   public userId = 0
   public postId = 0
@@ -10,7 +10,6 @@ export default class PostView {
     toClassOnly: true
   })
   public regDate = LocalDateTime.now()
-  public getuser() {}
 
   public getDisplayRegDate() {
     // 몇 분 전
