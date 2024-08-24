@@ -16,10 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BookMarkController {
     private final BookMarkService bookmarkService;
-    @PostMapping("/users/bookmarks/{postId}")
-    public void addBookmark(@PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        bookmarkService.addBookmark(userPrincipal.getUserId(), postId);
-    }
 
     @GetMapping("/users/bookmarks")
     public ResponseEntity<PagingResponse<PostResponse>> getBookmarks(
@@ -31,11 +27,8 @@ public class BookMarkController {
         PagingResponse<PostResponse> response = bookmarkService.getBookmarks( userPrincipal.getUserId(), page, size );
         return ResponseEntity.ok(response);
     }
+    // 북마크 토글
 
-    @DeleteMapping("/users/bookmarks/{postId}")
-    public void removeBookmark(@PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        bookmarkService.removeBookmark(userPrincipal.getUserId(), postId);
-    }
     @PostMapping("/bookmarks/{postId}")
     public ResponseEntity<BookmarkResponse> toggleBookmark(
             @PathVariable Long postId,
@@ -53,6 +46,7 @@ public class BookMarkController {
 
         return ResponseEntity.ok(response);
     }
+    // 현재 북마크 상태 체크
     @GetMapping("/users/bookmarks/{postId}")
     public boolean checkBookmarkStatus(
             @PathVariable Long postId,

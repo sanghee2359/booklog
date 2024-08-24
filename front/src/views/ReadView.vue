@@ -101,7 +101,8 @@ onMounted(() => {
   <el-container>
     <el-header class="header">
       <h1 class="title">{{ state.post?.title }}</h1>
-      <div class="regDate">{{ state.post?.getDisplayRegDate() }} Posted by {{ state.author }}</div>
+      <div class="regDate">{{ state.post?.getDisplayRegDate() }}</div>
+      <div class="author">Posted by {{ state.author }}</div>
     </el-header>
 
     <el-main class="content">
@@ -147,6 +148,10 @@ onMounted(() => {
 }
 
 .regDate {
+  font-size: 0.875rem;
+  color: #666;
+}
+.author {
   font-size: 0.875rem;
   color: #666;
 }

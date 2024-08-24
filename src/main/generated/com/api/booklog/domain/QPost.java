@@ -30,6 +30,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final NumberPath<Integer> likesCount = createNumber("likesCount", Integer.class);
+
     public final DateTimePath<java.time.LocalDateTime> regDate = createDateTime("regDate", java.time.LocalDateTime.class);
 
     public final StringPath title = createString("title");

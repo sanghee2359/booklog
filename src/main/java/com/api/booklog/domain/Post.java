@@ -19,8 +19,10 @@ public class Post {
 
     @Column(nullable = false)
     private LocalDateTime regDate;
-    @Lob
+    @Lob // Large Object를 나타냄 (텍스트 또는 바이너리 대용량 데이터)
+    @Column(columnDefinition = "LONGTEXT") // DB column의 데이터 타입을 명시적으로 정의
     private String content;
+    private int likesCount = 0;
 
     @ManyToOne
     @JoinColumn
@@ -60,5 +62,17 @@ public class Post {
     public void addComment(Comment comment) {
         comment.setPost(this); // comment가 현재 포스트임을 명시
         this.comments.add(comment); // comment list에 add
+    }
+
+    // likeCount 증가
+    public void incrementLikeCount() {
+        this.likesCount++;
+    }
+
+    // likeCount 감소 (likeCount가 0보다 클 때만 감소)
+    public void decrementLikeCount() {
+        if (this.likesCount > 0) {
+            this.likesCount--;
+        }
     }
 }
