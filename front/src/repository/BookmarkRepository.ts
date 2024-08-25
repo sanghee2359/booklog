@@ -2,16 +2,11 @@ import { inject, singleton } from 'tsyringe'
 import HttpRepository from '@/repository/HttpRepository'
 import PostView from '@/entity/post/PostView'
 import type Paging from '@/entity/data/Paging'
-import { ElMessage } from 'element-plus'
-import type BookmarkResponse from '@/entity/data/BookmarkResponse'
-
+import { BookmarkResponse } from '@/entity/data/BookmarkResponse'
 @singleton()
 export default class BookmarkRepository {
   constructor(@inject(HttpRepository) private readonly httpRepository: HttpRepository) {}
-  public toggleBookmark(
-    postId: number,
-    BookmarkResponse: BookmarkResponse
-  ): Promise<BookmarkResponse> {
+  public toggleBookmark(postId: number): Promise<BookmarkResponse> {
     // class
     return this.httpRepository.post<BookmarkResponse>(
       {

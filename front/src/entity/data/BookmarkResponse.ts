@@ -7,8 +7,7 @@ export class BookmarkResponse {
   @Expose()
   status: boolean
 
-  constructor(postId: number, status: boolean) {
-    this.postId = postId
+  constructor(status: boolean) {
     this.status = status
   }
 }

@@ -31,36 +31,13 @@ export default class HttpRepository {
     })
   }
 
-  // public post<T>(
-  //   config: HttpRequestConfig,
-  //   classes: { new (...args: any[]): T } | null = null
-  // ): Promise<T> {
-  //   return this.httpClient.request({ ...config, method: 'POST' }).then((response) => {
-  //     if (classes) {
-  //       return plainToInstance(classes, response)
-  //     } else {
-  //       return response
-  //     }
-  //   })
-  // }
   public post<T>(
     config: HttpRequestConfig,
     classes: { new (...args: any[]): T } | null = null
   ): Promise<T> {
     return this.httpClient.request({ ...config, method: 'POST' }).then((response) => {
-      console.log('Raw response:', response) // 응답 확인
       if (classes) {
-        try {
-          // 응답이 객체인지 확인
-          if (response && typeof response === 'object') {
-            return plainToInstance(classes, response)
-          } else {
-            throw new Error('Invalid response format')
-          }
-        } catch (error) {
-          console.error('Error during plainToInstance conversion:', error)
-          throw error // 예외를 다시 던지기
-        }
+        return plainToInstance(classes, response)
       } else {
         return response
       }

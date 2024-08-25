@@ -4,6 +4,7 @@ import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import { ElMessage } from 'element-plus'
 import { BookmarkResponse } from '@/entity/data/BookmarkResponse'
+import { plainToInstance } from 'class-transformer'
 
 export default {
   props: {
@@ -11,11 +12,9 @@ export default {
     initialStatus: Boolean
   },
   setup: function (props) {
-    // 초기 상태 관리
-    const bookmark = ref<BookmarkResponse>({
-      postId: props.postId,
-      status: props.initialStatus
-    })
+    const bookmark = ref<BookmarkResponse>(
+      new BookmarkResponse(props.postId, { status: props.initialStatus })
+    )
 
     // 현재 북마크 상태에 따라 이미지 선택
     const currentImage = computed(() => {
@@ -31,16 +30,21 @@ export default {
 
     const toggleBookmark = async () => {
       try {
-        const response = await BOOKMARK_REPOSITORY.toggleBookmark(props.postId, bookmark.value)
+        const response = await BOOKMARK_REPOSITORY.toggleBookmark(props.postId, bookmark)
         console.log('Response from API:', response)
-        if (response && typeof response.status !== 'undefined') {
-          bookmark.value.status = response.status
+        // `plainToInstance`로 클래스 인스턴스로 변환 (선택적, 클래스 인스턴스가 이미 반환된 경우 필요 없음)
+        const bookmarkResponse = plainToInstance(BookmarkResponse, response)
+
+        // API 응답에서 `status`가 올바르게 정의되었는지 확인
+        if (bookmarkResponse && typeof bookmarkResponse.status !== 'undefined') {
+          bookmark.value.status = bookmarkResponse.status
           ElMessage({ type: 'success', message: '북마크 상태가 변경되었습니다' })
         } else {
-          console.log(response)
+          console.error('Unexpected response format:', response)
+          ElMessage({ type: 'error', message: '북마크 상태 변경 실패' })
         }
       } catch (error) {
-        console.error('Error occurred:', error)
+        console.error('Error occurred during bookmark toggle:', error)
         bookmark.value.status = !bookmark.value.status // Rollback state
         ElMessage({ type: 'error', message: '북마크 상태 변경 실패' })
       }

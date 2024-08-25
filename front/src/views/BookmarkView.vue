@@ -1,5 +1,5 @@
 <template>
-  <span class="totalCount">북마크 수: {{ paging.items.length }} </span>
+  <span class="totalCount">북마크 수: {{ totalCount }} </span>
   <div class="bookmark-container" @scroll="handleScroll">
     <!-- 북마크 포스트 리스트 -->
     <PostView v-for="post in paging.items" :key="post.postId" :post="post" />
@@ -21,7 +21,7 @@ import { ref, onMounted } from 'vue'
 import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import Paging from '@/entity/data/Paging'
-import PostView from '@/entity/data/PostView'
+import { PostView } from '@/entity/data/PostView'
 
 // PostView 컴포넌트 import
 import PostViewComponent from '@/components/PostView.vue'
@@ -35,14 +35,16 @@ export default {
     const paging = ref(new Paging<PostView>())
     const loading = ref(false)
     const page = ref(1)
-    const pageSize = 10
+    const pageSize = 5
+    const totalCount = ref(0) // Define totalCount as a ref
 
     const fetchBookmarks = async (pageNumber: number) => {
       loading.value = true
       try {
         const response = await BOOKMARK_REPOSITORY.getBookmarks(pageNumber, pageSize)
-        const { items, hasNextPage } = response
-
+        const { items, hasNextPage, totalCount: responseTotalCount } = response
+        totalCount.value = responseTotalCount // Update totalCount
+        console.log(hasNextPage)
         if (items.length) {
           if (pageNumber === 0) {
             paging.value.setItems(items)
@@ -76,7 +78,8 @@ export default {
 
     return {
       paging,
-      loading
+      loading,
+      totalCount
     }
   }
 }
