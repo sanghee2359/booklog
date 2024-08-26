@@ -28,6 +28,8 @@ public class QUsers extends EntityPathBase<Users> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final ListPath<Likes, QLikes> likes = this.<Likes, QLikes>createList("likes", Likes.class, QLikes.class, PathInits.DIRECT2);
+
     public final StringPath name = createString("name");
 
     public final StringPath password = createString("password");
