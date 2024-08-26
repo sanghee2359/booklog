@@ -10,7 +10,7 @@ export default class PostView {
     toClassOnly: true
   })
   public regDate = LocalDateTime.now()
-
+  public likesCount = 0
   public getDisplayRegDate() {
     // 몇 분 전
     let minute = this.regDate.minute()

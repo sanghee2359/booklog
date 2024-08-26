@@ -22,7 +22,8 @@ public class Post {
     @Lob // Large Object를 나타냄 (텍스트 또는 바이너리 대용량 데이터)
     @Column(columnDefinition = "LONGTEXT") // DB column의 데이터 타입을 명시적으로 정의
     private String content;
-    private int likesCount = 0;
+    @Column(name = "likes_count")
+    private Long likesCount = 0L;
 
     @ManyToOne
     @JoinColumn
@@ -33,12 +34,15 @@ public class Post {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<BookMark> bookMarks;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    private List<Likes> likes;
     @Builder
     public Post(String title, String content, Users user) {
         this.title = title;
         this.content = content;
         this.user = user;
         this.regDate = LocalDateTime.now();
+        this.likesCount = 0L;
     }
 
 

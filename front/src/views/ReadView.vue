@@ -7,12 +7,14 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import router from '@/router'
 import Comments from '@/components/Comments.vue'
 import BookmarkButton from '@/components/BookmarkButton.vue'
-import HeartButton from '@/components/HeartButton.vue'
+import HeartButton from '@/components/LikeButton.vue'
 import { Check, Delete, Edit, Message, Search, Star } from '@element-plus/icons-vue'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import UserRepository from '@/repository/UserRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
 import UserProfile from '@/entity/user/UserProfile'
+import { LikeResponse } from '@/entity/data/LikeResponse'
+import { plainToInstance } from 'class-transformer'
 
 const props = defineProps<{
   postId: number
@@ -26,12 +28,14 @@ type StateType = {
   profile: UserProfile | null
   post: PostView | null
   isBookmarked: boolean
+  likeStatus: LikeResponse | null
   author: String | null
 }
 const state = reactive<StateType>({
   profile: null,
   post: null,
   isBookmarked: false,
+  likeStatus: null,
   author: null
 })
 onBeforeMount(() => {
@@ -47,6 +51,16 @@ function getPost() {
     })
     .catch((e) => {
       ElMessage({ type: 'error', message: `${props.postId}번 글 조회 실패` })
+    })
+}
+function checkLikeStatus() {
+  POST_REPOSITORY.getLikesCount(props.postId, LikeResponse)
+    .then((response: LikeResponse) => {
+      console.log('>>isLikeResponse', response)
+      state.likeStatus = plainToInstance(LikeResponse, response)
+    })
+    .catch(() => {
+      ElMessage({ type: 'error', message: `좋아요 상태 확인 실패` })
     })
 }
 function checkBookmarkStatus() {
@@ -70,7 +84,7 @@ function remove() {
     .then(() => {
       POST_REPOSITORY.delete(props.postId).then(() => {
         ElMessage({ type: 'success', message: '성공적으로 삭제되었습니다!' })
-        router.push('/')
+        location.href = '/' // home으로 이동
       })
     })
     .catch(() => {
@@ -93,6 +107,7 @@ function getUserName(postId: number) {
 onMounted(() => {
   getUserName(props.postId)
   checkBookmarkStatus()
+  checkLikeStatus()
   getPost()
 })
 </script>
@@ -114,7 +129,11 @@ onMounted(() => {
         <BookmarkButton :postId="Number(props.postId)" :initialStatus="state.isBookmarked" />
       </div>
       <div class="radius-container">
-        <HeartButton />
+        <HeartButton
+          :postId="Number(props.postId)"
+          :initialStatus="Boolean(state.likeStatus?.liked)"
+          :count="Number(state.likeStatus?.likesCount)"
+        />
       </div>
 
       <div
@@ -217,7 +236,7 @@ onMounted(() => {
 
 .radius-container {
   padding: 10px;
-  padding-top: 16px;
+  padding-top: 20px;
   width: 80px; /* 둥근 경계의 너비 */
   height: 35px; /* 둥근 경계의 높이 */
   border: 2px solid #dcdfe6; /* 경계선 색상 */

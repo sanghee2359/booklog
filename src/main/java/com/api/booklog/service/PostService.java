@@ -1,23 +1,31 @@
 package com.api.booklog.service;
 
+import com.api.booklog.config.UserPrincipal;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.PostEditor;
 import com.api.booklog.exception.InvalidRequest;
 import com.api.booklog.exception.PostNotFound;
+import com.api.booklog.exception.Unauthorized;
 import com.api.booklog.exception.UserNotFound;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UserRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
+import com.api.booklog.response.LikeResponse;
 import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
 import com.api.booklog.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,12 +62,13 @@ public class PostService {
     }
     // 게시글 조회
 
-    public PostResponse get(Long id) {
+    public PostResponse get (Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow((PostNotFound::new));
         return new PostResponse(post);
 
     }
+    // 게시글의 작성자 조회
     public UserResponse getUser(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow((PostNotFound::new));
@@ -86,7 +95,6 @@ public class PostService {
                 .content(postEdit.getContent())
                 .build();
         post.edit(postEditor);
-//        return new PostResponse(post);
     }
 
     public void delete(Long userId, Long postId) {
@@ -95,4 +103,6 @@ public class PostService {
         bookMarkService.removeBookmark(userId, postId);
         postRepository.delete(post);
     }
+
+
 }

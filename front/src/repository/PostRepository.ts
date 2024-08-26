@@ -3,7 +3,8 @@ import { inject, singleton } from 'tsyringe'
 import type PostWrite from '@/entity/post/PostWrite'
 import type PostEdit from '@/entity/post/PostEdit'
 import PostView from '@/entity/post/PostView'
-import UserProfile from '@/entity/user/UserProfile.ts'
+import UserProfile from '@/entity/user/UserProfile'
+import type { LikeResponse } from '@/entity/data/LikeResponse'
 
 @singleton()
 export default class PostRepository {
@@ -52,5 +53,23 @@ export default class PostRepository {
       path: `/api/posts/${postId}`,
       body: request
     })
+  }
+  public async getLikesCount(postId: number, likeResponse: LikeResponse): Promise<LikeResponse> {
+    return this.httpRepository.get<LikeResponse>(
+      {
+        path: `/api/posts/${postId}/like`
+      },
+      likeResponse
+    )
+  }
+
+  // 기존 메서드 수정: 좋아요 상태와 개수를 포함한 `LikeResponse`를 반환
+  public async toggleLike(postId: number, likeResponse: LikeResponse): Promise<LikeResponse> {
+    return this.httpRepository.post<LikeResponse>(
+      {
+        path: `/api/posts/${postId}/like`
+      },
+      likeResponse
+    )
   }
 }

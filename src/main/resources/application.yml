@@ -25,7 +25,6 @@ spring:
 
   session:
     timeout: 86400 # 세션 기간 : 24시간
-    store-type: jdbc
     jdbc:
       initialize-schema: always
 

@@ -17,6 +17,7 @@ public class PostResponse {
     private final String title;
     private final String content;
     private final LocalDateTime regDate;
+    private final Long likesCount;
 
     // 생성자 오버로딩
     public PostResponse(Post post) {
@@ -25,6 +26,7 @@ public class PostResponse {
         this.title = post.getTitle();
         this.content = post.getContent();
         this.regDate = post.getRegDate();
+        this.likesCount = post.getLikesCount();
     }
 
 }
