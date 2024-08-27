@@ -6,16 +6,19 @@ import { BookmarkResponse } from '@/entity/data/BookmarkResponse'
 @singleton()
 export default class BookmarkRepository {
   constructor(@inject(HttpRepository) private readonly httpRepository: HttpRepository) {}
-  public toggleBookmark(postId: number): Promise<BookmarkResponse> {
+  public toggleBookmark(
+    postId: number,
+    bookmarkResponse: BookmarkResponse
+  ): Promise<BookmarkResponse> {
     // class
     return this.httpRepository.post<BookmarkResponse>(
       {
         path: `/api/bookmarks/${postId}`
       },
-      BookmarkResponse
+      bookmarkResponse
     )
   }
-  public getBookmarkStatus(postId: number): Promise<boolean> {
+  public getBookmarkStatus(postId: number) {
     return this.httpRepository.get({
       path: `/api/users/bookmarks/${postId}`
     })
