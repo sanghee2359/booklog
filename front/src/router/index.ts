@@ -48,6 +48,11 @@ const router = createRouter({
       name: 'bookmark',
       component: BookmarkView,
       props: true // edit 컴포넌트의 props에서 값을 받을 수 있다
+    },
+    {
+      path: '/toReadList',
+      name: 'ToReadList',
+      component: ToReadList
     }
   ]
 })
