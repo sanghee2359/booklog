@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive } from 'vue'
+import { computed, onBeforeMount, onMounted, reactive } from 'vue'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import PostView from '@/entity/post/PostView'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import router from '@/router'
 import Comments from '@/components/Comments.vue'
 import BookmarkButton from '@/components/BookmarkButton.vue'
 import HeartButton from '@/components/LikeButton.vue'
-import { Check, Delete, Edit, Message, Search, Star } from '@element-plus/icons-vue'
+import { Delete, Edit } from '@element-plus/icons-vue'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import UserRepository from '@/repository/UserRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
@@ -38,11 +37,18 @@ const state = reactive<StateType>({
   likeStatus: null,
   author: null
 })
+// 로그인 여부를 computed로 설정
+const isLoggedIn = computed(() => !!state.profile)
+
 onBeforeMount(() => {
-  USER_REPOSITORY.getProfile().then((profile) => {
-    PROFILE_REPOSITORY.setProfile(profile)
-    state.profile = profile
-  })
+  USER_REPOSITORY.getProfile()
+    .then((profile) => {
+      PROFILE_REPOSITORY.setProfile(profile)
+      state.profile = profile
+    })
+    .catch(() => {
+      state.profile = null
+    })
 })
 function getPost() {
   POST_REPOSITORY.get(props.postId, PostView)
@@ -126,13 +132,18 @@ onMounted(() => {
 
     <el-footer class="footer">
       <div class="bookmark-container">
-        <BookmarkButton :postId="Number(props.postId)" :initialStatus="state.isBookmarked" />
+        <BookmarkButton
+          :postId="Number(props.postId)"
+          :initialStatus="state.isBookmarked"
+          :isLoggedIn="isLoggedIn"
+        />
       </div>
       <div class="radius-container">
         <HeartButton
           :postId="Number(props.postId)"
-          :initialStatus="Boolean(state.likeStatus?.liked)"
+          :initialStatus="isLoggedIn ? Boolean(state.likeStatus?.liked) : false"
           :count="Number(state.likeStatus?.likesCount)"
+          :isLoggedIn="isLoggedIn"
         />
       </div>
 

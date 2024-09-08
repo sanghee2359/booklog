@@ -19,11 +19,15 @@ export default {
     count: {
       type: Number,
       required: true
+    },
+    isLoggedIn: {
+      type: Boolean,
+      required: true
     }
   },
   setup(props) {
     const likeResponse = ref<LikeResponse>(
-      new LikeResponse(props.postId, { isLiked: props.initialStatus }, props.count)
+      new LikeResponse(props.postId, { liked: props.initialStatus }, props.count)
     )
     const POST_REPOSITORY = container.resolve(PostRepository)
     const loading = ref(true)
@@ -34,6 +38,9 @@ export default {
 
     // 좋아요 상태에 따른 이미지 선택
     const currentImage = computed(() => {
+      if (!props.isLoggedIn) {
+        return false_like
+      }
       return likeResponse.value.liked ? true_like : false_like
     })
 
@@ -49,13 +56,17 @@ export default {
       }
     }
     const toggleLike = async () => {
+      // 로그인하지 않은 경우 liked를 false로 설정
+      if (!props.isLoggedIn) {
+        ElMessage({ type: 'error', message: `로그인이 필요합니다.` })
+        location.href = '/login'
+        return
+      }
       loading.value = true
 
       try {
         const response = await POST_REPOSITORY.toggleLike(props.postId, LikeResponse)
         likeResponse.value = plainToInstance(LikeResponse, response)
-        console.log('>>>>response ', likeResponse.value)
-        console.log('>>>>>isLiked ', likeResponse.value?.isLiked)
       } catch (error) {
         console.error('Error toggling like:', error)
         // Rollback state if error occurs
@@ -63,7 +74,7 @@ export default {
 
         likeResponse.value = new LikeResponse(
           props.postId,
-          !likeResponse.value.isLiked,
+          !likeResponse.value.liked,
           likeResponse.value.likesCount
         )
       } finally {
@@ -81,7 +92,7 @@ export default {
       () => props.initialStatus,
       (newStatus) => {
         if (likeResponse.value) {
-          likeResponse.value.isLiked = newStatus
+          likeResponse.value.liked = newStatus
         }
       }
     )

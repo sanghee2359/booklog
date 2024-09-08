@@ -20,7 +20,7 @@ public class LikeController {
             @PathVariable Long postId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        Long userId = userPrincipal.getUserId();
+        Long userId = (userPrincipal != null) ? userPrincipal.getUserId() : null;
         LikeResponse response = likeService.getLikeStatus(postId, userId);
         return ResponseEntity.ok(response);
     }

@@ -18,7 +18,7 @@ export default class BookmarkRepository {
       bookmarkResponse
     )
   }
-  public getBookmarkStatus(postId: number) {
+  public getBookmarkStatus(postId: number): Promise<boolean> {
     return this.httpRepository.get({
       path: `/api/users/bookmarks/${postId}`
     })

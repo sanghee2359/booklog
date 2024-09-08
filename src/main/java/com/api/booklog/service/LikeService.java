@@ -54,9 +54,11 @@ public class LikeService {
 
     public LikeResponse getLikeStatus(Long postId, Long userId) {
         Post post = postRepository.findById(postId).orElseThrow(PostNotFound::new);
+        if (userId == null) {
+            // 로그인하지 않은 경우 기본적으로 isLiked를 false로 설정
+            return new LikeResponse(postId, false, post.getLikesCount());
+        }
         boolean isLiked = isLiked(postId, userId);
-        Long likesCount = post.getLikesCount();
-
-        return new LikeResponse(postId, isLiked, likesCount);
+        return new LikeResponse(postId, isLiked, post.getLikesCount());
     }
 }
