@@ -17,16 +17,27 @@ type StateType = {
 const state = reactive<StateType>({
   profile: null
 })
-onBeforeMount(() => {
-  USER_REPOSITORY.getProfile().then((profile) => {
-    console.log(profile)
-    PROFILE_REPOSITORY.setProfile(profile)
-    state.profile = profile
-  })
+// 사용자 프로필을 가져오는 함수
+onBeforeMount(async () => {
+  try {
+    const profile = await USER_REPOSITORY.getProfile()
+    if (profile) {
+      PROFILE_REPOSITORY.setProfile(profile)
+      state.profile = profile
+    } else {
+      console.error('No profile data found')
+    }
+  } catch (error) {
+    console.error('Error fetching profile:', error)
+  }
 })
+
+// 로그아웃 함수
 function logout() {
-  ElMessage({ type: 'message', message: '로그아웃 되었습니다.' })
-  PROFILE_REPOSITORY.clear()
+  if (state.profile) {
+    ElMessage({ type: 'success', message: '로그아웃 되었습니다.' })
+    PROFILE_REPOSITORY.clear(state.profile.id)
+  }
   location.href = '/api/logout'
 }
 // 서랍의 열림 상태 관리
@@ -57,8 +68,8 @@ const visible = ref(false)
             <el-avatar shape="square" :size="100" :src="squareUrl" />
           </div>
         </el-col>
-        <p><strong>ID:</strong> {{ state.profile.id }}</p>
-        <p><strong>Name:</strong> {{ state.profile.name }}</p>
+        <p><strong>ID:</strong> {{ state.profile?.id }}</p>
+        <p><strong>Name:</strong> {{ state.profile?.name }}</p>
         <a href="#" @click="logout()"> {{ state.profile!.name }} 로그아웃 </a>
       </div>
     </el-drawer>

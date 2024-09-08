@@ -1,14 +1,20 @@
-import type UserProfile from '@/entity/user/UserProfile'
-import { instanceToPlain } from 'class-transformer'
-import { singleton } from 'tsyringe'
+import HttpRepository from '@/repository/HttpRepository'
+import { inject, singleton } from 'tsyringe'
+import UserProfile from '@/entity/user/UserProfile'
+import { instanceToPlain, plainToInstance } from 'class-transformer'
+
 @singleton()
 export default class ProfileRepository {
-  public setProfile(profile: UserProfile) {
-    const json = instanceToPlain(profile)
-    localStorage.setItem('profile', JSON.stringify(json))
+  private getProfileKey(userId: number) {
+    return `profile_${userId}`
   }
 
-  clear() {
-    localStorage.clear()
+  public setProfile(profile: UserProfile) {
+    const json = instanceToPlain(profile)
+    localStorage.setItem(this.getProfileKey(profile.id), JSON.stringify(json))
+  }
+
+  public clear(userId: number) {
+    localStorage.removeItem(this.getProfileKey(userId))
   }
 }
