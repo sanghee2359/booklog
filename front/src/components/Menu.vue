@@ -5,6 +5,7 @@ import UserRepository from '@/repository/UserRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
 import type UserProfile from '@/entity/user/UserProfile'
 import { ElMessage } from 'element-plus'
+import { Collection, EditPen, House, User } from '@element-plus/icons-vue'
 
 const USER_REPOSITORY = container.resolve(UserRepository)
 const PROFILE_REPOSITORY = container.resolve(ProfileRepository)
@@ -26,19 +27,27 @@ onBeforeMount(() => {
 <template>
   <ul class="menus">
     <li class="menu">
-      <router-link to="/">HOME</router-link>
+      <router-link to="/">
+        <el-icon><House /></el-icon> HOME</router-link
+      >
     </li>
 
     <li class="menu" v-if="state.profile !== null">
-      <router-link to="/write">글 작성</router-link>
+      <router-link to="/write"
+        ><el-icon><EditPen /></el-icon> 글 작성</router-link
+      >
     </li>
 
     <li class="menu" v-if="state.profile !== null">
-      <router-link to="/users/bookmarks">북마크</router-link>
+      <router-link to="/users/bookmarks">
+        <el-icon><Collection /></el-icon> 북마크</router-link
+      >
     </li>
 
     <li class="menu" v-if="state.profile !== null">
-      <router-link to="/write">마이페이지</router-link>
+      <router-link to="/write">
+        <el-icon><User /></el-icon> 마이페이지</router-link
+      >
     </li>
   </ul>
 </template>
