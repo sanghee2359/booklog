@@ -45,7 +45,7 @@ onBeforeMount(() => {
     </li>
 
     <li class="menu" v-if="state.profile !== null">
-      <router-link to="/write">
+      <router-link to="/myPage">
         <el-icon><User /></el-icon> 마이페이지</router-link
       >
     </li>

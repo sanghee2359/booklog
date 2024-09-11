@@ -1,11 +1,11 @@
 <template>
   <div class="container">
-    <h2>Todo List</h2>
+    <h2>읽을 책 리스트</h2>
     <div class="input-group" style="margin-bottom: 10px">
       <input
         type="text"
         class="form-control"
-        placeholder="할일을 입력하세요"
+        placeholder="앞으로 앍을 책을 입력하세요"
         v-model="str"
         @keyup.enter="createTodo(str)"
       />

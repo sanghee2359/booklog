@@ -16,7 +16,7 @@
 .footer {
   width: 100%;
   height: 110px;
-  background-color: #f8f9fa; /* footer 배경색 설정 */
+  background-color: #ffffff; /* footer 배경색 설정 */
   text-align: center;
   padding: 20px 0;
   position: relative;
