@@ -6,7 +6,7 @@ import com.api.booklog.domain.Users;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.exception.UserNotFound;
 import com.api.booklog.repository.LikesRepository;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.response.LikeResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
     private final LikesRepository likeRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;    // 게시글 좋아요 관리
+    private final UsersRepository userRepository;    // 게시글 좋아요 관리
     @Transactional
     public LikeResponse toggleLike(Long postId, Long userId){
         Post post = postRepository.findById(postId).orElseThrow(PostNotFound::new);

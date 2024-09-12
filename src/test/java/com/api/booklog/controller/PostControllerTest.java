@@ -4,7 +4,7 @@ import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.Users;
 import com.api.booklog.repository.post.PostRepository;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +41,7 @@ class PostControllerTest {
     private PostRepository postRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UsersRepository userRepository;
     @AfterEach
     void clean() {
         postRepository.deleteAll();

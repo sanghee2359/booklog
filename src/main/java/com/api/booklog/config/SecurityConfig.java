@@ -6,7 +6,7 @@ import com.api.booklog.config.handler.Http403Handler;
 import com.api.booklog.config.handler.LoginFailHandler;
 import com.api.booklog.config.handler.LoginSuccessHandler;
 import com.api.booklog.domain.Users;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +32,7 @@ import org.springframework.session.security.web.authentication.SpringSessionReme
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final ObjectMapper objectMapper;
-    private final UserRepository userRepository;
+    private final UsersRepository userRepository;
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
@@ -87,7 +87,7 @@ public class SecurityConfig {
 
 
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository) {
+    public UserDetailsService userDetailsService(UsersRepository userRepository) {
         return username -> {
                 Users user = userRepository.findByEmail(username)
                         .orElseThrow(() -> new UsernameNotFoundException(username + "을/를 찾을 수 없습니다."));

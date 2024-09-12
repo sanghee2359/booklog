@@ -8,7 +8,7 @@ import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.exception.Unauthorized;
 import com.api.booklog.exception.UserNotFound;
 import com.api.booklog.repository.post.PostRepository;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository userRepository;
     private final BookMarkService bookMarkService;
     // 게시글 생성
 

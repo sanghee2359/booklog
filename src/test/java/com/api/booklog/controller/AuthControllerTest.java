@@ -1,6 +1,6 @@
 package com.api.booklog.controller;
 
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.auth.SignUp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    private UsersRepository userRepository;
 
     @BeforeEach
     void clean() {

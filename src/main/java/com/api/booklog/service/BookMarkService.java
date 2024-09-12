@@ -5,7 +5,7 @@ import com.api.booklog.exception.AlreadyBookmark;
 import com.api.booklog.exception.BookmarkNotFound;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.exception.UserNotFound;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.response.BookmarkResponse;
 import com.api.booklog.response.PagingResponse;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class BookMarkService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository userRepository;
     private static final String BOOKMARK_KEY_PREFIX = "user:bookmarks:";
 
     public void addBookmark(Long userId, Long postId) {

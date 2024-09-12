@@ -4,7 +4,7 @@ import com.api.booklog.domain.Post;
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.repository.post.PostRepository;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
@@ -26,7 +26,7 @@ class PostServiceTest {
     @Autowired
     private PostRepository postRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UsersRepository userRepository;
     @AfterEach
     void clean() {
         postRepository.deleteAll();

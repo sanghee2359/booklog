@@ -4,7 +4,7 @@ package com.api.booklog.controller;
 import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
 import com.api.booklog.repository.post.PostRepository;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -41,7 +41,7 @@ public class PostControllerDocTest {
 //    private WebApplicationContext context;
     PostRepository postRepository;
     @Autowired
-    UserRepository userRepository;
+    UsersRepository userRepository;
 
     @Autowired
     ObjectMapper objectMapper;

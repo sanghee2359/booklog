@@ -4,7 +4,7 @@ import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Comment;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.Users;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.repository.post.CommentRepository;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.request.comment.CommentCreate;
@@ -39,7 +39,7 @@ class CommentControllerTest {
     private PostRepository postRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UsersRepository userRepository;
 
     @Autowired
     private CommentRepository commentRepository;

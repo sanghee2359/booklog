@@ -2,7 +2,7 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.AlreadyExistEmail;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.auth.SignUp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthServiceTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private UsersRepository userRepository;
     @Autowired
     private AuthService authService;
     @BeforeEach
