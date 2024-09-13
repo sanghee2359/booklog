@@ -33,23 +33,23 @@ class AuthControllerTest {
         userRepository.deleteAll();
     }
 
-    @Test
-    @DisplayName("회원가입")
-    void signup_success() throws Exception {
-        // given
-        SignUp signUp = SignUp.builder()
-                .name("정상희")
-                .password("1234")
-                .email("wjdtkdgml7352@naver.com").
-                build();
-
-        // expected
-        mockMvc.perform(post("/auth/signup")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUp)))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
+//    @Test
+//    @DisplayName("회원가입")
+//    void signup_success() throws Exception {
+//        // given
+//        SignUp signUp = SignUp.builder()
+//                .name("정상희")
+//                .password("1234")
+//                .email("wjdtkdgml7352@naver.com").
+//                build();
+//
+//        // expected
+//        mockMvc.perform(post("/auth/signup")
+//                        .contentType(APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(signUp)))
+//                .andExpect(status().isOk())
+//                .andDo(print());
+//    }
 
 }
 

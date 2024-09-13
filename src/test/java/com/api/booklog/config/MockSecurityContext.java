@@ -1,7 +1,7 @@
 package com.api.booklog.config;
 
 import com.api.booklog.domain.Users;
-import com.api.booklog.repository.UserRepository;
+import com.api.booklog.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class MockSecurityContext implements WithSecurityContextFactory<CustomWithMockUser> {
-    private final UserRepository userRepository;
+    private final UsersRepository userRepository;
     // test가 돌기 전 미리 사용자 컨텍스트를 만들어놓는 기능
     @Override
     public SecurityContext createSecurityContext(CustomWithMockUser annotation) {

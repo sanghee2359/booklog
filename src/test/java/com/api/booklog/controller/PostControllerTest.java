@@ -123,7 +123,7 @@ class PostControllerTest {
                         .contentType(APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(post.getId()))
+                .andExpect(jsonPath("$.postId").value(post.getId()))
                 .andExpect(jsonPath("$.title").value("title"))
                 .andExpect(jsonPath("$.content").value("content"))
                 .andDo(print());
@@ -153,9 +153,9 @@ class PostControllerTest {
         mockMvc.perform(get("/posts?page=1&sort=id,desc&size=10") // 10개 limit을 페이징 하며, 1페이지 가져오기.
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(10)))
-                .andExpect(jsonPath("$[0].title").value("제목 - 9"))
-                .andExpect(jsonPath("$[0].content").value("데이터9"))
+                .andExpect(jsonPath("$.length()", is(5)))
+                .andExpect(jsonPath("$.items.[0].title").value("제목 - 9"))
+                .andExpect(jsonPath("$.items.[0].content").value("데이터9"))
 
                 .andDo(print());
     }
@@ -165,7 +165,7 @@ class PostControllerTest {
     void editTitle() throws Exception {
         // given
         // MockUser에서 만든 user을 꺼내온다 -> 왜 7/16일 user이 userRepository에 남은거지?
-        Users user = userRepository.findAll().get(1);
+        Users user = userRepository.findAll().get(0);
 
         Post post = Post.builder()
                 .title("제목 1")
