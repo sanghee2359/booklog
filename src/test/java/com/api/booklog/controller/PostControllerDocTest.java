@@ -3,6 +3,7 @@ package com.api.booklog.controller;
 
 import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
+import com.api.booklog.domain.Users;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.post.PostCreate;
@@ -56,29 +57,40 @@ public class PostControllerDocTest {
     @DisplayName("글 단건 조회")
     void Doc_findTest() throws Exception {
         // given
+        Users user = Users.builder()
+                .name("정상희")
+                .email("wjdtkdgml7352.naver.com")
+                .password("sanghee065")
+                .build();
+        userRepository.save(user);
         Post post = Post.builder()
                 .title("제목 1")
                 .content("데이터 1")
+                .user(user)
                 .build();
         postRepository.save(post);
 
         // exptected
         mockMvc.perform(RestDocumentationRequestBuilders
                         .get("/posts/{postId}", post.getId())
-                        .accept(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andDo(print())
                 // 요청 파라미터
                 .andDo(document("post-inquiry", pathParameters(
-                        RequestDocumentation.parameterWithName("postId").description("게시글 Id")
+                                RequestDocumentation.parameterWithName("postId").description("게시글 Id")
                         ),
                         // 응답 json의 필드 설명
                         responseFields(
-                                fieldWithPath("id").type(JsonFieldType.NUMBER).description("게시글 Id"),
+                                fieldWithPath("postId").type(JsonFieldType.NUMBER).description("게시글 Id"),
                                 fieldWithPath("title").type(JsonFieldType.STRING).description("제목"),
-                                fieldWithPath("content").type(JsonFieldType.STRING).description("내용")
-
-                        )
+                                fieldWithPath("content").type(JsonFieldType.STRING).description("내용"),
+                                fieldWithPath("userId").type(JsonFieldType.NUMBER).description("작성자 Id"),
+                                fieldWithPath("regDate").type(JsonFieldType.STRING).description("작성 시간"),
+                                fieldWithPath("likesCount").type(JsonFieldType.NUMBER).description("좋아요 개수")
+                                )
                 ));
     }
 

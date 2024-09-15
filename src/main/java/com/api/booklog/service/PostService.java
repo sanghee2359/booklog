@@ -100,7 +100,11 @@ public class PostService {
     public void delete(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow((PostNotFound::new));
-        bookMarkService.removeBookmark(userId, postId);
+
+        boolean isBookmarked = bookMarkService.isMemberOfZSet(bookMarkService.makeKey(userId), postId);
+        if(isBookmarked) {
+            bookMarkService.removeBookmark(userId, postId);
+        }
         postRepository.delete(post);
     }
 
