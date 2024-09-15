@@ -2,6 +2,7 @@ import HttpRepository from '@/repository/HttpRepository'
 import type Login from '@/entity/user/Login'
 import { inject, singleton } from 'tsyringe'
 import UserProfile from '@/entity/user/UserProfile'
+import type UserEdit from '@/entity/user/UserEdit'
 @singleton()
 export default class UserRepository {
   constructor(@inject(HttpRepository) private readonly httpRepository: HttpRepository) {}
@@ -20,5 +21,12 @@ export default class UserRepository {
       },
       UserProfile
     )
+  }
+
+  edit(request: UserEdit) {
+    return this.httpRepository.patch({
+      path: `/api/users/setting`,
+      body: request
+    })
   }
 }

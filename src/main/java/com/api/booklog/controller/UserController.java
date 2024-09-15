@@ -24,10 +24,12 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#userId, 'POST', 'PATCH')")
-    @PatchMapping("/users/{userId}")
-    public void edit(@PathVariable Long userId
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PatchMapping("/users/setting")
+    public ResponseEntity<Void> edit(@AuthenticationPrincipal UserPrincipal userPrincipal
             , @RequestBody @Valid UserEdit request) {
-        userService.edit(userId, request);
+        if(userPrincipal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        userService.edit(userPrincipal.getUserId(), request);
+        return ResponseEntity.ok(null);
     }
 }

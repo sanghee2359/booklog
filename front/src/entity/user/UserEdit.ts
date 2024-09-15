@@ -1,4 +1,5 @@
-export default class PostEdit {
-  public title = ''
-  public content = ''
+export default class UserEdit {
+  public name = ''
+  public email = ''
+  public password = ''
 }

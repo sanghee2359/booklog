@@ -72,7 +72,7 @@ public class PostService {
     public UserResponse getUser(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow((PostNotFound::new));
-        return new UserResponse(post.getUserId(), post.getUser().getName());
+        return new UserResponse(post.getUserId(), post.getUser().getName(), post.getUser().getEmail());
 
     }
     public PagingResponse<PostResponse> getList(PostSearch postSearch) {
