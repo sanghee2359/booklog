@@ -36,4 +36,16 @@ public class Users {
         this.password = password;
         this.createdAt = LocalDateTime.now();
     }
+    public UserEditor.UserEditorBuilder toEditor() {
+        return UserEditor.builder()
+                .name(name)
+                .email(email)
+                .password(password);
+    }
+
+    public void edit(UserEditor userEditor) { // PostEditor 하나만 인자로 받는 메서드로 개선.
+        name = userEditor.getName();
+        email = userEditor.getEmail();
+        password = userEditor.getPassword();
+    }
 }
