@@ -7,20 +7,28 @@
     @close="handleClose"
   >
     <el-menu-item index="1">
-      <el-icon><setting /></el-icon>
-      <template #title>사용자 정보 변경</template>
+      <router-link to="/userSetting">
+        <el-icon><setting /></el-icon>
+        <template #title>사용자 정보 변경</template>
+      </router-link>
     </el-menu-item>
     <el-menu-item index="2">
-      <el-icon><ZoomIn /></el-icon>
-      <template #title>읽을 책 리스트</template>
+      <router-link to="/toReadList">
+        <el-icon><ZoomIn /></el-icon>
+        <template #title>읽을 책 리스트</template>
+      </router-link>
     </el-menu-item>
     <el-menu-item index="3">
-      <el-icon><document /></el-icon>
-      <template #title>작성글</template>
+      <router-link to="/myPostList">
+        <el-icon><document /></el-icon>
+        <template #title>작성글</template>
+      </router-link>
     </el-menu-item>
     <el-menu-item index="4">
-      <el-icon><Star /></el-icon>
-      <template #title>완독 기록</template>
+      <router-link to="/bookLog">
+        <el-icon><Star /></el-icon>
+        <template #title>완독 기록</template>
+      </router-link>
     </el-menu-item>
   </el-menu>
 </template>
@@ -38,9 +46,4 @@ const handleClose = (key: string, keyPath: string[]) => {
 }
 </script>
 
-<style>
-.el-menu-vertical-demo:not(.el-menu--collapse) {
-  width: 200px;
-  min-height: 400px;
-}
-</style>
+<style></style>
