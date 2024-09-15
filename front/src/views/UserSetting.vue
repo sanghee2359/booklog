@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { container } from 'tsyringe'
 import { ElMessage } from 'element-plus'
 import UserRepository from '@/repository/UserRepository'
@@ -17,6 +17,8 @@ const state = reactive<StateType>({
 })
 
 const USER_REPOSITORY = container.resolve(UserRepository)
+
+const formRef = ref<InstanceType<typeof ElForm>>()
 
 // Fetch profile data and initialize edit state
 function getProfile() {
@@ -39,14 +41,24 @@ function getProfile() {
 function editUserProfile() {
   if (!state.edit) return
 
-  USER_REPOSITORY.edit(state.edit)
-    .then(() => {
-      ElMessage({ type: 'success', message: '프로필 수정 완료' })
-      location.href = `/userSetting`
+  const form = formRef.value
+
+  if (form) {
+    form.validate((valid: boolean) => {
+      if (valid) {
+        USER_REPOSITORY.edit(state.edit)
+          .then(() => {
+            ElMessage({ type: 'success', message: '프로필 수정 완료' })
+            location.href = `/userSetting`
+          })
+          .catch(() => {
+            ElMessage({ type: 'error', message: `프로필 수정 실패` })
+          })
+      } else {
+        ElMessage({ type: 'error', message: '유효성 검사가 실패했습니다.' })
+      }
     })
-    .catch(() => {
-      ElMessage({ type: 'error', message: `프로필 수정 실패` })
-    })
+  }
 }
 
 // Compute whether the button should be disabled
@@ -87,6 +99,16 @@ watch(
     }
   }
 )
+
+// Password validation rule
+const passwordRule = [
+  { required: true, message: '비밀번호를 입력해 주세요', trigger: 'blur' },
+  {
+    pattern: /(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_]).{10,}/,
+    message: '비밀번호는 최소 8자 이상이어야 하며, 특수문자, 영문자, 숫자를 포함해야 합니다.',
+    trigger: 'blur'
+  }
+]
 </script>
 
 <template>
@@ -94,19 +116,33 @@ watch(
     <el-col :span="24" class="edit-col">
       <el-card class="edit-card">
         <h2 class="edit-title">프로필 수정</h2>
-        <!-- Ensure that el-form is rendered only if state.edit is not null -->
-        <el-form v-if="state.edit" :model="state.edit" ref="editForm">
-          <el-form-item label="Name" class="form-item">
+        <el-form
+          v-if="state.edit"
+          :model="state.edit"
+          ref="formRef"
+          :rules="{ password: passwordRule }"
+          @keyup.enter="editUserProfile"
+        >
+          <el-form-item label="Name" class="form-item" prop="name">
             <el-input v-model="state.edit.name" placeholder="Enter new name" />
           </el-form-item>
-          <el-form-item label="Email" class="form-item">
+          <el-form-item label="Email" class="form-item" prop="email">
             <el-input v-model="state.edit.email" placeholder="Enter new email" />
           </el-form-item>
-          <el-form-item label="Password" class="form-item">
-            <el-input v-model="state.edit.password" placeholder="Enter new password" />
+          <el-form-item label="Password" class="form-item" prop="password">
+            <el-input
+              type="password"
+              v-model="state.edit.password"
+              placeholder="Enter new password"
+            />
           </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="editUserProfile" :disabled="isButtonDisabled">
+          <el-form-item class="button-container">
+            <el-button
+              class="button"
+              type="primary"
+              @click="editUserProfile"
+              :disabled="isButtonDisabled"
+            >
               Update Profile
             </el-button>
           </el-form-item>
@@ -115,54 +151,17 @@ watch(
     </el-col>
   </el-row>
 </template>
-<style lang="scss" scoped>
-.edit-page {
-  padding: 20px;
-  display: flex;
-  justify-content: center; // Center the content horizontally
-}
 
-.edit-col {
-  display: flex;
-  justify-content: center; // Center the column content horizontally
-}
-
-.edit-card {
-  width: 100%;
-  max-width: 800px; // Set a maximum width for the card
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
+<style scoped>
 .edit-title {
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: bold;
+  padding: 0 10px; /* 열 간의 간격을 위한 패딩 추가 */
+  margin-bottom: 15px; /* 위쪽 여백 추가 */
 }
-
-.form-item {
-  margin-bottom: 20px;
+.button-container {
+  margin-top: 20px; /* 위쪽 여백 추가 */
 }
-
-.el-button {
-  margin-top: 20px;
-}
-
-@media (max-width: 600px) {
-  .edit-card {
-    padding: 15px;
-  }
-
-  .edit-title {
-    font-size: 20px;
-  }
-
-  .form-item {
-    margin-bottom: 15px;
-  }
-
-  .el-button {
-    margin-top: 15px;
-  }
+.button {
+  padding: 10px;
+  margin-top: 15px; /* 위쪽 여백 추가 */
 }
 </style>
