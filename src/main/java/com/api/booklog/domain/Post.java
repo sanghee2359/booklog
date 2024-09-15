@@ -33,8 +33,6 @@ public class Post {
     private List<Comment> comments;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
-    private List<BookMark> bookMarks;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<Likes> likes;
     @Builder
     public Post(String title, String content, Users user) {

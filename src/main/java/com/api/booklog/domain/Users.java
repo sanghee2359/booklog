@@ -24,9 +24,6 @@ public class Users {
     private List<Post> posts;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<BookMark> bookMarks;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Likes> likes;
 
     @Builder

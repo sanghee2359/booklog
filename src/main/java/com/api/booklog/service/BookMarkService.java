@@ -35,7 +35,7 @@ public class BookMarkService {
 
         // 이미 북마크에 존재하는지 확인
         String key = makeKey(userId);
-        if(isMemberOfZSet(key, postId)) {
+        if(isExistInZSet(key, postId)) {
             throw new AlreadyBookmark();
         }
 
@@ -85,27 +85,41 @@ public class BookMarkService {
         postRepository.findById(postId).orElseThrow(PostNotFound::new);
 
         String key = makeKey(userId);
-        if(!isMemberOfZSet(key, postId)) {
+        if(!isExistInZSet(key, postId)) {
             throw new BookmarkNotFound();
         }
         redisTemplate.opsForZSet().remove(key, postId);
         log.debug("Bookmark remove: userId={}, postId={}, key={}", userId, postId, key); // 로그 추가
     }
+
+    public void removeBookmarkByKey(Long userId) {
+        // Redis에서 해당 키가 존재하는지 확인
+        String key = makeKey(userId);
+        // 해당 키의 데이터를 삭제
+        redisTemplate.delete(key);
+
+        log.debug("Bookmark remove: key={}", key); // 로그 추가
+    }
     public String makeKey(Long userId) {
         return BOOKMARK_KEY_PREFIX + userId;
     }
-    // 북마크 Sorted Set에 존재하지 않는 포스트입니다
-    public boolean isMemberOfZSet(String key, Object value) {
+
+
+    public boolean isExistInZSet(String key, Object value) {
         Double score = redisTemplate.opsForZSet().score(key, value);
         return score != null;
     }
+    public boolean isExistsKey(String key) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
     public BookmarkResponse toggleBookmark(Long userId, Long postId) {
         postRepository.findById(postId).orElseThrow(PostNotFound::new);
 
         userRepository.findById(userId)
                 .orElseThrow(UserNotFound::new);
 
-        boolean isBookmarked = isMemberOfZSet(makeKey(userId), postId);
+        boolean isBookmarked = isExistInZSet(makeKey(userId), postId);
         boolean newStatus;
 
         if (isBookmarked) {

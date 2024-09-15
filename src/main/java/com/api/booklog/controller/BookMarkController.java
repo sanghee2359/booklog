@@ -55,7 +55,7 @@ public class BookMarkController {
             throw new Unauthorized();
         }
 
-        return bookmarkService.isMemberOfZSet(bookmarkService.makeKey(
+        return bookmarkService.isExistInZSet(bookmarkService.makeKey(
                         userPrincipal.getUserId()),
                         postId);
     }
