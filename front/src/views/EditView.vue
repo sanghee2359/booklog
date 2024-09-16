@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, reactive, watch } from 'vue'
 import PostEdit from '@/entity/post/PostEdit'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
@@ -52,6 +52,11 @@ function editPost() {
       ElMessage({ type: 'error', message: `글 수정 실패` })
     })
 }
+// Compute whether the button should be disabled
+const isButtonDisabled = computed(() => {
+  const edit = state.edit
+  return !edit?.title.trim() || !edit?.content.trim()
+})
 
 // On component mounted, fetch the post
 onMounted(() => {
@@ -83,13 +88,13 @@ watch(
     <el-col :span="24" class="edit-col">
       <el-card class="edit-card">
         <h2 class="edit-title">Edit Post</h2>
-        <el-form :model="state.edit" ref="editForm">
+        <el-form :model="state.edit">
+          <!--          title-->
           <el-form-item label="Title" class="form-item">
-            <!-- Bind title to state.edit.title -->
             <el-input v-model="state.edit.title" placeholder="Enter title" />
           </el-form-item>
+          <!--          content-->
           <el-form-item label="Content" class="form-item">
-            <!-- Bind content to state.edit.content -->
             <el-input
               v-model="state.edit.content"
               type="textarea"
@@ -97,8 +102,11 @@ watch(
               placeholder="Enter content"
             />
           </el-form-item>
+          <!--          submit-->
           <el-form-item>
-            <el-button type="primary" @click="editPost">Update Post</el-button>
+            <el-button class="button" type="primary" @click="editPost" :disabled="isButtonDisabled"
+              >Update Post</el-button
+            >
           </el-form-item>
         </el-form>
       </el-card>

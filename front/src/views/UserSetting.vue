@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { container } from 'tsyringe'
-import { ElMessage } from 'element-plus'
+import { ElForm, ElMessage } from 'element-plus'
 import UserRepository from '@/repository/UserRepository'
 import UserEdit from '@/entity/user/UserEdit'
 import type UserProfile from '@/entity/user/UserProfile'
+import HttpError from '@/http/HttpError'
 
 type StateType = {
   profile: UserProfile | null
@@ -33,7 +34,7 @@ function getProfile() {
     })
     .catch((e) => {
       console.error(e)
-      ElMessage({ type: 'error', message: `${props.userId}번 유저 조회 실패` })
+      ElMessage({ type: 'error', message: `유저 조회 실패` })
     })
 }
 
@@ -51,8 +52,9 @@ function editUserProfile() {
             ElMessage({ type: 'success', message: '프로필 수정 완료' })
             location.href = `/userSetting`
           })
-          .catch(() => {
-            ElMessage({ type: 'error', message: `프로필 수정 실패` })
+          .catch((e: HttpError) => {
+            // 실패했을 때
+            ElMessage({ type: 'error', message: e.getMessage() })
           })
       } else {
         ElMessage({ type: 'error', message: '유효성 검사가 실패했습니다.' })
@@ -91,15 +93,6 @@ watch(
   }
 )
 
-watch(
-  () => state.profile?.password,
-  (newPassword) => {
-    if (state.edit) {
-      state.edit.password = newPassword || ''
-    }
-  }
-)
-
 // Password validation rule
 const passwordRule = [
   { required: true, message: '비밀번호를 입력해 주세요', trigger: 'blur' },
@@ -121,7 +114,6 @@ const passwordRule = [
           :model="state.edit"
           ref="formRef"
           :rules="{ password: passwordRule }"
-          @keyup.enter="editUserProfile"
         >
           <el-form-item label="Name" class="form-item" prop="name">
             <el-input v-model="state.edit.name" placeholder="Enter new name" />

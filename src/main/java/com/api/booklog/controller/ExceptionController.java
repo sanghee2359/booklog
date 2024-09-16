@@ -1,5 +1,6 @@
 package com.api.booklog.controller;
 
+import com.api.booklog.exception.AlreadyExistUserInformation;
 import com.api.booklog.exception.RootException;
 import com.api.booklog.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,17 @@ public class ExceptionController {
 
 
         ResponseEntity<ErrorResponse> response = ResponseEntity.status(statusCode).body(responseBody);
+        return response;
+    }
+
+    @ExceptionHandler(AlreadyExistUserInformation.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyExistUserInformation(AlreadyExistUserInformation ex) {
+        ErrorResponse responseBody = ErrorResponse.builder()
+                .code("400")
+                .message(ex.getMessage())
+                .build();
+        ResponseEntity<ErrorResponse> response = ResponseEntity.status(400).body(responseBody);
+
         return response;
     }
 
