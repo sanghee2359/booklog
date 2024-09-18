@@ -11,6 +11,9 @@ import java.util.List;
 
 public interface PostRepositoryCustom {
     Page<Post> getList(PostSearch postSearch);
-//    @Query(value = "SELECT * FROM post WHERE id IN :ids ORDER BY FIELD(id, :ids)", nativeQuery = true)
+
+    // 북마크된 게시글 가져오기 - 최신 북마크한 순서가 마지막이 되도록 정렬
     List<Post> findPostsByIdsOrderByIdCustom(List<Long> ids);
+
+    Page<Post> getListByUser(Long userId, PostSearch postSearch);
 }

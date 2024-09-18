@@ -54,7 +54,16 @@ public class PostController {
     public PagingResponse<PostResponse> getList(@ModelAttribute PostSearch postSearch) {
         return postService.getList(postSearch);
     }
-
+    
+//    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/posts/myPage")
+    public PagingResponse<PostResponse> getListByUser(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam int page,
+            @RequestParam int size) {
+        PostSearch postSearch = new PostSearch(page, size);
+        return postService.getListByUser(userPrincipal.getUserId(), postSearch);
+    }
     // 수정 API
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#postId, 'POST', 'PATCH')")

@@ -72,5 +72,23 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
         return query.getResultList();
     }
 
+    @Override
+    public Page<Post> getListByUser(Long userId, PostSearch postSearch) {
+        long totalCount = jpaQueryFactory
+                .select(post.count())
+                .from(post)
+                .where(post.user.id.eq(userId))
+                .fetchFirst();
+        // 사용자에 맞는 게시글 리스트
+        List<Post> items = jpaQueryFactory
+                .selectFrom(post)
+                .where(post.user.id.eq(userId))
+                .limit(postSearch.getSize())
+                .offset(postSearch.getOffSet())
+                .orderBy(post.id.desc())
+                .fetch();
+        return new PageImpl<>(items, postSearch.getPageable(), totalCount);
+    }
+
 
 }

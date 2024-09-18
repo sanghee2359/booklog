@@ -1,6 +1,6 @@
 <template>
   <span class="totalCount">북마크 수: {{ totalCount }} </span>
-  <div class="bookmark-container" @scroll="handleScroll">
+  <div class="bookmark-container" ref="bookmarkContainer">
     <!-- 북마크 포스트 리스트 -->
     <PostView v-for="post in paging.items" :key="post.postId" :post="post" />
 
@@ -17,13 +17,11 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import Paging from '@/entity/data/Paging'
-import { PostView } from '@/entity/data/PostView'
-
-// PostView 컴포넌트 import
+import PostView from '@/entity/data/PostView'
 import PostViewComponent from '@/components/PostView.vue'
 
 export default {
@@ -36,17 +34,23 @@ export default {
     const loading = ref(false)
     const page = ref(1)
     const pageSize = 5
-    const totalCount = ref(0) // Define totalCount as a ref
+    const totalCount = ref(0)
+
+    // DOM 요소에 대한 ref
+    const bookmarkContainer = ref<HTMLElement | null>(null)
 
     const fetchBookmarks = async (pageNumber: number) => {
       loading.value = true
       try {
         const response = await BOOKMARK_REPOSITORY.getBookmarks(pageNumber, pageSize)
         const { items, hasNextPage, totalCount: responseTotalCount } = response
-        totalCount.value = responseTotalCount // Update totalCount
-        console.log(hasNextPage)
+        totalCount.value = responseTotalCount
+        console.log('Fetched items:', items)
+        console.log('Total Count:', totalCount.value)
+        console.log('Has Next Page:', hasNextPage)
+
         if (items.length) {
-          if (pageNumber === 0) {
+          if (pageNumber === 1) {
             paging.value.setItems(items)
           } else {
             paging.value.setItems([...paging.value.items, ...items])
@@ -64,22 +68,40 @@ export default {
     }
 
     const handleScroll = () => {
-      const bottomOfWindow =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight
-      if (bottomOfWindow && !loading.value && paging.value.hasNextPage) {
-        fetchBookmarks(page.value)
+      if (bookmarkContainer.value) {
+        const container = bookmarkContainer.value
+        const bottomOfContainer =
+          container.scrollHeight - container.scrollTop <= container.clientHeight + 1
+
+        if (bottomOfContainer && !loading.value && paging.value.hasNextPage) {
+          fetchBookmarks(page.value)
+        }
       }
     }
 
     onMounted(() => {
       fetchBookmarks(page.value)
-      window.addEventListener('scroll', handleScroll)
+      bookmarkContainer.value?.addEventListener('scroll', handleScroll)
     })
+
+    onBeforeUnmount(() => {
+      bookmarkContainer.value?.removeEventListener('scroll', handleScroll)
+    })
+
+    // watch ref for changes and setup event listeners again if necessary
+    watch(
+      () => bookmarkContainer.value,
+      (newValue, oldValue) => {
+        if (oldValue) oldValue.removeEventListener('scroll', handleScroll)
+        if (newValue) newValue.addEventListener('scroll', handleScroll)
+      }
+    )
 
     return {
       paging,
       loading,
-      totalCount
+      totalCount,
+      bookmarkContainer
     }
   }
 }

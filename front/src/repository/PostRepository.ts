@@ -5,6 +5,7 @@ import type PostEdit from '@/entity/post/PostEdit'
 import PostView from '@/entity/post/PostView'
 import UserProfile from '@/entity/user/UserProfile'
 import type { LikeResponse } from '@/entity/data/LikeResponse'
+import Paging from '@/entity/data/Paging'
 
 @singleton()
 export default class PostRepository {
@@ -38,6 +39,15 @@ export default class PostRepository {
     return this.httpRepository.getList<PostView>(
       {
         path: `/api/posts?page=${page}&size=3`
+      },
+      PostView
+    )
+  }
+
+  public getListByUser(page: number, size: number): Promise<Paging<PostView>> {
+    return this.httpRepository.getList<PostView>(
+      {
+        path: `/api/posts/myPage?page=${page}&size=${size}`
       },
       PostView
     )

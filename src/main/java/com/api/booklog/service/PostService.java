@@ -81,6 +81,18 @@ public class PostService {
         PagingResponse<PostResponse> postList = new PagingResponse<>(postPage, PostResponse.class);
         return postList;
     }
+
+    public PagingResponse<PostResponse> getListByUser(Long userId, PostSearch postSearch) {
+
+        long start = (long)(postSearch.getPage() - 1) * postSearch.getSize();
+        Page<Post> postPage = postRepository.getListByUser(userId, postSearch);
+
+        PagingResponse<PostResponse> postList = new PagingResponse<>(postPage, PostResponse.class);
+        postList.setHasNextPage(postPage.getTotalElements() > (start + postSearch.getSize()));
+
+        return postList;
+    }
+
     // 게시글 수정
     @Transactional
     public void edit(Long id, PostEdit postEdit) {
