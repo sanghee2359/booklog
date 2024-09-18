@@ -36,6 +36,15 @@ export default {
     const false_like = '/images/heart/false_heart.png'
     const true_like = '/images/heart/true_heart.PNG'
 
+    // likesCount를 포맷팅하여 k로 표시
+    const formattedLikesCount = computed(() => {
+      const likes = likeResponse.value.likesCount
+      if (likes >= 1000) {
+        return (likes / 1000).toFixed(1).replace(/\.0$/, '') + 'k'
+      }
+      return likes.toString()
+    })
+
     // 좋아요 상태에 따른 이미지 선택
     const currentImage = computed(() => {
       if (!props.isLoggedIn) {
@@ -101,7 +110,8 @@ export default {
       likeResponse,
       loading,
       toggleLike,
-      currentImage
+      currentImage,
+      formattedLikesCount
     }
   }
 }
@@ -109,8 +119,9 @@ export default {
 
 <template>
   <div @click="toggleLike" class="image-toggle-button" :class="{ loading: loading }">
-    <div v-if="!loading">
-      <img :src="currentImage" alt="Toggle Like" />{{ likeResponse.likesCount }}
+    <div v-if="!loading" class="like-container">
+      <img :src="currentImage" alt="Toggle Like" class="like-image" />
+      <span class="like-count">{{ formattedLikesCount }}</span>
     </div>
     <span v-else>Loading...</span>
   </div>
@@ -128,5 +139,22 @@ export default {
 .image-toggle-button.loading {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.like-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.like-image {
+  display: inline-block;
+}
+
+.like-count {
+  display: inline-block;
+  margin-left: 6px; /* 오른쪽으로 이동 */
+  vertical-align: middle; /* 이미지와 수직 정렬 */
+  position: relative;
+  top: -2px; /* 위쪽으로 이동 */
 }
 </style>
