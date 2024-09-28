@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import Paging from '@/entity/data/Paging'
@@ -45,9 +45,6 @@ export default {
         const response = await BOOKMARK_REPOSITORY.getBookmarks(pageNumber, pageSize)
         const { items, hasNextPage, totalCount: responseTotalCount } = response
         totalCount.value = responseTotalCount
-        console.log('Fetched items:', items)
-        console.log('Total Count:', totalCount.value)
-        console.log('Has Next Page:', hasNextPage)
 
         if (items.length) {
           if (pageNumber === 1) {
@@ -71,7 +68,7 @@ export default {
       if (bookmarkContainer.value) {
         const container = bookmarkContainer.value
         const bottomOfContainer =
-          container.scrollHeight - container.scrollTop <= container.clientHeight + 1
+          container.scrollHeight - container.scrollTop <= container.clientHeight + 50 // 오차 허용
 
         if (bottomOfContainer && !loading.value && paging.value.hasNextPage) {
           fetchBookmarks(page.value)
@@ -81,21 +78,16 @@ export default {
 
     onMounted(() => {
       fetchBookmarks(page.value)
-      bookmarkContainer.value?.addEventListener('scroll', handleScroll)
+
+      if (bookmarkContainer.value) {
+        console.log('bookmarkContainer element:', bookmarkContainer.value) // DOM 요소 출력
+        bookmarkContainer.value.addEventListener('scroll', handleScroll)
+      }
     })
 
     onBeforeUnmount(() => {
       bookmarkContainer.value?.removeEventListener('scroll', handleScroll)
     })
-
-    // watch ref for changes and setup event listeners again if necessary
-    watch(
-      () => bookmarkContainer.value,
-      (newValue, oldValue) => {
-        if (oldValue) oldValue.removeEventListener('scroll', handleScroll)
-        if (newValue) newValue.addEventListener('scroll', handleScroll)
-      }
-    )
 
     return {
       paging,
@@ -109,8 +101,10 @@ export default {
 
 <style scoped>
 .bookmark-container {
-  height: 100vh;
+  height: 400px; /* 스크롤이 발생할 만큼 충분한 높이 */
   overflow-y: auto; /* Scrollable container */
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
 }
 
 .loading {
