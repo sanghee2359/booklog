@@ -46,16 +46,17 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineProps } from 'vue'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import Paging from '@/entity/data/Paging'
 import type PostView from '@/entity/data/PostView'
 import { DateTimeFormatter } from '@js-joda/core'
+import { useRouter } from 'vue-router'
 
 export default {
-  components: {},
   setup() {
+    const router = useRouter()
     const POST_REPOSITORY = container.resolve(PostRepository)
     const paging = ref(new Paging<PostView>())
     const loading = ref(false)
@@ -99,6 +100,11 @@ export default {
       fetchList(page.value)
     }
 
+    // PostView로 이동하는 detail 메소드
+    const detail = (postId: number) => {
+      router.push({ name: 'post', params: { postId } }) // postId를 params로 넘겨서 이동
+    }
+
     onMounted(() => {
       fetchList(page.value)
     })
@@ -110,7 +116,8 @@ export default {
       groupedPosts,
       page,
       pageSize,
-      handlePageChange
+      handlePageChange,
+      detail // detail 메소드를 리턴
     }
   }
 }
