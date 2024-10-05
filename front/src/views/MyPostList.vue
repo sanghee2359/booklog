@@ -1,18 +1,46 @@
 <template>
-  내가 작성한 글 리스트
-  <span class="totalCount">글 수: {{ totalCount }} </span>
-  <div class="bookmark-container" @scroll="handleRoll">
-    <!-- 북마크 포스트 리스트 -->
-    <PostView v-for="post in paging.items" :key="post.postId" :post="post" />
+  <div>
+    내가 작성한 글 리스트
+    <span class="totalCount">글 수: {{ totalCount }}</span>
 
-    <!-- 로딩 인디케이터 -->
-    <div v-if="loading" class="loading">
-      <p>Loading...</p>
-    </div>
+    <div class="post-container">
+      <el-timeline v-if="Object.keys(groupedPosts).length">
+        <el-timeline-item
+          v-for="(posts, date) in groupedPosts"
+          :key="date"
+          :timestamp="date"
+          placement="top"
+        >
+          <el-card v-for="post in posts" :key="post.postId" @click.native="detail(post.postId)">
+            <div>
+              <h4>{{ post.title }}</h4>
+              <p class="card-date">{{ post.getDisplayRegDate() }}</p>
+            </div>
+          </el-card>
+        </el-timeline-item>
+      </el-timeline>
 
-    <!-- 무한 스크롤이 끝났다는 메시지 -->
-    <div v-if="!loading && !paging.hasNextPage" class="end-of-list">
-      <p>No more posts to load</p>
+      <!-- 로딩 인디케이터 -->
+      <div v-if="loading" class="loading">
+        <p>Loading...</p>
+      </div>
+
+      <!-- 데이터가 없을 때 표시 -->
+      <div v-if="!loading && !Object.keys(groupedPosts).length" class="no-data">
+        <p>No posts to display</p>
+      </div>
+
+      <!-- 페이지네이션 -->
+      <el-pagination
+        v-if="!loading && totalCount > pageSize"
+        background
+        layout="prev, pager, next"
+        :total="totalCount"
+        :page-size="pageSize"
+        :current-page="page"
+        @current-change="handlePageChange"
+        class="center-pagination"
+      />
     </div>
   </div>
 </template>
@@ -22,40 +50,42 @@ import { ref, onMounted } from 'vue'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import Paging from '@/entity/data/Paging'
-import { PostView } from '@/entity/data/PostView'
-
-// PostView 컴포넌트 import
-import PostViewComponent from '@/components/PostView.vue'
+import type PostView from '@/entity/data/PostView'
+import { DateTimeFormatter } from '@js-joda/core'
 
 export default {
-  components: {
-    PostView: PostViewComponent
-  },
+  components: {},
   setup() {
     const POST_REPOSITORY = container.resolve(PostRepository)
     const paging = ref(new Paging<PostView>())
     const loading = ref(false)
     const page = ref(1)
     const pageSize = 5
-    const totalCount = ref(0) // Define totalCount as a ref
+    const totalCount = ref(0)
+    const groupedPosts = ref<Record<string, PostView[]>>({})
 
     const fetchList = async (pageNumber: number) => {
       loading.value = true
       try {
         const response = await POST_REPOSITORY.getListByUser(pageNumber, pageSize)
-        const { items, hasNextPage, totalCount: responseTotalCount } = response
-        totalCount.value = responseTotalCount // Update totalCount
-        console.log(hasNextPage)
+        const { items, totalCount: responseTotalCount } = response
+        totalCount.value = responseTotalCount
+
         if (items.length) {
-          if (pageNumber === 0) {
-            paging.value.setItems(items)
-          } else {
-            paging.value.setItems([...paging.value.items, ...items])
-          }
-          paging.value.setHasNextPage(hasNextPage)
-          page.value += 1
+          paging.value.setItems(items)
+
+          // 날짜별로 그룹화
+          const postsGroupedByDate: Record<string, PostView[]> = {}
+          items.forEach((post: PostView) => {
+            const date = post.regDate.format(DateTimeFormatter.ofPattern('yyyy-MM-dd')) // 포스트 생성 날짜 포맷
+            if (!postsGroupedByDate[date]) {
+              postsGroupedByDate[date] = []
+            }
+            postsGroupedByDate[date].push(post)
+          })
+          groupedPosts.value = postsGroupedByDate
         } else {
-          paging.value.setHasNextPage(false)
+          groupedPosts.value = {}
         }
       } catch (error) {
         console.error('Error fetching fetchList:', error)
@@ -64,33 +94,32 @@ export default {
       }
     }
 
-    const handleRoll = () => {
-      const bottomOfWindow =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight
-      if (bottomOfWindow && !loading.value && paging.value.hasNextPage) {
-        fetchList(page.value)
-      }
+    const handlePageChange = (newPage: number) => {
+      page.value = newPage
+      fetchList(page.value)
     }
 
     onMounted(() => {
       fetchList(page.value)
-      window.addEventListener('scroll', handleRoll)
     })
 
     return {
       paging,
       loading,
       totalCount,
-      handleRoll
+      groupedPosts,
+      page,
+      pageSize,
+      handlePageChange
     }
   }
 }
 </script>
 
 <style scoped>
-.bookmark-container {
-  height: 100vh;
-  overflow-y: auto; /* Scrollable container */
+.post-container {
+  height: auto; /* 스크롤 없애고 자동 높이 설정 */
+  padding-bottom: 20px;
 }
 
 .loading {
@@ -98,9 +127,15 @@ export default {
   padding: 16px;
 }
 
-.end-of-list {
+.no-data {
   text-align: center;
   padding: 16px;
   color: #888;
+}
+
+.center-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>
