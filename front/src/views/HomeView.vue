@@ -16,7 +16,6 @@ const state = reactive<StateType>({
 function getList(page = 1): PostView {
   POST_REPOSITORY.getList(page).then((paging) => {
     state.postList = paging
-    console.log('>>>', state.postList)
   })
 }
 

@@ -1,16 +1,29 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type CommentView from '@/entity/comment/CommentView'
+import { plainToInstance } from 'class-transformer'
+
+const props = defineProps<{
+  comment: any
+}>()
+// comment를 CommentView 클래스로 변환
+const commentView = plainToInstance(CommentView, props.comment)
+// function getFormattedRegDate(): string {
+//   return props.comment.regDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) // 원하는 형식으로 포맷
+// }
+console.log(commentView)
+</script>
 
 <template>
-  <div class="comment">
+  <div v-if="props.comment">
     <div class="header">
       <div class="section">
-        <div class="author">밥돌이</div>
-        <div class="regDate">2023-05-01 23:59:59</div>
+        <div class="author">{{ commentView?.author }}</div>
+        <div class="regDate">{{ commentView.getFormattedRegDate() }}</div>
       </div>
 
       <div class="delete">삭제</div>
     </div>
-    <div class="content">나 밥돌맨인데 개추했다.</div>
+    <div class="content">{{ props.comment.content }}</div>
   </div>
 </template>
 
