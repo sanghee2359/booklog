@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Table(
@@ -20,26 +22,36 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    private String author;
+    @ManyToOne
+    @JoinColumn
+    private Users user; // 사용자 정보
 
     @NotNull
     private String password;
 
     @NotNull
     private String content;
+    @NotNull // 유동닉 필드
+    private String author;
 
     @ManyToOne
     @JoinColumn
     private Post post;
+    private LocalDateTime regDate;
 
     @Builder
-    public Comment(String author, String password, String content) {
-        this.author = author;
+    public Comment(Users user, Post post,String password, String content, String author) {
+        this.user = user;
+        this.post = post;
         this.password = password;
         this.content = content;
+        this.author = author; // 유동닉 저장
+        this.regDate = LocalDateTime.now();
     }
     public void setPost(Post post) {
         this.post = post;
+    }
+    public void setUser(Users user) {
+        this.user = user;
     }
 }

@@ -25,6 +25,8 @@ public class Users {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Likes> likes;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Comment> comments;
 
     @Builder
     public Users(String name, String email, String password) {
@@ -44,5 +46,9 @@ public class Users {
         name = userEditor.getName();
         email = userEditor.getEmail();
         password = userEditor.getPassword();
+    }
+    public void addComment(Comment comment) {
+        comment.setUser(this); // comment가 현재 포스트임을 명시
+        this.comments.add(comment); // comment list에 add
     }
 }
