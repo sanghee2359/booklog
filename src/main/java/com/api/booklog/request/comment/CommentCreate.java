@@ -9,12 +9,13 @@ import org.hibernate.validator.constraints.Length;
 @Getter
 @NoArgsConstructor
 public class CommentCreate {
-    @Length(min = 1, max = 8, message = "작성자는 1~8글자로 입력해주세요.")
-    @NotBlank(message = "작성자를 입력해주세요.")
+    private Long userId;
+//    @Length(min = 1, max = 8, message = "작성자는 1~8글자로 입력해주세요.")
+//    @NotBlank(message = "작성자를 입력해주세요.")
     private String author;
 
-    @Length(min = 6, max = 30, message = "비밀번호는 6~30글자로 입력해주세요.")
-    @NotBlank(message = "비밀번호를 입력해주세요.")
+//    @Length(min = 6, max = 30, message = "비밀번호는 6~30글자로 입력해주세요.")
+//    @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;
 
 
@@ -23,7 +24,8 @@ public class CommentCreate {
     private String content;
 
     @Builder
-    public CommentCreate(String author, String password, String content) {
+    public CommentCreate(Long userId, String author, String password, String content) {
+        this.userId = userId;
         this.author = author;
         this.password = password;
         this.content = content;

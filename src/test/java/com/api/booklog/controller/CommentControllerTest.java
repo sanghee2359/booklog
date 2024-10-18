@@ -5,7 +5,7 @@ import com.api.booklog.domain.Comment;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.Users;
 import com.api.booklog.repository.UsersRepository;
-import com.api.booklog.repository.post.CommentRepository;
+import com.api.booklog.repository.comment.CommentRepository;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.request.comment.CommentCreate;
 import com.api.booklog.request.comment.CommentDelete;
