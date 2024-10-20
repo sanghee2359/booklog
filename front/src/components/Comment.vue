@@ -1,29 +1,36 @@
 <script setup lang="ts">
-import type CommentView from '@/entity/comment/CommentView'
-import { plainToInstance } from 'class-transformer'
+import CommentView from '@/entity/comment/CommentView'
+import { ref } from 'vue'
+import { DateTimeFormatter, LocalDateTime } from '@js-joda/core'
 
 const props = defineProps<{
   comment: any
 }>()
-// comment를 CommentView 클래스로 변환
-const commentView = plainToInstance(CommentView, props.comment)
-// function getFormattedRegDate(): string {
-//   return props.comment.regDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) // 원하는 형식으로 포맷
-// }
-console.log(commentView)
+
+// CommentView 인스턴스 생성
+const commentView = ref<CommentView>(
+  new CommentView(
+    props.comment.postId,
+    props.comment.author,
+    props.comment.content,
+    props.comment.regDate
+      ? LocalDateTime.parse(props.comment.regDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+      : LocalDateTime.now()
+  )
+)
 </script>
 
 <template>
-  <div v-if="props.comment">
+  <div v-if="commentView">
     <div class="header">
       <div class="section">
-        <div class="author">{{ commentView?.author }}</div>
+        <div class="author">{{ commentView.author }}</div>
         <div class="regDate">{{ commentView.getFormattedRegDate() }}</div>
       </div>
 
       <div class="delete">삭제</div>
     </div>
-    <div class="content">{{ props.comment.content }}</div>
+    <div class="content">{{ commentView.content }}</div>
   </div>
 </template>
 

@@ -29,7 +29,7 @@ const state = reactive<StateType>({
 
 const loading = ref(false)
 const page = ref(1)
-const pageSize = 5
+const pageSize = 3
 const buttonDisabled = ref(true) // 버튼 활성화 상태
 
 // 유효성 검사 규칙
@@ -65,6 +65,7 @@ const fetchComments = async (pageNumber: number) => {
       state.commentList.setItems([...state.commentList.items, ...items])
     }
     state.commentList.setHasNextPage(hasNextPage)
+    console.log('hasNextPage:', hasNextPage)
     state.commentList.totalCount = totalCount
     page.value += 1
   } catch (error) {
@@ -104,10 +105,18 @@ watch(() => state.commentWrite.content, updateButtonState)
 
 // 스크롤 핸들러
 const handleScroll = () => {
+  console.log('Scroll event triggered.') // 여기서 로그를 확인
   if (commentsContainer.value) {
     const container = commentsContainer.value
     const bottomOfContainer =
       container.scrollHeight - container.scrollTop <= container.clientHeight + 50 // 오차 허용
+
+    // 디버깅용 로그 추가
+    console.log('Scroll event triggered.')
+    console.log('Container scrollHeight:', container.scrollHeight)
+    console.log('Container scrollTop:', container.scrollTop)
+    console.log('Container clientHeight:', container.clientHeight)
+    console.log('Bottom of container:', bottomOfContainer)
 
     if (bottomOfContainer && !loading.value && state.commentList.hasNextPage) {
       fetchComments(page.value)
@@ -165,7 +174,7 @@ onBeforeUnmount(() => {
 
   <ul class="comments" ref="commentsContainer" v-if="state.commentList.items.length">
     <li class="comment" v-for="commentView in state.commentList.items" :key="commentView.id">
-      <Comment :comment-view="commentView" />
+      <Comment :comment="commentView" v-if="commentView" />
     </li>
   </ul>
 
@@ -190,6 +199,8 @@ onBeforeUnmount(() => {
 }
 
 .comments {
+  max-height: 500px; // 적절한 높이 설정
+  overflow-y: auto;
   margin-top: 3rem;
   list-style: none;
   padding: 0;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, reactive } from 'vue'
+import { computed, onBeforeMount, onMounted, reactive, watch } from 'vue'
 import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import PostView from '@/entity/post/PostView'
@@ -62,21 +62,19 @@ function getPost() {
 function checkLikeStatus() {
   POST_REPOSITORY.getLikesCount(props.postId, LikeResponse)
     .then((response: LikeResponse) => {
-      console.log('>>isLikeResponse', response)
       state.likeStatus = plainToInstance(LikeResponse, response)
     })
     .catch(() => {
-      ElMessage({ type: 'error', message: `좋아요 상태 확인 실패` })
+      console.log(`>>> 게시글 페이지 : 좋아요 상태 확인 실패`)
     })
 }
 function checkBookmarkStatus() {
   BOOKMARK_REPOSITORY.getBookmarkStatus(props.postId)
     .then((response) => {
       state.isBookmarked = response
-      console.log('>>>isbookmarked: {}', response)
     })
     .catch(() => {
-      ElMessage({ type: 'error', message: `북마크 상태 확인 실패` })
+      console.log(`>>> 게시글 페이지 : 북마크 상태 확인 실패`)
     })
 }
 
@@ -160,7 +158,13 @@ onMounted(() => {
     </el-footer>
 
     <el-main class="comments">
-      <Comments />
+      <!-- postId로 해당 commentlist 출력, userId로 로그인 상태 확인 -->
+
+      <Comments
+        v-if="state.post"
+        :postId="Number(props.postId)"
+        :userId="state.profile ? Number(state.profile.id) : null"
+      />
     </el-main>
   </el-container>
 </template>
