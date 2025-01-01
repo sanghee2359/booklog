@@ -1,0 +1,38 @@
+package com.api.booklog.request.book;
+
+import com.api.booklog.domain.Book;
+import com.api.booklog.domain.BookStatus;
+import com.api.booklog.domain.Users;
+import com.api.booklog.exception.InvalidRequest;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Getter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class BookCreate {
+
+    private String title;
+
+    private String author;
+
+    private BookStatus status;
+
+    private LocalDate startDate;
+    private LocalDate endDate;
+
+    @Builder
+    public Book toEntity(Users user) {
+        return Book.builder()
+                .title(this.title)
+                .author(this.author)
+                .user(user)
+                .status(this.status)
+                .startDate(this.startDate)
+                .endDate(this.endDate)
+                .build();
+    }
+}
