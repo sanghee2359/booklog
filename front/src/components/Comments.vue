@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, reactive, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, reactive, watch, onBeforeMount, nextTick } from 'vue'
 import { container } from 'tsyringe'
 import CommentRepository from '@/repository/CommentRepository'
 import Paging from '@/entity/data/Paging'
@@ -7,29 +7,33 @@ import CommentView from '@/entity/comment/CommentView'
 import Comment from '@/components/Comment.vue'
 import CommentWrite from '@/entity/comment/CommentWrite' // CommentWrite를 import
 import { ElMessage, ElForm } from 'element-plus'
-
+import UserRepository from '@/repository/UserRepository'
+import ProfileRepository from '@/repository/ProfileRepository'
+import UserProfile from '@/entity/user/UserProfile'
+import { debounce } from 'lodash'
 // Props 설정
 const props = defineProps<{
   postId: number
-  userId?: number // 로그인 상태를 확인하기 위한 userId 추가
 }>()
 // 기본값을 설정
-const userId = props.userId ?? null // null로 기본값 설정
 type StateType = {
+  profile: UserProfile | null
   commentList: Paging<CommentView>
   commentWrite: CommentWrite
 }
-
-const COMMENT_REPOSITORY = container.resolve(CommentRepository)
-const formRef = ref<InstanceType<typeof ElForm>>() // Form 참조
 const state = reactive<StateType>({
+  profile: null,
   commentList: new Paging<CommentView>(),
   commentWrite: new CommentWrite() // 댓글 작성 상태 초기화
 })
+const USER_REPOSITORY = container.resolve(UserRepository)
+const PROFILE_REPOSITORY = container.resolve(ProfileRepository)
+const COMMENT_REPOSITORY = container.resolve(CommentRepository)
 
+const formRef = ref<InstanceType<typeof ElForm>>() // Form 참조
 const loading = ref(false)
 const page = ref(1)
-const pageSize = 3
+const pageSize = 6
 const buttonDisabled = ref(true) // 버튼 활성화 상태
 
 // 유효성 검사 규칙
@@ -48,26 +52,27 @@ const rules = {
   ]
 }
 
-// DOM 요소에 대한 ref
-const commentsContainer = ref<HTMLElement | null>(null)
-
 // 댓글 목록 가져오기
-const fetchComments = async (pageNumber: number) => {
+const fetchComments = async (reset: boolean = false) => {
+  if (loading.value) return // 로딩 중이면 반환
   loading.value = true
   try {
-    const response = await COMMENT_REPOSITORY.getListByPost(pageNumber, pageSize, props.postId)
+    if (reset) {
+      page.value = 1 // reset 시 페이지 번호를 1로 초기화
+      state.commentList.setItems([]) // 기존 댓글 리스트 초기화
+    }
+    const response = await COMMENT_REPOSITORY.getListByPost(page.value, pageSize, props.postId)
     const { items, hasNextPage, totalCount } = response
 
     // 댓글 목록 업데이트
-    if (pageNumber === 1) {
-      state.commentList.setItems(items)
-    } else {
-      state.commentList.setItems([...state.commentList.items, ...items])
-    }
+    state.commentList.items.push(...items)
+
+    // 상태 업데이트
     state.commentList.setHasNextPage(hasNextPage)
-    console.log('hasNextPage:', hasNextPage)
-    state.commentList.totalCount = totalCount
-    page.value += 1
+    state.commentList.setTotalCount(totalCount)
+    if (hasNextPage) {
+      page.value += 1
+    }
   } catch (error) {
     console.error('Error fetching comments:', error)
   } finally {
@@ -75,14 +80,26 @@ const fetchComments = async (pageNumber: number) => {
   }
 }
 
+// 댓글 목록 초기화 및 새로고침
+const refetchComments = async () => {
+  await fetchComments(true) // reset 플래그를 true로 설정하여 새로고침
+}
+
+// 추가 댓글 불러오기
+const loadMoreComments = async () => {
+  if (state.commentList.hasNextPage && !loading.value) {
+    await fetchComments() // 추가로 불러오기
+  }
+}
+
 // 댓글 작성 메소드
 const writeComment = async () => {
   try {
-    await COMMENT_REPOSITORY.writeComment(props.postId, state.commentWrite)
+    const newComment = await COMMENT_REPOSITORY.writeComment(props.postId, state.commentWrite)
     state.commentWrite = new CommentWrite() // 댓글 작성 후 상태 초기화
     ElMessage.success('댓글이 성공적으로 작성되었습니다.')
-
-    fetchComments(1) // 새 댓글이 작성된 후 댓글 목록 새로고침
+    // 댓글 목록 비동기적으로 다시 가져오기
+    await refetchComments() // 현재 페이지를 새로고침
   } catch (error) {
     console.error('Error writing comment:', error)
     ElMessage.error('댓글 작성에 실패했습니다.')
@@ -99,41 +116,23 @@ const updateButtonState = () => {
 }
 
 // 각 필드의 변경 감지하여 updateButtonState 호출
-watch(() => state.commentWrite.author, updateButtonState)
-watch(() => state.commentWrite.password, updateButtonState)
-watch(() => state.commentWrite.content, updateButtonState)
+watch(
+  () => [state.commentWrite.author, state.commentWrite.password, state.commentWrite.content],
+  updateButtonState
+)
 
-// 스크롤 핸들러
-const handleScroll = () => {
-  console.log('Scroll event triggered.') // 여기서 로그를 확인
-  if (commentsContainer.value) {
-    const container = commentsContainer.value
-    const bottomOfContainer =
-      container.scrollHeight - container.scrollTop <= container.clientHeight + 50 // 오차 허용
-
-    // 디버깅용 로그 추가
-    console.log('Scroll event triggered.')
-    console.log('Container scrollHeight:', container.scrollHeight)
-    console.log('Container scrollTop:', container.scrollTop)
-    console.log('Container clientHeight:', container.clientHeight)
-    console.log('Bottom of container:', bottomOfContainer)
-
-    if (bottomOfContainer && !loading.value && state.commentList.hasNextPage) {
-      fetchComments(page.value)
-    }
-  }
-}
-
-onMounted(() => {
-  fetchComments(page.value)
-
-  if (commentsContainer.value) {
-    commentsContainer.value.addEventListener('scroll', handleScroll)
-  }
+onBeforeMount(async () => {
+  await USER_REPOSITORY.getProfile()
+    .then((profile) => {
+      PROFILE_REPOSITORY.setProfile(profile)
+      state.profile = profile
+    })
+    .catch(() => {
+      state.profile = null
+    })
 })
-
-onBeforeUnmount(() => {
-  commentsContainer.value?.removeEventListener('scroll', handleScroll)
+onMounted(() => {
+  fetchComments()
 })
 </script>
 
@@ -142,11 +141,11 @@ onBeforeUnmount(() => {
 
   <div class="write">
     <el-form label-position="top" :model="state.commentWrite" ref="formRef" :rules="rules">
-      <el-form-item v-if="userId == null" label="작성자" prop="author">
+      <el-form-item v-if="!state.profile" label="작성자" prop="author">
         <el-input v-model="state.commentWrite.author" placeholder="작성자를 입력해주세요" />
       </el-form-item>
 
-      <el-form-item v-if="userId == null" label="비밀번호" prop="password">
+      <el-form-item v-if="!state.profile" label="비밀번호" prop="password">
         <el-input
           type="password"
           v-model="state.commentWrite.password"
@@ -178,14 +177,13 @@ onBeforeUnmount(() => {
     </li>
   </ul>
 
+  <!-- 더보기 버튼 -->
+  <div class="load-more" v-if="state.commentList.hasNextPage && !loading">
+    <el-button type="primary" @click="loadMoreComments"> 더보기 </el-button>
+  </div>
   <!-- 로딩 인디케이터 -->
   <div v-if="loading" class="loading">
     <p>Loading...</p>
-  </div>
-
-  <!-- 무한 스크롤이 끝났다는 메시지 -->
-  <div v-if="!loading && !state.commentList.hasNextPage" class="end-of-list">
-    <p>No more comments to load</p>
   </div>
 </template>
 
@@ -206,11 +204,17 @@ onBeforeUnmount(() => {
   padding: 0;
 
   .comment {
+    max-height: none;
+    overflow-y: visible;
     margin-bottom: 2.4rem;
 
     &:last-child {
       margin-bottom: 0;
     }
   }
+}
+.load-more {
+  text-align: center;
+  margin-top: 1.5rem;
 }
 </style>

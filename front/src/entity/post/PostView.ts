@@ -1,9 +1,9 @@
 import { DateTimeFormatter, LocalDateTime } from '@js-joda/core'
-import { Transform } from 'class-transformer'
+import { Expose, Transform } from 'class-transformer'
 
 export default class PostView {
   public userId = 0
-  public postId = 0
+  @Expose() public postId = 0
   public title = ''
   public content = ''
   @Transform(({ value }) => LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME), {

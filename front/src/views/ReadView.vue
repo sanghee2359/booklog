@@ -160,11 +160,7 @@ onMounted(() => {
     <el-main class="comments">
       <!-- postId로 해당 commentlist 출력, userId로 로그인 상태 확인 -->
 
-      <Comments
-        v-if="state.post"
-        :postId="Number(props.postId)"
-        :userId="state.profile ? Number(state.profile.id) : null"
-      />
+      <Comments v-if="state.post" :postId="Number(props.postId)" />
     </el-main>
   </el-container>
 </template>

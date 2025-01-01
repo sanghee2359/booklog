@@ -5,6 +5,10 @@ export default class Paging {
   public items: T[] = []
   public hasNextPage = false // 무한 스크롤에 필요한 필드
 
+  // 총 아이템 수 설정
+  public setTotalCount(totalCount: number) {
+    this.totalCount = totalCount
+  }
   public setItems(items: T[]) {
     this.items = items
   }
