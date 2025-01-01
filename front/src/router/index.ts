@@ -6,12 +6,12 @@ import ReadView from '../views/ReadView.vue'
 import EditView from '@/views/EditView.vue'
 import LoginView from '@/views/LoginView.vue'
 import BookmarkView from '@/views/BookmarkView.vue'
-// import ToReadList from '@/views/ToReadList.vue'
+import ToReadList from '@/views/ToReadList.vue'
 import MyPageView from '@/views/MyPageView.vue'
 import UserSetting from '@/views/UserSetting.vue'
 import MyPostList from '@/views/MyPostList.vue'
 import BookLog from '@/views/BookLog.vue'
-import ToRead from '@/components/ToRead.vue'
+// import ToRead from '@/components/ToRead.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,7 +63,7 @@ const router = createRouter({
         {
           path: '/toReadList',
           name: 'toReadList',
-          component: ToRead
+          component: ToReadList
         },
         {
           path: '/userSetting',

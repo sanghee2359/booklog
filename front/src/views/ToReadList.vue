@@ -1,83 +1,99 @@
 <template>
-  <Head :totalIncome="state.totalIncome" />
-  <Form :state="state" @add-income="AddIncome" />
-  <IncomeList :state="state" @remove-item="removeItem" />
+  <div class="to-read-list">
+    <!-- 책 추가 -->
+    <AddBookForm @addBook="addBook" />
+  </div>
+
+  <el-table :data="books" style="margin-top: 20px" border>
+    <!-- Title Column -->
+    <el-table-column prop="title" label="Title">
+      <template #default="{ row }">
+        <BookCard :book="row" field="title" />
+      </template>
+    </el-table-column>
+
+    <!-- Author Column -->
+    <el-table-column prop="author" label="Author">
+      <template #default="{ row }">
+        <BookCard :book="row" field="author" />
+      </template>
+    </el-table-column>
+
+    <!-- Status Column -->
+    <el-table-column prop="status" label="Status">
+      <template #default="{ row }">
+        <BookCard :book="row" field="status" />
+      </template>
+    </el-table-column>
+
+    <!-- Start Date Column -->
+    <el-table-column prop="startDate" label="Start Date">
+      <template #default="{ row }">
+        <BookCard :book="row" field="startDate" />
+      </template>
+    </el-table-column>
+    <!-- Start Date Column -->
+    <el-table-column prop="endDate" label="End Date">
+      <template #default="{ row }">
+        <BookCard :book="row" field="endDate" />
+      </template>
+    </el-table-column>
+    <!-- Actions Column -->
+    <el-table-column label="Actions">
+      <template #default="{ row }">
+        <el-button type="primary" size="small" @click="handleUpdateStatus(row)">
+          Update Status
+        </el-button>
+        <el-button type="danger" size="small" @click="deleteBook(row.id)"> Delete </el-button>
+      </template>
+    </el-table-column>
+  </el-table>
 </template>
 
-<script>
-import { reactive, computed } from 'vue'
-import IncomeList from '@/components/readList/IncomeList.vue'
-import Head from '@/components/readList/Head.vue'
-import Form from '@/components/readList/Form.vue'
-
+<script lang="ts">
+import { ref, computed } from 'vue'
+import BookCard from '@/components/BookCard.vue'
+import AddBookForm from '@/components/AddBookForm.vue'
+interface Book {
+  title: string
+  author: string
+  status: string
+  startDate: string
+  endDate: string
+}
 export default {
-  components: { Head, IncomeList, Form },
+  name: 'ToReadList',
+  components: { BookCard, AddBookForm },
   setup() {
-    const state = reactive({
-      income: [],
-      sortedIncome: computed(() => {
-        let temp = []
-
-        temp = state.income.sort(function (a, b) {
-          return b.date - a.date
-        })
-
-        return temp
-      }),
-      totalIncome: computed(() => {
-        let temp = 0
-        if (state.income.length > 0) {
-          for (let i = 0; i < state.income.length; i++) {
-            temp += state.income[i].value
-          }
-          return temp
-        } else {
-          return 0
-        }
-      })
-    })
-
-    function AddIncome(obj) {
-      let d = obj.date.split('-')
-      let newD = new Date(d[0], d[1], d[2])
-
-      state.income = [
-        ...state.income,
-        {
-          id: Date.now(),
-          desc: obj.desc,
-          value: parseInt(obj.value),
-          date: newD.getTime()
-        }
-      ]
+    const books = ref([]) // 서버에서 가져온 책 데이터
+    // 책 추가
+    const addBook = (newBook: Book) => {
+      books.value.push(newBook)
     }
 
-    function removeItem(id) {
-      state.income = state.income.filter((v) => v.id != id)
+    // 책 상태 업데이트
+    const handleUpdateStatus = (book: Book) => {
+      if (book.status === 'NOT_STARTED') {
+        book.status = 'READING'
+        book.startDate = new Date().toISOString().split('T')[0] // Start Date 설정
+      } else if (book.status === 'READING') {
+        book.status = 'COMPLETED'
+        book.endDate = new Date().toISOString().split('T')[0] // End Date 설정
+      }
     }
 
-    // Return template data
-    return {
-      Head,
-      IncomeList,
-      Form,
-      state,
-      AddIncome,
-      removeItem
+    // 책 삭제
+    const deleteBook = (bookId: number) => {
+      books.value = books.value.filter((b) => b.id !== bookId)
     }
+
+    return { books, addBook, handleUpdateStatus, deleteBook }
   }
 }
 </script>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Fira Sans', sans-serif;
-}
-
-body {
-  background: #eee;
+<style scoped>
+.to-read-list {
+  /* 스타일 정의 */
 }
 </style>
