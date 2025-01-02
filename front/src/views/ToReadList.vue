@@ -4,75 +4,129 @@
     <AddBookForm @addBook="addBook" />
   </div>
 
-  <el-table :data="books" style="margin-top: 20px" border>
-    <!-- Title Column -->
+  <!-- 책 리스트 -->
+  <el-table :data="state.bookList.items" style="margin-top: 20px" border>
+    <!-- Title -->
     <el-table-column prop="title" label="Title">
       <template #default="{ row }">
         <BookCard :book="row" field="title" />
       </template>
     </el-table-column>
 
-    <!-- Author Column -->
+    <!-- Author -->
     <el-table-column prop="author" label="Author">
       <template #default="{ row }">
         <BookCard :book="row" field="author" />
       </template>
     </el-table-column>
 
-    <!-- Status Column -->
+    <!-- Status -->
     <el-table-column prop="status" label="Status">
       <template #default="{ row }">
         <BookCard :book="row" field="status" />
       </template>
     </el-table-column>
 
-    <!-- Start Date Column -->
+    <!-- Start Date -->
     <el-table-column prop="startDate" label="Start Date">
       <template #default="{ row }">
         <BookCard :book="row" field="startDate" />
       </template>
     </el-table-column>
-    <!-- Start Date Column -->
+
+    <!-- End Date -->
     <el-table-column prop="endDate" label="End Date">
       <template #default="{ row }">
         <BookCard :book="row" field="endDate" />
       </template>
     </el-table-column>
+
     <!-- Actions Column -->
     <el-table-column label="Actions">
       <template #default="{ row }">
         <el-button type="primary" size="small" @click="handleUpdateStatus(row)">
           Update Status
         </el-button>
-        <el-button type="danger" size="small" @click="deleteBook(row.id)"> Delete </el-button>
+        <el-button type="danger" size="small" @click="deleteBook(row.id)">Delete</el-button>
       </template>
     </el-table-column>
   </el-table>
+
+  <!-- Pagination -->
+  <div class="pagination-wrapper">
+    <el-pagination
+      background
+      :page-size="pageSize"
+      :current-page="page"
+      :total="state.bookList.totalCount"
+      @current-change="handlePageChange"
+    />
+  </div>
 </template>
 
 <script lang="ts">
-import { ref, computed } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import BookCard from '@/components/BookCard.vue'
 import AddBookForm from '@/components/AddBookForm.vue'
-interface Book {
-  title: string
-  author: string
-  status: string
-  startDate: string
-  endDate: string
-}
+import type BookView from '@/entity/book/BookView'
+import type BookSave from '@/entity/book/BookVBookSaveiew'
+import Paging from '@/entity/data/Paging'
+import { container } from 'tsyringe'
+import BookRepository from '@/repository/BookRepository'
+
 export default {
   name: 'ToReadList',
   components: { BookCard, AddBookForm },
   setup() {
-    const books = ref([]) // 서버에서 가져온 책 데이터
-    // 책 추가
-    const addBook = (newBook: Book) => {
-      books.value.push(newBook)
+    type StateType = {
+      bookList: Paging<BookView>
+    }
+
+    const state = reactive<StateType>({
+      bookList: new Paging<BookView>()
+    })
+
+    // 페이지네이션 처리
+    const pageSize = 6
+    const page = ref(1)
+
+    const BOOK_REPOSITORY = container.resolve(BookRepository)
+
+    // Fetch books from the backend
+    const getBookList = async (pageNumber: number): Promise<Paging<BookView>> => {
+      try {
+        const response = await BOOK_REPOSITORY.getPendingBooks(pageNumber, pageSize)
+        const { items, hasNextPage, totalCount } = response
+        // 댓글 목록 업데이트
+        state.bookList.items.push(...items)
+
+        // 상태 업데이트
+        state.bookList.setHasNextPage(hasNextPage)
+        state.bookList.setTotalCount(totalCount)
+
+        if (hasNextPage) {
+          page.value += 1
+        }
+      } catch (error) {
+        console.error('Error fetching book list:', error)
+        // Handle the error by possibly showing an error message to the user
+        state.bookList = new Paging<BookView>() // Return empty paging in case of error
+      }
+    }
+
+    // 책 추가 -> ToReadList의 bookList 상태에 추가
+    // 자식 컴포넌트의 데이터를 부모 컴포넌트와 동기화
+    const addBook = async (newBook: BookSave) => {
+      try {
+        const savedBook = await BOOK_REPOSITORY.saveBook(newBook)
+        state.bookList.items.push(savedBook)
+      } catch (error) {
+        console.error('Error adding book:', error)
+      }
     }
 
     // 책 상태 업데이트
-    const handleUpdateStatus = (book: Book) => {
+    const handleUpdateStatus = (book: BookView) => {
       if (book.status === 'NOT_STARTED') {
         book.status = 'READING'
         book.startDate = new Date().toISOString().split('T')[0] // Start Date 설정
@@ -84,16 +138,39 @@ export default {
 
     // 책 삭제
     const deleteBook = (bookId: number) => {
-      books.value = books.value.filter((b) => b.id !== bookId)
+      state.bookList.content = state.bookList.content.filter((b) => b.id !== bookId)
+    }
+    // Handle pagination change
+    const handlePageChange = (newPage: number) => {
+      page.value = newPage
+      getBookList(newPage)
     }
 
-    return { books, addBook, handleUpdateStatus, deleteBook }
+    onMounted(() => {
+      getBookList(page.value)
+    })
+
+    return {
+      state,
+      pageSize,
+      page,
+      getBookList,
+      addBook,
+      handleUpdateStatus,
+      deleteBook,
+      handlePageChange
+    }
   }
 }
 </script>
 
 <style scoped>
 .to-read-list {
-  /* 스타일 정의 */
+  padding: 20px;
+}
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>

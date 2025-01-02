@@ -1,7 +1,7 @@
 <script lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import PostRepository from '@/repository/PostRepository'
-import { LikeResponse } from '@/entity/data/LikeResponse'
+import { LikeResponse } from '@/entity/LikeResponse'
 import { container } from 'tsyringe'
 import { plainToInstance } from 'class-transformer'
 import { ElMessage } from 'element-plus'

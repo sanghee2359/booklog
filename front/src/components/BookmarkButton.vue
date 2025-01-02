@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import { ElMessage } from 'element-plus'
-import { BookmarkResponse } from '@/entity/data/BookmarkResponse'
+import { BookmarkResponse } from '@/entity/BookmarkResponse'
 import { plainToInstance } from 'class-transformer'
 
 export default {
