@@ -2,7 +2,6 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Book;
 import com.api.booklog.domain.BookStatus;
-import com.api.booklog.domain.Post;
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.BookNotFound;
 import com.api.booklog.exception.InvalidBookStatus;
@@ -11,11 +10,9 @@ import com.api.booklog.exception.UserNotFound;
 import com.api.booklog.repository.BookRepository;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.book.BookCreate;
-import com.api.booklog.request.book.BookEdit;
-import com.api.booklog.request.post.PostSearch;
+import com.api.booklog.request.book.BookStatusEdit;
 import com.api.booklog.response.BookResponse;
 import com.api.booklog.response.PagingResponse;
-import com.api.booklog.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -49,25 +45,37 @@ public class BookListService {
         bookRepository.save(book);
     }
 
-    // BookStatus 업데이트
+    // date를 받으면 BookStatus 자동 업데이트
     @Transactional
-    public void updateBookStatus(Long bookId, BookEdit request) {
+    public void updateBookStatus(Long bookId, BookStatusEdit request) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(BookNotFound::new);
-        // 요청으로부터 상태 및 날짜 추출
-        BookStatus newStatus = request.getStatus();
-        LocalDate date = request.getDate();
-        switch (newStatus) {
-            case READING:
-                book.startReading(date);
+        handleStatusUpdate(book, request);
+    }
+    // 상태 변경 로직
+    private void handleStatusUpdate(Book book, BookStatusEdit request) {
+        switch (book.getStatus()) {
+            case NOT_STARTED:
+                updateToReading(book, request.getStartDate());
                 break;
-            case COMPLETED:
-                book.completeReading(date);
+            case READING:
+                updateToCompleted(book, request.getEndDate());
                 break;
             default:
                 throw new InvalidBookStatus();
+
         }
     }
+
+    private void updateToReading(Book book, LocalDate startDate) {
+        if(startDate == null) throw new InvalidRequest();
+        book.startReading(startDate);
+    }
+    private void updateToCompleted(Book book, LocalDate endDate) {
+        if(endDate == null) throw new InvalidRequest();
+        book.completeReading(endDate);
+    }
+
     // 읽을 책 리스트 출력
     public PagingResponse<BookResponse> getPendingBooks(Long userId,int page, int size) {
         Users user = userRepository.findById(userId).orElseThrow(UserNotFound::new);

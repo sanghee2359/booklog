@@ -1,9 +1,8 @@
 package com.api.booklog.controller;
 
 import com.api.booklog.config.UserPrincipal;
-import com.api.booklog.exception.Unauthorized;
 import com.api.booklog.request.book.BookCreate;
-import com.api.booklog.request.book.BookEdit;
+import com.api.booklog.request.book.BookStatusEdit;
 import com.api.booklog.response.BookResponse;
 import com.api.booklog.response.PagingResponse;
 import com.api.booklog.service.BookListService;
@@ -53,11 +52,11 @@ public class BookController {
 
     }
 
-    // BookStatus가 완독으로 수정되었을 경우
+    // BookStatus 변경
     @PatchMapping("/users/bookList/{bookId}")
     public ResponseEntity<Void> bookStatusEdit(
             @PathVariable Long bookId,
-            @RequestBody @Valid BookEdit request,
+            @RequestBody @Valid BookStatusEdit request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if(userPrincipal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         bookListService.updateBookStatus(bookId, request);

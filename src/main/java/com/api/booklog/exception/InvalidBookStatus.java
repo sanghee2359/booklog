@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class InvalidBookStatus extends RootException{
-    private static final String MESSAGE = "책의 상태가 올바르지 않습니다.";
+    private static final String MESSAGE = "이미 완료된 책입니다.";
 
     public InvalidBookStatus() {
         super(MESSAGE);
@@ -12,6 +12,6 @@ public class InvalidBookStatus extends RootException{
 
     @Override
     public int getStatusCode() {
-        return 400;
+        return 409;
     }
 }
