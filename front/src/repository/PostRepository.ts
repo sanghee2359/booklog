@@ -4,7 +4,7 @@ import type PostWrite from '@/entity/post/PostWrite'
 import type PostEdit from '@/entity/post/PostEdit'
 import PostView from '@/entity/post/PostView'
 import UserProfile from '@/entity/user/UserProfile'
-import type { LikeResponse } from '@/entity/data/LikeResponse'
+import type { LikeResponse } from '@/entity/LikeResponse'
 import Paging from '@/entity/data/Paging'
 
 @singleton()

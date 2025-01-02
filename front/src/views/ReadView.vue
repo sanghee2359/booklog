@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, reactive, watch } from 'vue'
+import { plainToInstance } from 'class-transformer'
 import { container } from 'tsyringe'
-import PostRepository from '@/repository/PostRepository'
-import PostView from '@/entity/post/PostView'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Delete, Edit } from '@element-plus/icons-vue'
+import PostView from '@/entity/post/PostView'
 import Comments from '@/components/Comments.vue'
 import BookmarkButton from '@/components/BookmarkButton.vue'
 import HeartButton from '@/components/LikeButton.vue'
-import { Delete, Edit } from '@element-plus/icons-vue'
-import BookmarkRepository from '@/repository/BookmarkRepository'
 import UserRepository from '@/repository/UserRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
+import PostRepository from '@/repository/PostRepository'
+import BookmarkRepository from '@/repository/BookmarkRepository'
 import UserProfile from '@/entity/user/UserProfile'
-import { LikeResponse } from '@/entity/data/LikeResponse'
-import { plainToInstance } from 'class-transformer'
+import { LikeResponse } from '@/entity/LikeResponse'
 
 const props = defineProps<{
   postId: number

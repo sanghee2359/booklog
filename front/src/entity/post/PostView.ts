@@ -1,5 +1,6 @@
 import { DateTimeFormatter, LocalDateTime } from '@js-joda/core'
 import { Expose, Transform } from 'class-transformer'
+import { differenceInHours, differenceInMinutes, format, isYesterday, toDate } from 'date-fns'
 
 export default class PostView {
   public userId = 0
@@ -12,28 +13,29 @@ export default class PostView {
   public regDate = LocalDateTime.now()
   public likesCount = 0
   public getDisplayRegDate() {
+    const now = new Date()
+
+    // LocalDateTime을 Date 객체로 변환
+    const regDateAsDate = toDate(this.regDate)
+
+    // 어제인 경우
+    if (isYesterday(regDateAsDate)) {
+      return '어제'
+    }
+
     // 몇 분 전
-    let minute = this.regDate.minute()
-    let now_minute = LocalDateTime.now().minute()
-    let minute_result = now_minute - minute
+    const minuteDiff = differenceInMinutes(now, regDateAsDate)
+    if (minuteDiff < 60) return `${minuteDiff}분 전`
 
     // 몇 시간 전
-    let hour = this.regDate.hour()
-    let now_hour = LocalDateTime.now().hour()
-    let hour_result = now_hour - hour
+    const hourDiff = differenceInHours(now, regDateAsDate)
+    if (hourDiff < 24) return `${hourDiff}시간 전`
 
-    // 몇 일
-    let day = this.regDate.dayOfMonth()
-    let now_day = LocalDateTime.now().dayOfMonth()
-    let day_result = now_day - day
-    if (day_result == 0 && hour_result == 0 && minute_result < 60) return minute_result + '분'
-    if (day_result == 0 && hour_result > 0 && hour_result < 24) return hour_result + '시간'
-    if (day_result == 1) return '어제'
-
-    return this.regDate.format(DateTimeFormatter.ofPattern('MM월 dd일'))
+    // 날짜가 지난 경우
+    return format(regDateAsDate, 'MM월 dd일')
   }
   public getDisplaySimpleRegDate() {
-    return this.regDate.format(DateTimeFormatter.ofPattern('yyyy.MM.dd'))
+    return format(toDate(this.regDate), 'yyyy.MM.dd')
   }
 
   public getShortenContent() {

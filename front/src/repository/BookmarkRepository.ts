@@ -2,7 +2,7 @@ import { inject, singleton } from 'tsyringe'
 import HttpRepository from '@/repository/HttpRepository'
 import PostView from '@/entity/post/PostView'
 import type Paging from '@/entity/data/Paging'
-import { BookmarkResponse } from '@/entity/data/BookmarkResponse'
+import { BookmarkResponse } from '@/entity/BookmarkResponse'
 @singleton()
 export default class BookmarkRepository {
   constructor(@inject(HttpRepository) private readonly httpRepository: HttpRepository) {}

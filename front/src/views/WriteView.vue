@@ -11,7 +11,7 @@ const state = reactive({
 })
 
 const POST_REPOSITORY = container.resolve(PostRepository)
-const formRef = ref<InstanceType<typeof ElForm>>()
+const formRef = ref<InstanceType<typeof ElForm>>() // el-form의 메서드를 사용한다면 필수적
 
 function write() {
   POST_REPOSITORY.write(state.postWrite)
