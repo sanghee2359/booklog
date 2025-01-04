@@ -98,8 +98,5 @@ public class BookListService {
         if (book.getStatus() == BookStatus.READING && book.getStartDate() == null) {
             throw new IllegalArgumentException("읽기 시작일이 필요합니다.");
         }
-        if (book.getStatus() == BookStatus.COMPLETED && book.getEndDate() == null) {
-            throw new IllegalArgumentException("완독일이 필요합니다.");
-        }
     }
 }

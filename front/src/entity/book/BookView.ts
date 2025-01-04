@@ -8,4 +8,14 @@ export default class BookView {
   public startDate: LocalDate | null = null
   public endDate: LocalDate | null = null
   public createdAt: LocalDateTime | null = null
+
+  // constructor(data?: Partial<BookView>) {
+  //   if (data) {
+  //     this.title = data.title
+  //     this.author = data.author
+  //     this.status = data.status
+  //     this.startDate = data.startDate ? LocalDate.parse(data.startDate) : null // startDate 파싱
+  //     this.endDate = data.endDate ? LocalDate.parse(data.endDate) : null // endDate 파싱
+  //   }
+  // }
 }

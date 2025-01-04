@@ -12,20 +12,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-
-interface Book {
-  title: string
-  author: string
-  status: string
-  startDate: string
-  endDate: string
-}
+import type BookView from '@/entity/book/BookView'
 
 export default defineComponent({
   name: 'BookCard',
   props: {
     book: {
-      type: Object as PropType<Book>,
+      type: Object as PropType<BookView>,
       required: true
     },
     field: {

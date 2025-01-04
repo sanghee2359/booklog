@@ -22,8 +22,8 @@ public class BookCreate {
     private BookStatus status;
 
     private LocalDate startDate;
-    private LocalDate endDate;
 
+    //  객체 변환
     @Builder
     public Book toEntity(Users user) {
         return Book.builder()
@@ -32,7 +32,6 @@ public class BookCreate {
                 .user(user)
                 .status(this.status)
                 .startDate(this.startDate)
-                .endDate(this.endDate)
                 .build();
     }
 }

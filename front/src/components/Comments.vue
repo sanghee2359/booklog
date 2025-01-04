@@ -64,7 +64,7 @@ const fetchComments = async (reset: boolean = false) => {
     const response = await COMMENT_REPOSITORY.getListByPost(page.value, pageSize, props.postId)
     const { items, hasNextPage, totalCount } = response
 
-    // 댓글 목록 업데이트
+    // 댓글 목록 업데이트 (더보기)
     state.commentList.items.push(...items)
 
     // 상태 업데이트
