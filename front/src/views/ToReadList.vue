@@ -72,23 +72,20 @@
     <!-- Start Date -->
     <el-table-column prop="startDate" label="Start Date">
       <template #default="{ row }">
-        <BookCard :book="row" field="startDate" />
+        <BookCard :book="row" field="startDate" @update-book="handleUpdateBook" />
       </template>
     </el-table-column>
 
     <!-- End Date -->
     <el-table-column prop="endDate" label="End Date">
       <template #default="{ row }">
-        <BookCard :book="row" field="endDate" />
+        <BookCard :book="row" field="endDate" @update-book="handleUpdateBook" />
       </template>
     </el-table-column>
 
     <!-- Actions Column -->
     <el-table-column label="Actions">
       <template #default="{ row }">
-        <el-button type="primary" size="small" @click="handleUpdateStatus(row)">
-          Update Status
-        </el-button>
         <el-button type="danger" size="small" @click="deleteBook(row.id)">Delete</el-button>
       </template>
     </el-table-column>
@@ -111,6 +108,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import BookCard from '@/components/BookCard.vue'
 import BookView from '@/entity/book/BookView'
 import BookSave from '@/entity/book/BookSave'
+import BookEdit from '@/entity/book/BookEdit'
 import Paging from '@/entity/data/Paging'
 import { container } from 'tsyringe'
 import BookRepository from '@/repository/BookRepository'
@@ -122,12 +120,12 @@ export default {
   setup() {
     type StateType = {
       bookSave: BookSave
-      book: BookView
+      bookEdit: BookEdit
       bookList: Paging<BookView>
     }
     const state = reactive<StateType>({
       bookSave: new BookSave(),
-      book: new BookView(),
+      bookEdit: new BookEdit(),
       bookList: new Paging<BookView>()
     })
     const formRef = ref<InstanceType<typeof ElForm>>() // ElForm 타입을 명시적으로 지정
@@ -183,7 +181,7 @@ export default {
       const bookDataToSend = new BookSave({
         ...state.bookSave,
         startDate: state.bookSave.startDate
-          ? state.bookSave.toLocalDate(state.bookSave.startDate) // toLocalDate로 변환한 값을 전달
+          ? state.bookSave.toLocalDate() // toLocalDate로 변환한 값을 전달
           : null
       })
       try {
@@ -196,18 +194,35 @@ export default {
         ElMessage.error('읽고 싶은 책 저장에 실패했습니다.')
       }
     }
+    const handleUpdateBook = async ({
+      id,
+      field,
+      value
+    }: {
+      id: number
+      field: string
+      value: Date
+    }) => {
+      state.bookEdit.bookId = id
+      if (field === 'startDate') state.bookEdit.startDate = value
+      else if (field === 'endDate') state.bookEdit.endDate = value
 
-    // 책 상태 업데이트
-    const handleUpdateStatus = (book: BookView) => {
-      if (book.status === 'NOT_STARTED') {
-        book.status = 'READING'
-        book.startDate = toLocalDate(new Date()) // Start Date 설정
-      } else if (book.status === 'READING') {
-        book.status = 'COMPLETED'
-        book.endDate = toLocalDate(new Date())
+      const bookDataToSend = new BookEdit({
+        ...state.bookEdit,
+        startDate: state.bookEdit.startDate ? state.bookEdit.toStartDateLocalDate() : null,
+        endDate: state.bookEdit.endDate ? state.bookEdit.toEndDateLocalDate() : null
+      })
+      console.log(id)
+      console.log(field, value)
+      try {
+        await BOOK_REPOSITORY.editBookStatus(bookDataToSend)
+        ElMessage.success('책 상태가 성공적으로 업데이트되었습니다.')
+        await getBookList(page.value)
+      } catch (error) {
+        console.error('Error updating book status:', error)
+        ElMessage.error('책 상태 업데이트에 실패했습니다.')
       }
     }
-    // Handle paginati
 
     // 책 삭제
     const deleteBook = (bookId: number) => {
@@ -216,7 +231,7 @@ export default {
     const handlePageChange = (newPage: number) => {
       if (newPage !== page.value) {
         page.value = newPage // 페이지 번호 업데이트
-        getBookList(newPage, true) // 페이지 변경 시, reset 플래그를 true로 설정하여 새 데이터로 교체
+        getBookList(newPage) // 페이지 변경 시, reset 플래그를 true로 설정하여 새 데이터로 교체
       }
     }
 
@@ -230,7 +245,7 @@ export default {
       page,
       getBookList,
       submit,
-      handleUpdateStatus,
+      handleUpdateBook,
       deleteBook,
       handlePageChange,
       isFormValid,
@@ -240,6 +255,12 @@ export default {
     }
   }
 }
+// End Date 업데이트
+// const handleEndDateUpdate = (bookId: number, newEndDate: string) => {
+//   state.bookEdit.bookId = bookId
+//   state.bookEdit.endDate = newEndDate
+//   book.isUpdated = true // End Date가 업데이트된 경우
+// }
 </script>
 
 <style scoped>

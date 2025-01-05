@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookStatusEdit {
+    public Long bookId;
     private LocalDate startDate;
     private LocalDate endDate;
 }

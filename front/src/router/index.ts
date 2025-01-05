@@ -11,7 +11,6 @@ import MyPageView from '@/views/MyPageView.vue'
 import UserSetting from '@/views/UserSetting.vue'
 import MyPostList from '@/views/MyPostList.vue'
 import BookLog from '@/views/BookLog.vue'
-// import ToRead from '@/components/ToRead.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

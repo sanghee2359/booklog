@@ -38,9 +38,9 @@ export default class BookRepository {
       bookView
     )
   }
-  public editBookStatus(bookId: number, request: BookEdit) {
+  public editBookStatus(request: BookEdit) {
     return this.httpRepository.patch({
-      path: `api/users/bookList/${bookId}`,
+      path: `api/users/bookList`,
       body: request
     })
   }

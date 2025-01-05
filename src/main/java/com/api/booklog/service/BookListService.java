@@ -47,8 +47,8 @@ public class BookListService {
 
     // date를 받으면 BookStatus 자동 업데이트
     @Transactional
-    public void updateBookStatus(Long bookId, BookStatusEdit request) {
-        Book book = bookRepository.findById(bookId)
+    public void updateBookStatus(BookStatusEdit request) {
+        Book book = bookRepository.findById(request.bookId)
                 .orElseThrow(BookNotFound::new);
         handleStatusUpdate(book, request);
     }

@@ -53,13 +53,12 @@ public class BookController {
     }
 
     // BookStatus 변경
-    @PatchMapping("/users/bookList/{bookId}")
+    @PatchMapping("/users/bookList")
     public ResponseEntity<Void> bookStatusEdit(
-            @PathVariable Long bookId,
             @RequestBody @Valid BookStatusEdit request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if(userPrincipal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        bookListService.updateBookStatus(bookId, request);
+        bookListService.updateBookStatus(request);
         return ResponseEntity.ok().build();
     }
 
