@@ -12,10 +12,18 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    // 완독한 책 리스트
-    Page<Book> findByStatusAndUser(BookStatus status, Users user, Pageable pageable);
+    /**
+     * 올해의 책
+     */
+    long countByIsYearBookAndUserId(boolean isYearBook, Long userId);
+    // 특정 사용자의 올해의 책 리스트 가져오기 (isYearBook이 true인 책만)
+    List<Book> findByIsYearBookAndUserId(boolean isYearBook, Long userId);
+    void deleteByIsYearBookAndUserIdAndId(boolean isYearBook, Long userId, Long bookId);
 
     // 읽을 책 리스트
     Page<Book> findByStatusInAndUser(List<BookStatus> statuses, Users user, Pageable pageable);
+
+    // 완독한 리스트
+    Page<Book> findByStatusAndUser(BookStatus status, Users user, Pageable pageable);
 
 }

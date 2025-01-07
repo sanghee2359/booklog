@@ -20,6 +20,8 @@ public class BookResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime createdAt;
+    private Boolean isYearBook;  // 올해의 책 여부
+    private String review;       // 서평
 
     // 새로 추가된 생성자
     public BookResponse(Book book) {
@@ -30,5 +32,13 @@ public class BookResponse {
         this.endDate = book.getEndDate();
         this.status = book.getStatus();
         this.createdAt = book.getCreatedAt();
+        // 조건에 따라 isYearBook과 review를 설정
+        if (book.isYearBook()) {
+            this.isYearBook = true;
+            this.review = book.getReview();
+        } else {
+            this.isYearBook = false;
+            this.review = null;  // 올해의 책이 아니면 null
+        }
     }
 }
