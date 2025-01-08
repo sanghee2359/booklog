@@ -4,6 +4,8 @@ export default class BookEdit {
   public bookId = 0
   public startDate: Date | null = null
   public endDate: Date | null = null
+  public review = '' // endDate 설정 후 review 등록
+  public isYearBook: boolean = false
 
   constructor(init?: Partial<BookEdit>) {
     if (init) {

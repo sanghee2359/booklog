@@ -14,6 +14,14 @@ export default class BookRepository {
       body: request
     })
   }
+  public getBooksOfYear(year: number, bookView: BookView) {
+    return this.httpRepository.getList<BookView>(
+      {
+        path: `/api/users/bookList/year-books/${year}`
+      },
+      bookView
+    )
+  }
   public getCompletedBooks(
     page: number,
     size: number,
@@ -21,7 +29,7 @@ export default class BookRepository {
   ): Promise<Paging<BookView>> {
     return this.httpRepository.getList<BookView>(
       {
-        path: `/api/users/completedBookList?page=${page}&size=${size}`
+        path: `/api/users/bookList/completed?page=${page}&size=${size}`
       },
       bookView
     )
@@ -33,7 +41,7 @@ export default class BookRepository {
   ): Promise<Paging<BookView>> {
     return this.httpRepository.getList<BookView>(
       {
-        path: `/api/users/pendingBookList?page=${page}&size=${size}`
+        path: `/api/users/bookList/pending?page=${page}&size=${size}`
       },
       bookView
     )

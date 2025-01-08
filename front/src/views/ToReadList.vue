@@ -79,7 +79,7 @@
     <!-- End Date -->
     <el-table-column prop="endDate" label="End Date">
       <template #default="{ row }">
-        <BookCard :book="row" field="endDate" @update-book="handleUpdateBook" />
+        <BookCard :book="row" field="endDate" @update-book="setEndDate" />
       </template>
     </el-table-column>
 
@@ -101,6 +101,22 @@
       @current-change="handlePageChange"
     />
   </div>
+  <!-- 다이얼로그 (책 수정) -->
+  <el-dialog v-model="dialogVisible" title="책 상태 업데이트" width="400px">
+    <p>올해의 책으로 선정하시겠습니까?</p>
+    <el-button @click="selectYearBook(true)" type="primary">Yes</el-button>
+    <el-button @click="selectYearBook(false)" type="default">No</el-button>
+    <el-input
+      v-model="review"
+      type="textarea"
+      placeholder="책에 대한 한 줄 서평을 입력해주세요."
+    ></el-input>
+    <template #footer>
+      <el-button @click="dialogVisible = false">취소</el-button>
+      <el-button type="primary" @click="handleDialogSubmit">확인</el-button>
+    </template>
+    <router-link to="/bookLog" />
+  </el-dialog>
 </template>
 
 <script lang="ts">
@@ -113,6 +129,8 @@ import Paging from '@/entity/data/Paging'
 import { container } from 'tsyringe'
 import BookRepository from '@/repository/BookRepository'
 import { ElForm, ElMessage } from 'element-plus'
+import type { Router } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'ToReadList',
@@ -128,6 +146,12 @@ export default {
       bookEdit: new BookEdit(),
       bookList: new Paging<BookView>()
     })
+    // endDate 입력 후 review, 올해의 책 설정
+    const dialogVisible = ref(false)
+    const isYearBook = ref(false)
+    const review = ref('')
+    const router: Router = useRouter()
+
     const formRef = ref<InstanceType<typeof ElForm>>() // ElForm 타입을 명시적으로 지정
     // 페이지네이션 처리
     const pageSize = 6
@@ -194,30 +218,53 @@ export default {
         ElMessage.error('읽고 싶은 책 저장에 실패했습니다.')
       }
     }
-    const handleUpdateBook = async ({
-      id,
-      field,
-      value
-    }: {
-      id: number
-      field: string
-      value: Date
-    }) => {
+    const handleUpdateBook = async ({ id, value }: { id: number; value: Date }) => {
       state.bookEdit.bookId = id
-      if (field === 'startDate') state.bookEdit.startDate = value
-      else if (field === 'endDate') state.bookEdit.endDate = value
+      state.bookEdit.startDate = value
 
       const bookDataToSend = new BookEdit({
         ...state.bookEdit,
         startDate: state.bookEdit.startDate ? state.bookEdit.toStartDateLocalDate() : null,
-        endDate: state.bookEdit.endDate ? state.bookEdit.toEndDateLocalDate() : null
+        endDate: null
       })
-      console.log(id)
-      console.log(field, value)
       try {
         await BOOK_REPOSITORY.editBookStatus(bookDataToSend)
         ElMessage.success('책 상태가 성공적으로 업데이트되었습니다.')
         await getBookList(page.value)
+      } catch (error) {
+        console.error('Error updating book status:', error)
+        ElMessage.error('책 상태 업데이트에 실패했습니다.')
+      }
+    }
+    const setEndDate = async ({ id, value }: { id: number; value: Date }) => {
+      // 다이얼로그를 열기 전에 필요한 정보를 설정
+      state.bookEdit.bookId = id
+      state.bookEdit.endDate = value
+
+      // 다이얼로그 열기
+      dialogVisible.value = true
+    }
+
+    // 'Yes' 또는 'No' 선택 함수
+    const selectYearBook = (value: boolean) => {
+      isYearBook.value = value
+    }
+    const handleDialogSubmit = async () => {
+      // 다이얼로그 닫기
+      dialogVisible.value = false
+
+      const bookDataToSend = new BookEdit({
+        ...state.bookEdit,
+        isYearBook: isYearBook.value,
+        review: review.value,
+        endDate: state.bookEdit.endDate ? state.bookEdit.toEndDateLocalDate() : null
+      })
+      console.log('API Payload:', bookDataToSend)
+
+      try {
+        await BOOK_REPOSITORY.editBookStatus(bookDataToSend)
+        ElMessage.success('책 상태가 성공적으로 업데이트되었습니다.')
+        router.replace('/bookLog')
       } catch (error) {
         console.error('Error updating book status:', error)
         ElMessage.error('책 상태 업데이트에 실패했습니다.')
@@ -251,16 +298,16 @@ export default {
       isFormValid,
       loading,
       formRef,
-      rules
+      rules,
+      setEndDate,
+      selectYearBook,
+      handleDialogSubmit,
+      dialogVisible,
+      isYearBook,
+      review
     }
   }
 }
-// End Date 업데이트
-// const handleEndDateUpdate = (bookId: number, newEndDate: string) => {
-//   state.bookEdit.bookId = bookId
-//   state.bookEdit.endDate = newEndDate
-//   book.isUpdated = true // End Date가 업데이트된 경우
-// }
 </script>
 
 <style scoped>
@@ -271,5 +318,10 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+.el-dialog {
+  margin: auto;
+  top: 50% !important;
+  transform: translateY(-50%);
 }
 </style>

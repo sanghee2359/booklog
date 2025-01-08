@@ -19,7 +19,7 @@
           v-model="editableStartDate"
           type="date"
           placeholder="읽기 시작일"
-          @change="notifyChange('startDate', editableStartDate)"
+          @change="notifyChange(editableStartDate)"
           size="small"
           class="date-picker"
         />
@@ -37,7 +37,7 @@
           v-model="editableEndDate"
           type="date"
           placeholder="완독일"
-          @change="notifyChange('endDate', editableEndDate)"
+          @change="notifyChange(editableEndDate)"
           size="small"
           class="date-picker"
         />
@@ -68,8 +68,8 @@ export default defineComponent({
     const editableStartDate = ref<Date | null>(null)
     const editableEndDate = ref<Date | null>(null)
 
-    const notifyChange = (field: string, value: Date | null) => {
-      emit('update-book', { id: props.book.bookId, field, value })
+    const notifyChange = (value: Date | null) => {
+      emit('update-book', { id: props.book.bookId, value })
     }
 
     return {
