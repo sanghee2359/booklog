@@ -1,0 +1,89 @@
+/api/v1/users:
+  post:
+    tags:
+      - user
+    summary: 새로운 사용자가 등록한다 (user)
+    description: 새로운 사용자를 생성한다 (user)
+    operationId: signUp
+    requestBody:
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/User'
+          application/json:
+            $ref: '#/components/schemas/User'
+    response:
+      201:
+        description: 사용자 생성이 성공적으로 처리된 경우
+        content:
+          application/xml:
+            $ref: '#/components/schemas/SignedInUser'
+          application/json:
+            $ref: '#/components/schemas/SignedInUser'
+/api/v1/auth/token:
+  post:
+    tags:
+      - user
+    summary: 사용자가 Sign-in 한다 (user)
+    description: JWT 토큰과 리프레시 토큰을 생성한다
+    operationId: signIn
+    requestBody:
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/SignInReq'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SignInReq'
+    responses:
+      200:
+        description: 엑세스 토큰과 리프레시 토큰을 반환한다
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/SignedInUser'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignedInUser'
+  delete:
+    tags:
+      - user
+    summary: 사용자를 Sign-out 시킨다 (user)
+    description: 사용자를 Sign-out 시킨다. 리프레시 토큰을 DB에서 제거한다
+    operationId: signOut
+    requestBody:
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/RefreshToken'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RefreshToken'
+    responses:
+      202:
+        description: 로그아웃이 정상적으로 처리되었다.
+  /api/v1/auth/token/refresh:
+    post:
+      tags:
+        - user
+      summary: 유효한 리프레시 토큰을 받으면 새로운 JWT 토큰을 제공한다
+      description: 유효한 리프레시 토큰을 받으면 새로운 JWT 토큰을 제공한다
+      operationId: getAccessToken
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        200:
+          description: 작업이 성공한 경우 반환
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'

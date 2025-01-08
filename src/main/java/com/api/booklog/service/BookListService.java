@@ -7,8 +7,7 @@ import com.api.booklog.exception.*;
 import com.api.booklog.repository.BookRepository;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.book.BookCreate;
-import com.api.booklog.request.book.BookStatusEdit;
-import com.api.booklog.request.book.BooksOfYear;
+import com.api.booklog.request.book.BookEdit;
 import com.api.booklog.response.BookResponse;
 import com.api.booklog.response.PagingResponse;
 import lombok.RequiredArgsConstructor;
@@ -48,19 +47,19 @@ public class BookListService {
 
     // date를 받으면 BookStatus 자동 업데이트
     @Transactional
-    public void updateBookStatus(BookStatusEdit request) {
+    public void updateBookStatus(Long userId, BookEdit request) {
         Book book = bookRepository.findById(request.bookId)
                 .orElseThrow(BookNotFound::new);
-        handleStatusUpdate(book, request);
+        handleStatusUpdate(userId, book, request);
     }
     // 상태 변경 로직
-    private void handleStatusUpdate(Book book, BookStatusEdit request) {
+    private void handleStatusUpdate(Long userId, Book book, BookEdit request) {
         switch (book.getStatus()) {
             case NOT_STARTED:
                 updateToReading(book, request.getStartDate());
                 break;
             case READING:
-                updateToCompleted(book, request.getEndDate());
+                updateToCompleted(userId, book, request);
                 break;
             default:
                 throw new InvalidBookStatus();
@@ -72,9 +71,15 @@ public class BookListService {
         if(startDate == null) throw new InvalidRequest();
         book.startReading(startDate);
     }
-    private void updateToCompleted(Book book, LocalDate endDate) {
-        if(endDate == null) throw new InvalidRequest();
-        book.completeReading(endDate);
+    private void updateToCompleted(Long userId, Book book, BookEdit request) {
+        int currentYear = LocalDate.now().getYear();
+        long yearBookCount = bookRepository.countYearBooksByUserAndYear(userId, currentYear);
+
+        if (yearBookCount >= 10) {
+            throw new IllegalArgumentException("올해의 책은 한 해에 최대 10권까지 지정할 수 있습니다.");
+        }
+        if(request.endDate == null) throw new InvalidRequest();
+        book.completeReading(request.endDate, request.review, request.isYearBook);
     }
     // 책 데이터 삭제
     @Transactional
@@ -125,7 +130,7 @@ public class BookListService {
     }
 
     @Transactional
-    public void markAsYearBook(Long userId, BooksOfYear request) {
+    public void markAsYearBook(Long userId, BookEdit request) {
         // 올해의 책이 이미 10개 이상인지 체크
         long yearBookCount = bookRepository.countByIsYearBookAndUserId(true, userId);
         if (yearBookCount >= 10) {
@@ -138,7 +143,7 @@ public class BookListService {
             throw new IllegalStateException("완독한 책만 올해의 책으로 등록할 수 있습니다.");
         }
         // 명시적 메서드 호출하여 "올해의 책"으로 마킹
-        book.markAsYearBook(request.getReview());
+        book.markAsYearBook();
         bookRepository.save(book);
     }
 }

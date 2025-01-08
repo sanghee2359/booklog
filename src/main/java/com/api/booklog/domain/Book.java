@@ -41,7 +41,7 @@ public class Book {
     private String review;  // 서평 추가
 
     @Builder
-    public Book(String title, String author, Users user, BookStatus status, LocalDate startDate, LocalDate endDate, String review) {
+    public Book(String title, String author, Users user, BookStatus status, LocalDate startDate, LocalDate endDate, String review, boolean isYearBook) {
         this.title = title;
         this.author = author;
         this.user = user;
@@ -49,6 +49,7 @@ public class Book {
         this.startDate = startDate;
         this.endDate = endDate;
         this.review = review;
+        this.isYearBook = isYearBook;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -65,20 +66,15 @@ public class Book {
     }
     
     // 읽기 종료
-    public void completeReading(LocalDate endDate) {
+    public void completeReading(LocalDate endDate, String review, boolean isYearBook) {
         if(this.status != BookStatus.READING) {
             throw new IllegalArgumentException("READING 상태에서만 COMPLETE로 변환할 수 있습니다.");
         }
         this.status = BookStatus.COMPLETED;
         this.endDate = endDate;
+        this.review = review;  // 리뷰 설정
+        this.isYearBook = isYearBook;
     }
-    // 올해의 책으로 선정
-    public void markAsYearBook(String review) {
-        if (!this.status.equals(BookStatus.COMPLETED)) {
-            throw new IllegalStateException("완독한 책만 올해의 책으로 선정할 수 있습니다.");
-        }
-        this.isYearBook = true;  // 올해의 책으로 마킹
-        this.review = review;
-    }
+
 
 }

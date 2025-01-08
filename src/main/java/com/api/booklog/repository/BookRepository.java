@@ -4,9 +4,11 @@ package com.api.booklog.repository;
 import com.api.booklog.domain.Book;
 import com.api.booklog.domain.BookStatus;
 import com.api.booklog.domain.Users;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -15,7 +17,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     /**
      * 올해의 책
      */
-    long countByIsYearBookAndUserId(boolean isYearBook, Long userId);
+    @Query("SELECT COUNT(b) FROM Book b WHERE b.user.id = :userId AND b.isYearBook = true AND YEAR(b.endDate) = :year")
+    long countYearBooksByUserAndYear(@Param("userId") Long userId, @Param("year") int year);
     // 특정 사용자의 올해의 책 리스트 가져오기 (isYearBook이 true인 책만)
     List<Book> findByIsYearBookAndUserId(boolean isYearBook, Long userId);
     void deleteByIsYearBookAndUserIdAndId(boolean isYearBook, Long userId, Long bookId);
