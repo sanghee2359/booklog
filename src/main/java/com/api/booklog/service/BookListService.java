@@ -115,9 +115,8 @@ public class BookListService {
     // 올해의 책 리스트 출력 (년도에 따라 다르게 출력)
     public List<BookResponse> getThisYearBooks(Long userId, int year) {
         userRepository.findById(userId).orElseThrow(UserNotFound::new);
-        List<Book> books = bookRepository.findByIsYearBookAndUserId(true, userId);
+        List<Book> books = bookRepository.findYearBooksByUserAndYear(userId, year);
         return books.stream()
-                .filter(book -> book.getEndDate() != null && book.getEndDate().getYear() == year)
                 .map(BookResponse::new)
                 .collect(Collectors.toList());
 
@@ -127,23 +126,5 @@ public class BookListService {
         if (book.getStatus() == BookStatus.READING && book.getStartDate() == null) {
             throw new IllegalArgumentException("읽기 시작일이 필요합니다.");
         }
-    }
-
-    @Transactional
-    public void markAsYearBook(Long userId, BookEdit request) {
-        // 올해의 책이 이미 10개 이상인지 체크
-        long yearBookCount = bookRepository.countByIsYearBookAndUserId(true, userId);
-        if (yearBookCount >= 10) {
-            throw new IllegalStateException("올해의 책은 최대 10개까지만 선정할 수 있습니다.");
-        }
-        Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(BookNotFound::new);
-
-        if (book.getStatus() != BookStatus.COMPLETED) {
-            throw new IllegalStateException("완독한 책만 올해의 책으로 등록할 수 있습니다.");
-        }
-        // 명시적 메서드 호출하여 "올해의 책"으로 마킹
-        book.markAsYearBook();
-        bookRepository.save(book);
     }
 }

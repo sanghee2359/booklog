@@ -19,8 +19,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
      */
     @Query("SELECT COUNT(b) FROM Book b WHERE b.user.id = :userId AND b.isYearBook = true AND YEAR(b.endDate) = :year")
     long countYearBooksByUserAndYear(@Param("userId") Long userId, @Param("year") int year);
-    // 특정 사용자의 올해의 책 리스트 가져오기 (isYearBook이 true인 책만)
-    List<Book> findByIsYearBookAndUserId(boolean isYearBook, Long userId);
+    // (year)에 해당되는, 특정 사용자의 올해의 책 리스트 가져오기
+    @Query("SELECT b FROM Book b WHERE b.user.id = :userId AND b.isYearBook = true AND YEAR(b.endDate) = :year")
+    List<Book> findYearBooksByUserAndYear(@Param("userId") Long userId, @Param("year") int year);
     void deleteByIsYearBookAndUserIdAndId(boolean isYearBook, Long userId, Long bookId);
 
     // 읽을 책 리스트
