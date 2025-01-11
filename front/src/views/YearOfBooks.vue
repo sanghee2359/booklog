@@ -31,6 +31,9 @@
 
     <!-- 로딩 상태 -->
     <div v-if="loading" class="loading-indicator">Loading...</div>
+
+    <!-- 이미지 변경 버튼 -->
+    <button @click="changeBookImages">Change Book Images</button>
   </div>
 </template>
 
@@ -148,6 +151,34 @@ export default {
       const savedImage = localStorage.getItem(`book-image-${index}`)
       return savedImage || getRandomBookImage(index)
     }
+
+    // 책 이미지 변경
+    const changeBookImages = async () => {
+      // 기존 이미지 목록 삭제
+      localStorage.removeItem('bookImages')
+
+      // 1. 랜덤 이미지 목록 생성 (책 목록에 대해 랜덤으로 책 이미지를 배치)
+      const newImages = state.bookList.items.map((_, index) => getRandomBookImage(index))
+
+      // 2. 비동기로 UI에 반영 (UI는 로컬스토리지에서 새로운 이미지를 바로 사용)
+      await Promise.all(
+        state.bookList.items.map(async (_, index) => {
+          const newImage = newImages[index]
+          // 로컬스토리지에 새로운 이미지 URL을 저장
+          localStorage.setItem(`book-image-${index}`, newImage)
+        })
+      )
+
+      // 3. 로컬스토리지에 새로운 이미지 목록 저장
+      localStorage.setItem('bookImages', JSON.stringify(newImages))
+
+      // 4. UI에 반영된 이미지를 적용
+      state.bookList.items.forEach((_, index) => {
+        // 이미지를 즉시 반영
+        localStorage.setItem(`book-image-${index}`, newImages[index])
+      })
+    }
+
     onMounted(() => {
       checkYears()
       getBookList()
@@ -163,7 +194,8 @@ export default {
       deleteBook,
       getRandomBookImage,
       getBookStyle,
-      getBookImage // getBookImage 함수로 로컬스토리지에서 이미지를 가져옴
+      getBookImage,
+      changeBookImages // 버튼 클릭 시 이미지 변경
     }
 
     function getBookStyle(index: number) {
