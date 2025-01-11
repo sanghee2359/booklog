@@ -4,6 +4,7 @@ import type BookSave from '@/entity/book/BookSave'
 import type BookView from '@/entity/book/BookView'
 import type BookEdit from '@/entity/book/BookEdit'
 import type Paging from '@/entity/data/Paging'
+import type List from '@/entity/data/List'
 
 @singleton()
 export default class BookRepository {
@@ -14,12 +15,12 @@ export default class BookRepository {
       body: request
     })
   }
-  public getBooksOfYear(year: number, bookView: BookView) {
-    return this.httpRepository.getList<BookView>(
+  public getBooksOfYear(year: number, bookView: BookView): Promise<List<BookView>> {
+    return this.httpRepository.getArray<BookView>(
       {
-        path: `/api/users/bookList/year-books/${year}`
+        path: `/api/users/year-books/${year}`
       },
-      bookView
+      bookView // BookView 타입을 넘겨줍니다.
     )
   }
   public getCompletedBooks(

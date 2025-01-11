@@ -11,6 +11,7 @@ import MyPageView from '@/views/MyPageView.vue'
 import UserSetting from '@/views/UserSetting.vue'
 import MyPostList from '@/views/MyPostList.vue'
 import BookLog from '@/views/BookLog.vue'
+import YearOfBooks from '@/views/YearOfBooks.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -78,6 +79,11 @@ const router = createRouter({
           path: '/bookLog',
           name: 'bookLog',
           component: BookLog
+        },
+        {
+          path: '/yearOfBooks',
+          name: 'yearOfBooks',
+          component: YearOfBooks
         }
       ]
     }

@@ -1,10 +1,11 @@
 import type { HttpRequestConfig } from '@/http/AxiosHttpClient'
-import { inject, singleton } from 'tsyringe'
 import AxiosHttpClient from '@/http/AxiosHttpClient'
+import { inject, singleton } from 'tsyringe'
 import { plainToInstance } from 'class-transformer'
 import { types } from 'sass'
-import Null = types.Null
 import Paging from '@/entity/data/Paging'
+import List from '@/entity/data/List'
+import Null = types.Null
 
 @singleton()
 export default class HttpRepository {
@@ -18,6 +19,22 @@ export default class HttpRepository {
       .request({ ...config, method: 'GET' })
       .then((response) => plainToInstance(classes !== null ? classes : Null, response))
   }
+  public getArray<T>(config: HttpRequestConfig, clazz: { new (...args: any[]) }): Promise<List<T>> {
+    return this.httpClient.request({ ...config, method: 'GET' }).then((response) => {
+      // console.log('Full Response:', response) // 전체 응답 확인
+      // 응답이 비어있는지 또는 예상된 형식인지 확인
+      if (!response || !Array.isArray(response)) {
+        console.warn('Empty or invalid response received.')
+        return new List<T>() // 빈 리스트를 반환
+      }
+      const list = new List<T>()
+      list.setItems(plainToInstance(clazz, response))
+      // console.log('list Data:', list) // 응답 데이터 확인
+
+      return list
+    })
+  }
+
   public getList<T>(
     config: HttpRequestConfig,
     clazz: { new (...args: any[]) }
