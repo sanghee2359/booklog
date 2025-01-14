@@ -1,36 +1,58 @@
 <template>
-  <span class="totalCount">북마크 수: {{ totalCount }} </span>
-  <div class="bookmark-container" ref="bookmarkContainer">
-    <!-- 북마크 포스트 리스트 -->
-    <PostView v-for="post in paging.items" :key="post.postId" :post="post" />
-
-    <!-- 로딩 인디케이터 -->
-    <div v-if="loading" class="loading">
-      <p>Loading...</p>
+  <div class="bookmark-wrapper">
+    <div class="header">
+      <h2>📚 북마크</h2>
     </div>
+    <span class="totalCount">북마크 수: {{ totalCount }} </span>
+    <div class="bookmark-container" ref="bookmarkContainer">
+      <!--북마크 포스트 리스트-->
+      <div v-for="post in state.postList.items" :key="post.postId" class="bookmark-item">
+        <router-link :to="{ name: 'read', params: { postId: post.postId } }" class="post-title">
+          {{ post.title }}
+        </router-link>
+        <p class="post-content">{{ post.getShortenContent() }}</p>
+        <div class="post-meta">
+          <span>작성자: {{ post.userId }}</span>
+          <span>작성일: {{ post.getDisplayRegDate() }}</span>
+          <span>좋아요: {{ post.likesCount }}</span>
+        </div>
+      </div>
 
-    <!-- 무한 스크롤이 끝났다는 메시지 -->
-    <div v-if="!loading && !paging.hasNextPage" class="end-of-list">
-      <p>No more posts to load</p>
+      <!-- 로딩 인디케이터 -->
+      <div v-if="loading" class="loading">
+        <p>로딩 중...</p>
+      </div>
+
+      <!-- 무한 스크롤이 끝났다는 메시지 -->
+      <div v-if="!loading && !state.postList.hasNextPage" class="end-of-list">
+        <p>더 이상 불러올 게시물이 없습니다.</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, reactive } from 'vue'
 import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import Paging from '@/entity/data/Paging'
 import PostView from '@/entity/data/PostView'
 import PostViewComponent from '@/components/PostView.vue'
+import UserProfile from '@/entity/user/UserProfile'
+import { LikeResponse } from '@/entity/LikeResponse'
 
 export default {
   components: {
     PostView: PostViewComponent
   },
   setup() {
+    type StateType = {
+      postList: Paging<PostView>
+    }
+    const state = reactive<StateType>({
+      postList: new Paging<PostView>()
+    })
     const BOOKMARK_REPOSITORY = container.resolve(BookmarkRepository)
-    const paging = ref(new Paging<PostView>())
     const loading = ref(false)
     const page = ref(1)
     const pageSize = 5
@@ -45,17 +67,16 @@ export default {
         const response = await BOOKMARK_REPOSITORY.getBookmarks(pageNumber, pageSize)
         const { items, hasNextPage, totalCount: responseTotalCount } = response
         totalCount.value = responseTotalCount
-
         if (items.length) {
           if (pageNumber === 1) {
-            paging.value.setItems(items)
+            state.postList.setItems(items)
           } else {
-            paging.value.setItems([...paging.value.items, ...items])
+            state.postList.setItems([...state.postList.items, ...items])
           }
-          paging.value.setHasNextPage(hasNextPage)
+          state.postList.setHasNextPage(hasNextPage)
           page.value += 1
         } else {
-          paging.value.setHasNextPage(false)
+          state.postList.setHasNextPage(false)
         }
       } catch (error) {
         console.error('Error fetching bookmarks:', error)
@@ -70,7 +91,7 @@ export default {
         const bottomOfContainer =
           container.scrollHeight - container.scrollTop <= container.clientHeight + 50 // 오차 허용
 
-        if (bottomOfContainer && !loading.value && paging.value.hasNextPage) {
+        if (bottomOfContainer && !loading.value && state.postList.hasNextPage) {
           fetchBookmarks(page.value)
         }
       }
@@ -90,7 +111,7 @@ export default {
     })
 
     return {
-      paging,
+      state,
       loading,
       totalCount,
       bookmarkContainer
@@ -100,21 +121,76 @@ export default {
 </script>
 
 <style scoped>
-.bookmark-container {
-  height: 400px; /* 스크롤이 발생할 만큼 충분한 높이 */
-  overflow-y: auto; /* Scrollable container */
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-}
-
-.loading {
-  text-align: center;
+.bookmark-wrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   padding: 16px;
+  font-family: Arial, sans-serif;
+  color: #333;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.total-count {
+  font-size: 14px;
+  color: #666;
+}
+
+.bookmark-container {
+  height: 500px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.bookmark-item {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.post-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 8px;
+  color: #0073e6;
+}
+
+.post-content {
+  margin: 0 0 8px;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.post-meta {
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+}
+
+.loading,
 .end-of-list {
   text-align: center;
   padding: 16px;
   color: #888;
+  font-style: italic;
 }
 </style>
