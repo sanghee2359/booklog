@@ -1,7 +1,7 @@
 <script lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import PostRepository from '@/repository/PostRepository'
-import { LikeResponse } from '@/entity/LikeResponse'
+import LikeResponse from '@/entity/LikeResponse'
 import { container } from 'tsyringe'
 import { plainToInstance } from 'class-transformer'
 import { ElMessage } from 'element-plus'
@@ -56,8 +56,7 @@ export default {
     // 좋아요 상태와 개수를 가져오는 함수
     const fetchLikesCount = async () => {
       try {
-        const response = await POST_REPOSITORY.getLikesCount(props.postId, LikeResponse)
-        likeResponse.value = plainToInstance(LikeResponse, response)
+        likeResponse.value = await POST_REPOSITORY.getLikesCount(props.postId)
       } catch (error) {
         console.error('Error fetching likes count:', error)
       } finally {
@@ -74,8 +73,7 @@ export default {
       loading.value = true
 
       try {
-        const response = await POST_REPOSITORY.toggleLike(props.postId, LikeResponse)
-        likeResponse.value = plainToInstance(LikeResponse, response)
+        likeResponse.value = await POST_REPOSITORY.toggleLike(props.postId)
       } catch (error) {
         console.error('Error toggling like:', error)
         // Rollback state if error occurs

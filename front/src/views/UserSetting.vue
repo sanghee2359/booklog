@@ -4,7 +4,7 @@ import { container } from 'tsyringe'
 import { ElForm, ElMessage } from 'element-plus'
 import UserRepository from '@/repository/UserRepository'
 import UserEdit from '@/entity/user/UserEdit'
-import type UserProfile from '@/entity/user/UserProfile'
+import UserProfile from '@/entity/user/UserProfile'
 import HttpError from '@/http/HttpError'
 
 type StateType = {
@@ -26,15 +26,15 @@ function getProfile() {
   USER_REPOSITORY.getProfile()
     .then((profile: UserProfile) => {
       state.profile = profile
-      state.edit = new UserEdit({
-        name: profile.name,
-        email: profile.email,
-        password: '' // 비밀번호는 빈 문자열로 초기화
-      })
+      state.edit = new UserEdit(profile.name, profile.email, '') // 비밀번호는 빈 문자열로 초기화
     })
     .catch((e) => {
+      state.edit = null // 에러 발생 시 null로 초기화
       console.error(e)
-      ElMessage({ type: 'error', message: `유저 조회 실패` })
+      ElMessage({
+        type: 'error',
+        message: '유저 조회 실패'
+      })
     })
 }
 
@@ -108,7 +108,7 @@ const passwordRule = [
   <el-row v-if="state.profile && state.edit" class="edit-page">
     <el-col :span="24" class="edit-col">
       <el-card class="edit-card">
-        <h2 class="edit-title">프로필 수정</h2>
+        <h2 class="edit-title">✍ 프로필 수정</h2>
         <el-form
           v-if="state.edit"
           :model="state.edit"

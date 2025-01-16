@@ -4,7 +4,7 @@ import type PostWrite from '@/entity/post/PostWrite'
 import type PostEdit from '@/entity/post/PostEdit'
 import PostView from '@/entity/post/PostView'
 import UserProfile from '@/entity/user/UserProfile'
-import type { LikeResponse } from '@/entity/LikeResponse'
+import LikeResponse from '@/entity/LikeResponse'
 import Paging from '@/entity/data/Paging'
 
 @singleton()
@@ -18,7 +18,7 @@ export default class PostRepository {
     })
   }
 
-  public get(postId: number, PostView: PostView) {
+  public get(postId: number) {
     return this.httpRepository.get<PostView>(
       {
         path: `/api/posts/${postId}`
@@ -26,7 +26,7 @@ export default class PostRepository {
       PostView
     )
   }
-  public getUserName(postId: number, UserProfile: UserProfile): Promise<UserProfile> {
+  public getUserName(postId: number): Promise<UserProfile> {
     return this.httpRepository.get<UserProfile>(
       {
         path: `/api/posts/${postId}/getuser`
@@ -64,22 +64,22 @@ export default class PostRepository {
       body: request
     })
   }
-  public async getLikesCount(postId: number, likeResponse: LikeResponse): Promise<LikeResponse> {
+  public async getLikesCount(postId: number): Promise<LikeResponse> {
     return this.httpRepository.get<LikeResponse>(
       {
         path: `/api/posts/${postId}/like`
       },
-      likeResponse
+      LikeResponse
     )
   }
 
   // 기존 메서드 수정: 좋아요 상태와 개수를 포함한 `LikeResponse`를 반환
-  public async toggleLike(postId: number, likeResponse: LikeResponse): Promise<LikeResponse> {
+  public async toggleLike(postId: number): Promise<LikeResponse> {
     return this.httpRepository.post<LikeResponse>(
       {
         path: `/api/posts/${postId}/like`
       },
-      likeResponse
+      LikeResponse
     )
   }
 }

@@ -1,10 +1,10 @@
 import { Expose } from 'class-transformer'
 
-export class BookmarkResponse {
-  @Expose() status: boolean
+export default class BookmarkResponse {
+  @Expose() status: Boolean
   @Expose() postId: number
 
-  constructor(postId: number, status: boolean) {
+  constructor(postId: number, status: Boolean) {
     this.postId = postId
     this.status = status
   }

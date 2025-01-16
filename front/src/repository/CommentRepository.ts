@@ -2,7 +2,7 @@ import { inject, singleton } from 'tsyringe'
 import HttpRepository from '@/repository/HttpRepository'
 import Paging from '@/entity/data/Paging'
 import type CommentWrite from '@/entity/comment/CommentWrite'
-import type CommentView from '@/entity/comment/CommentView'
+import CommentView from '@/entity/comment/CommentView'
 
 @singleton()
 export default class CommentRepository {
@@ -16,17 +16,12 @@ export default class CommentRepository {
     })
   }
 
-  public getListByPost(
-    page: number,
-    size: number,
-    postId: number,
-    commentView: CommentView
-  ): Promise<Paging<CommentView>> {
+  public getListByPost(page: number, size: number, postId: number): Promise<Paging<CommentView>> {
     return this.httpRepository.getList<CommentView>(
       {
         path: `/api/posts/${postId}/comments?page=${page}&size=${size}`
       },
-      commentView
+      CommentView
     )
   }
 

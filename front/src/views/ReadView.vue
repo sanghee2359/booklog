@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, reactive, watch } from 'vue'
-import { plainToInstance } from 'class-transformer'
+import { computed, onBeforeMount, onMounted, reactive } from 'vue'
 import { container } from 'tsyringe'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Edit } from '@element-plus/icons-vue'
@@ -8,12 +7,12 @@ import PostView from '@/entity/post/PostView'
 import Comments from '@/components/Comments.vue'
 import BookmarkButton from '@/components/BookmarkButton.vue'
 import HeartButton from '@/components/LikeButton.vue'
-import UserRepository from '@/repository/UserRepository'
-import ProfileRepository from '@/repository/ProfileRepository'
-import PostRepository from '@/repository/PostRepository'
-import BookmarkRepository from '@/repository/BookmarkRepository'
+import LikeResponse from '@/entity/LikeResponse'
 import UserProfile from '@/entity/user/UserProfile'
-import { LikeResponse } from '@/entity/LikeResponse'
+import UserRepository from '@/repository/UserRepository'
+import PostRepository from '@/repository/PostRepository'
+import ProfileRepository from '@/repository/ProfileRepository'
+import BookmarkRepository from '@/repository/BookmarkRepository'
 
 const props = defineProps<{
   postId: number
@@ -26,14 +25,14 @@ const BOOKMARK_REPOSITORY = container.resolve(BookmarkRepository)
 type StateType = {
   profile: UserProfile | null
   post: PostView | null
-  isBookmarked: boolean
+  isBookmarked: boolean | null
   likeStatus: LikeResponse | null
   author: String | null
 }
 const state = reactive<StateType>({
   profile: null,
   post: null,
-  isBookmarked: false,
+  isBookmarked: null,
   likeStatus: null,
   author: null
 })
@@ -51,7 +50,7 @@ onBeforeMount(() => {
     })
 })
 function getPost() {
-  POST_REPOSITORY.get(props.postId, PostView)
+  POST_REPOSITORY.get(props.postId)
     .then((post: PostView) => {
       state.post = post
     })
@@ -60,9 +59,9 @@ function getPost() {
     })
 }
 function checkLikeStatus() {
-  POST_REPOSITORY.getLikesCount(props.postId, LikeResponse)
+  POST_REPOSITORY.getLikesCount(props.postId)
     .then((response: LikeResponse) => {
-      state.likeStatus = plainToInstance(LikeResponse, response)
+      state.likeStatus = response
     })
     .catch(() => {
       console.log(`>>> 게시글 페이지 : 좋아요 상태 확인 실패`)
@@ -70,8 +69,8 @@ function checkLikeStatus() {
 }
 function checkBookmarkStatus() {
   BOOKMARK_REPOSITORY.getBookmarkStatus(props.postId)
-    .then((response) => {
-      state.isBookmarked = response
+    .then((response: Boolean) => {
+      state.isBookmarked = response ?? false // response가 null이면 false로 설정
     })
     .catch(() => {
       console.log(`>>> 게시글 페이지 : 북마크 상태 확인 실패`)
@@ -97,7 +96,7 @@ function remove() {
 }
 function getUserName(postId: number) {
   // POST_REPOSITORY를 통해 postId에 해당하는 유저 이름을 가져옴
-  POST_REPOSITORY.getUserName(postId, UserProfile)
+  POST_REPOSITORY.getUserName(postId)
     .then((profile) => {
       state.author = profile.name
     })
@@ -131,8 +130,8 @@ onMounted(() => {
     <el-footer class="footer">
       <div class="bookmark-container">
         <BookmarkButton
-          :postId="Number(props.postId)"
-          :initialStatus="state.isBookmarked"
+          :postId="Number(props.postId, 10)"
+          :status="state.isBookmarked"
           :isLoggedIn="isLoggedIn"
         />
       </div>

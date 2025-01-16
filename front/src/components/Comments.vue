@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, reactive, watch, onBeforeMount, nextTick } from 'vue'
+import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
 import { container } from 'tsyringe'
 import CommentRepository from '@/repository/CommentRepository'
 import Paging from '@/entity/data/Paging'
 import CommentView from '@/entity/comment/CommentView'
 import Comment from '@/components/Comment.vue'
 import CommentWrite from '@/entity/comment/CommentWrite' // CommentWrite를 import
-import { ElMessage, ElForm } from 'element-plus'
+import { ElForm, ElMessage } from 'element-plus'
 import UserRepository from '@/repository/UserRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
 import UserProfile from '@/entity/user/UserProfile'
-import { debounce } from 'lodash'
 // Props 설정
 const props = defineProps<{
   postId: number

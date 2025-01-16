@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer'
 
-export class LikeResponse {
+export default class LikeResponse {
   @Expose()
   postId = 0
 

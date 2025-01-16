@@ -2,22 +2,18 @@ import type { HttpRequestConfig } from '@/http/AxiosHttpClient'
 import AxiosHttpClient from '@/http/AxiosHttpClient'
 import { inject, singleton } from 'tsyringe'
 import { plainToInstance } from 'class-transformer'
-import { types } from 'sass'
 import Paging from '@/entity/data/Paging'
+import Null from '@/entity/data/Null'
 import List from '@/entity/data/List'
-import Null = types.Null
 
 @singleton()
 export default class HttpRepository {
   constructor(@inject(AxiosHttpClient) private readonly httpClient: AxiosHttpClient) {}
 
-  public get<T>(
-    config: HttpRequestConfig,
-    classes: { new (...args: any[]) } | null = null
-  ): Promise<T> {
+  public get<T>(config: HttpRequestConfig, clazz: { new (...args: any[]) }): Promise<T> {
     return this.httpClient
       .request({ ...config, method: 'GET' })
-      .then((response) => plainToInstance(classes !== null ? classes : Null, response))
+      .then((response) => plainToInstance(clazz, response))
   }
   public getArray<T>(config: HttpRequestConfig, clazz: { new (...args: any[]) }): Promise<List<T>> {
     return this.httpClient.request({ ...config, method: 'GET' }).then((response) => {

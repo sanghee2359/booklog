@@ -32,14 +32,12 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted, onBeforeUnmount, reactive } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import Paging from '@/entity/data/Paging'
-import PostView from '@/entity/data/PostView'
+import PostView from '@/entity/post/PostView'
 import PostViewComponent from '@/components/PostView.vue'
-import UserProfile from '@/entity/user/UserProfile'
-import { LikeResponse } from '@/entity/LikeResponse'
 
 export default {
   components: {
@@ -101,7 +99,6 @@ export default {
       fetchBookmarks(page.value)
 
       if (bookmarkContainer.value) {
-        console.log('bookmarkContainer element:', bookmarkContainer.value) // DOM 요소 출력
         bookmarkContainer.value.addEventListener('scroll', handleScroll)
       }
     })

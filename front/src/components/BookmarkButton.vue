@@ -2,9 +2,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { container } from 'tsyringe'
 import BookmarkRepository from '@/repository/BookmarkRepository'
+import BookmarkResponse from '@/entity/BookmarkResponse'
 import { ElMessage } from 'element-plus'
-import { BookmarkResponse } from '@/entity/BookmarkResponse'
-import { plainToInstance } from 'class-transformer'
 
 export default {
   props: {
@@ -12,9 +11,9 @@ export default {
       type: Number,
       required: true
     },
-    initialStatus: {
+    status: {
       type: Boolean,
-      required: true
+      required: false
     },
     isLoggedIn: {
       type: Boolean,
@@ -23,7 +22,7 @@ export default {
   },
   setup: function (props) {
     const bookmark = ref<BookmarkResponse>(
-      new BookmarkResponse(props.postId, { status: props.initialStatus })
+      new BookmarkResponse(props.postId, { status: props.status })
     )
     const loading = ref(true)
 
@@ -61,11 +60,11 @@ export default {
       loading.value = true
 
       try {
-        const response = await BOOKMARK_REPOSITORY.toggleBookmark(props.postId, BookmarkResponse)
+        const response = await BOOKMARK_REPOSITORY.toggleBookmark(props.postId)
         console.log('Response from API:', response) // API 응답에서 `status`가 올바르게 정의되었는지 확인
 
         ElMessage({ type: 'success', message: '북마크 상태가 변경되었습니다' })
-        bookmark.value = plainToInstance(BookmarkResponse, response)
+        bookmark.value = response
       } catch (error) {
         console.error('Error occurred during bookmark toggle:', error)
         bookmark.value.status = !bookmark.value.status // Rollback state
