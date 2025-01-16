@@ -59,6 +59,7 @@ const router = createRouter({
       path: '/myPage',
       name: 'MyPage',
       component: MyPageView,
+      redirect: '/yearOfBooks', // 기본 경로를 /yearOfBooks로 리다이렉트
       children: [
         {
           path: '/toReadList',

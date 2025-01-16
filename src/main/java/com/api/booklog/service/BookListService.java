@@ -2,6 +2,7 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Book;
 import com.api.booklog.domain.BookStatus;
+import com.api.booklog.domain.Post;
 import com.api.booklog.domain.Users;
 import com.api.booklog.exception.*;
 import com.api.booklog.repository.BookRepository;
@@ -10,6 +11,7 @@ import com.api.booklog.request.book.BookCreate;
 import com.api.booklog.request.book.BookEdit;
 import com.api.booklog.response.BookResponse;
 import com.api.booklog.response.PagingResponse;
+import com.api.booklog.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,7 +46,11 @@ public class BookListService {
 
         bookRepository.save(book);
     }
-
+    public BookResponse get (Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow((BookNotFound::new));
+        return new BookResponse(book);
+    }
     // date를 받으면 BookStatus 자동 업데이트
     @Transactional
     public void updateBookStatus(Long userId, BookEdit request) {
@@ -72,11 +78,11 @@ public class BookListService {
         book.startReading(startDate);
     }
     private void updateToCompleted(Long userId, Book book, BookEdit request) {
-        int currentYear = LocalDate.now().getYear();
-        long yearBookCount = bookRepository.countYearBooksByUserAndYear(userId, currentYear);
+        int completedYear = request.endDate.getYear();
+        long yearBookCount = bookRepository.countYearBooksByUserAndYear(userId, completedYear);
 
         if (yearBookCount >= 10) {
-            throw new IllegalArgumentException("올해의 책은 한 해에 최대 10권까지 지정할 수 있습니다.");
+            throw new IllegalArgumentException("올해의 책은 매해 최대 10권까지 지정할 수 있습니다.");
         }
         if(request.endDate == null) throw new InvalidRequest();
         book.completeReading(request.endDate, request.review, request.isYearBook);

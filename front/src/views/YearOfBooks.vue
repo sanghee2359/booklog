@@ -1,12 +1,22 @@
 <template>
-  <div class="to-read-list">
-    <el-date-picker
-      v-model="year"
-      type="year"
-      placeholder="Select Year"
-      @update:modelValue="handleYearChange"
-      class="year-picker"
-    />
+  <div class="year-of-books">
+    <section class="intro-section">
+      <h1>📚 올해의 책</h1>
+      <p>한 해 읽은 책 중 특별히 선정된 책입니다!</p>
+      <p>
+        최대 <strong>10권</strong> 중 <strong>{{ state.bookList.items.length }}</strong
+        >권이 선정되었습니다.
+      </p>
+      <el-date-picker
+        v-model="year"
+        type="year"
+        placeholder="Select Year"
+        @update:modelValue="handleYearChange"
+        class="year-picker"
+      />
+
+      <!--      <p>지금까지 <strong>{{ totalBooksRead }}</strong>권의 책을 읽었어요.</p>-->
+    </section>
 
     <!-- 책 리스트 -->
     <div class="book-list" v-if="state.bookList.getCount() > 0">
@@ -16,6 +26,7 @@
           :key="book.bookId"
           class="book-item"
           :style="getBookStyle(index)"
+          @click="getBookDetail(book.bookId)"
         >
           <img :src="getBookImage(index)" alt="Book image" class="book-image" />
         </li>
@@ -39,6 +50,32 @@
       >Change Book Images
     </el-button>
   </div>
+  <!-- BookView 다이얼로그 -->
+  <el-dialog
+    v-model="dialogVisible"
+    :title="state.bookView.title"
+    width="500px"
+    class="book-dialog"
+    @close="handleClose"
+  >
+    <div v-if="state.bookView" class="book-dialog-content">
+      <!-- 다이얼로그 배경을 책 이미지로 설정 -->
+      <div class="custom-dialog-background">
+        <div class="dialog-text-content">
+          <p class="author-date">
+            <strong>Author:</strong> {{ state.bookView.author }}<br />
+            <strong>Date:</strong> {{ state.bookView.startDate }} ~ {{ state.bookView.endDate }}
+          </p>
+          <p class="review"><strong>Review:</strong> {{ state.bookView.review }}</p>
+        </div>
+      </div>
+
+      <!-- 다이얼로그 하단 버튼 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">닫기</el-button>
+      </span>
+    </div>
+  </el-dialog>
 </template>
 
 <script lang="ts">
@@ -49,6 +86,7 @@ import BookUI from '@/entity/book/BookUI'
 import List from '@/entity/data/List'
 import { container } from 'tsyringe'
 import BookRepository from '@/repository/BookRepository'
+import { ElMessage } from 'element-plus'
 
 export default {
   name: 'ToReadList',
@@ -56,46 +94,40 @@ export default {
   setup() {
     type StateType = {
       bookList: List<BookUI>
+      bookView: BookView
     }
     const state = reactive<StateType>({
-      bookList: new List<BookUI>()
+      bookList: new List<BookUI>(),
+      bookView: new BookView()
     })
     const year = ref(new Date())
 
     const loading = ref(false)
+    const dialogVisible = ref(false) // 다이얼로그 상태
+    const detailBook = '/images/books/detailbook.png' // 첫 번째 이미지 경로 (절대 경로로 수정)
 
     const BOOK_REPOSITORY = container.resolve(BookRepository)
-    /**
-     * 년도 데이터를 받았을 때
-     * 해당 년도의 올해의 책을 출력하기
-     * @param newYear
-     */
+
+    // 연도별 책 리스트 가져오기
     const handleYearChange = async (newYear) => {
       if (!newYear) {
         console.error('Invalid year:', newYear)
         return
       }
-      year.value = newYear // year 값을 Date 객체로 업데이트
-
-      console.log(year.value) // year가 Date 객체인지 확인
-
+      year.value = newYear // Date 객체로 업데이트
       await getBookList() // 서버에 년도만 전달
     }
-    // 연도별 책 리스트 가져오기
     const getBookList = async (): Promise<List<BookUI>> => {
       if (loading.value) return // 이미 로딩 중이라면 무시
       loading.value = true
       try {
         const bookViewList: List<BookView> = await BOOK_REPOSITORY.getBooksOfYear(
           year.value.getFullYear()
-        ) // 상태 업데이트
-
-        // items가 정의되어 있는지 체크
+        )
         if (bookViewList && bookViewList.items) {
           // 서버에서 데이터 가져오기
           // 기존 리스트를 새로 갱신 (addItem 대신)
           state.bookList.items = bookViewList.items.map((bookView) => new BookUI(bookView))
-          console.log(state.bookList)
           loadImagesFromStorage()
         } else throw new Error('Book list is empty or invalid.')
       } catch (error) {
@@ -106,7 +138,38 @@ export default {
         loading.value = false
       }
     }
+    /**
+     * 책 get, delete
+     * @param bookId
+     */
 
+    const getBookDetail = async (bookId: number) => {
+      try {
+        state.bookView = await BOOK_REPOSITORY.getBook(bookId)
+        dialogVisible.value = true
+        await handleBookClick(state.bookView)
+        console.log('Dialog visible state:', dialogVisible.value) // 다이얼로그 상태 출력
+      } catch (e) {
+        ElMessage({ type: 'error', message: `${bookId}번 책 조회 실패` })
+        console.log(e)
+      }
+      // BOOK_REPOSITORY.get(bookId)
+      //   .then((book: BookView) => {
+      //     console.log(book)
+      //     state.bookView = book as BookView
+      //     dialogVisible.value = true
+      //   })
+      //   .catch((e) => {
+      //     ElMessage({ type: 'error', message: `${bookId}번 책 조회 실패` })
+      //   })
+    }
+    const handleBookClick = async (book: BookView) => {
+      console.log('Book clicked:', book) // 클릭된 책 정보 확인
+    }
+
+    const handleClose = () => {
+      console.log('다이얼로그가 닫혔습니다')
+    }
     // 책 삭제
     const deleteBook = (bookId: number) => {
       state.bookList.items = state.bookList.items.filter((b) => b.bookId !== bookId)
@@ -169,7 +232,9 @@ export default {
       return savedImage || getRandomBookImage(index)
     }
 
-    // 책 이미지 변경
+    /**
+     * 책 이미지 랜덤 변경
+     */
     const changeBookImages = async () => {
       // 기존 로컬스토리지 데이터 정리
       const totalBooks = state.bookList.items.length
@@ -203,7 +268,11 @@ export default {
       getBookStyle,
       getBookImage,
       changeBookImages,
-      handleYearChange
+      handleYearChange,
+      getBookDetail,
+      handleClose,
+      dialogVisible,
+      detailBook
     }
     function getBookStyle(index: number) {
       const angle = (Math.random() - 0.5) * 10
@@ -220,7 +289,7 @@ export default {
 </script>
 
 <style scoped>
-.to-read-list {
+.year-of-books {
   padding: 20px;
 }
 .book-container {
@@ -229,30 +298,48 @@ export default {
   align-items: center;
   justify-content: center;
   position: relative;
-  height: 100vh;
+  margin-bottom: 10px; /* 버튼과 겹치지 않도록 여백 조정 */
+  height: calc(100vh - 400px); /* date-picker와 겹치지 않도록 높이 조정 */
   z-index: 1; /* DOM에서 렌더링된 위치가 date-picker과 겹치지 않도록 수정 */
 }
+/* 책 세부정보 */
+.book-dialog-content {
+  padding: 0;
+}
+
+.custom-dialog-background {
+  width: 100%;
+  height: 300px; /* 높이를 직접 지정하여 이미지의 높이를 키움 */
+  background-image: url('/images/books/detailbook.png'); /* 배경 이미지를 다이얼로그 창으로 설정 */
+  background-size: cover;
+  background-position: center;
+  padding: 20px; /* 배경 이미지 위에 텍스트를 배치할 공간을 확보 */
+  border-radius: 15px; /* 모서리를 둥글게 설정 */
+}
+
+.book-details {
+  width: 100%;
+  height: 200px; /* 이미지 높이 */
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 20px;
+  border-radius: 10px; /* 이미지 영역의 테두리 모서리를 둥글게 설정 */
+}
+
+/*책 쌓는 이미지*/
 .book-item {
   position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 5px;
 }
-
 .book-image {
   width: 300px;
   height: auto;
   margin-bottom: 10px;
 }
-
-.book-details {
-  font-size: 16px;
-  text-align: center;
-  color: #333;
-}
-
 .book-item img {
   transition: transform 0.3s ease-in-out;
 }
@@ -267,30 +354,46 @@ export default {
 }
 .loading-indicator {
   text-align: center;
-  margin-top: 20px;
+  top: 100%; /* 화면 중앙에서 수직 정렬 */
 }
+
+/* 년도별 북리스트 출력 */
 .year-picker {
   width: 200px; /* 원하는 너비로 설정 */
   z-index: 9999;
 }
 .custom-button {
-  background-color: #f0f0f0; /* 버튼 배경색 */
-  color: #333; /* 텍스트 색상 */
+  background-color: #4caf50; /* 버튼 배경색 */
+  color: white; /* 텍스트 색상 */
   font-size: 14px; /* 글꼴 크기 */
-  border-radius: 4px; /* 둥근 모서리 */
-  padding: 8px 16px; /* 버튼 안쪽 여백 */
+  font-weight: 600; /* 글꼴 두께 */
+  border-radius: 8px; /* 둥근 모서리 */
+  padding: 10px 20px; /* 버튼 안쪽 여백 */
+  display: flex; /* 플렉스박스로 변경 */
+  align-items: center; /* 수직 중앙 정렬 */
+  justify-content: center; /* 수평 중앙 정렬 */
+  text-align: center; /* 텍스트 중앙 정렬 (혹시 필요할 경우) */
+  cursor: pointer; /* 마우스 포인터 */
+  border: none; /* 버튼의 기본 테두리 제거 */
   transition:
     background-color 0.3s ease,
-    transform 0.3s ease; /* 애니메이션 */
-}
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
-.custom-button:hover {
-  background-color: #e0e0e0; /* 호버 시 배경색 */
-  transform: translateY(-2px); /* 버튼이 위로 살짝 떠오르는 효과 */
-}
+  /* 중앙 위치 설정 */
+  position: absolute; /* 절대 위치 */
+  top: 100%; /* 화면 중앙에서 수직 정렬 */
+  left: 41%; /* 화면 중앙에서 수평 정렬 */
 
-.custom-button:active {
-  background-color: #d0d0d0; /* 클릭 시 배경색 */
-  transform: translateY(0); /* 클릭 효과 */
+  &:hover {
+    background-color: #45a049; /* 호버 시 배경색 변경 */
+    transform: scale(1.05); /* 호버 시 버튼 커지기 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 호버 시 그림자 효과 */
+  }
+
+  &:active {
+    background-color: #388e3c; /* 클릭 시 배경색 변경 */
+    transform: scale(0.98); /* 클릭 시 버튼 크기 축소 */
+  }
 }
 </style>

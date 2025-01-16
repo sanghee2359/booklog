@@ -5,6 +5,7 @@ import com.api.booklog.request.book.BookCreate;
 import com.api.booklog.request.book.BookEdit;
 import com.api.booklog.response.BookResponse;
 import com.api.booklog.response.PagingResponse;
+import com.api.booklog.response.PostResponse;
 import com.api.booklog.service.BookListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,11 @@ public class BookController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody @Valid BookCreate request){
         bookListService.saveBook(userPrincipal.getUserId(), request);
+    }
+    // 책 한권 조회
+    @GetMapping("/users/bookList/{bookId}")
+    public BookResponse get(@PathVariable(name = "bookId") Long bookId) {
+        return bookListService.get(bookId);
     }
     // 모든 읽을 책 리스트
     @GetMapping("/users/bookList/pending")
@@ -71,7 +77,7 @@ public class BookController {
         return ResponseEntity.ok().build();
     }
 
-    // 올해의 책 리스트 출력(최대 10개만 저장가능)
+    // 올해의 책 리스트 출력
     @GetMapping("/users/year-books/{year}")
     public ResponseEntity<List<BookResponse>> getBooksOfYear(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
