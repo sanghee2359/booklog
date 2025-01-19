@@ -62,28 +62,28 @@
     responses:
       202:
         description: 로그아웃이 정상적으로 처리되었다.
-  /api/v1/auth/token/refresh:
-    post:
-      tags:
-        - user
-      summary: 유효한 리프레시 토큰을 받으면 새로운 JWT 토큰을 제공한다
-      description: 유효한 리프레시 토큰을 받으면 새로운 JWT 토큰을 제공한다
-      operationId: getAccessToken
-      requestBody:
+/api/v1/auth/token/refresh:
+  post:
+    tags:
+      - user
+    summary: 유효한 리프레시 토큰을 받으면 새로운 JWT 토큰을 제공한다
+    description: 유효한 리프레시 토큰을 받으면 새로운 JWT 토큰을 제공한다
+    operationId: getAccessToken
+    requestBody:
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/RefreshToken'
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RefreshToken'
+    responses:
+      200:
+        description: 작업이 성공한 경우 반환
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/RefreshToken'
+              $ref: '#/components/schemas/SignedInUser'
           application/json:
             schema:
-              $ref: '#/components/schemas/RefreshToken'
-      responses:
-        200:
-          description: 작업이 성공한 경우 반환
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/SignedInUser'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SignedInUser'
+              $ref: '#/components/schemas/SignedInUser'

@@ -32,11 +32,17 @@ spring:
     init:
       mode: never
 
-#jwt:
-#  jwt-key: ${secret-key}
-
 server:
   servlet:
     session:
       cookie:
         max-age: 172800 # 쿠키 기간 : 48시간
+app:
+  security:
+    jwt:
+      keystore-location: ${KEYSTORE_LOCATION}
+      keystore-password: ${KEYSTORE_PASSWORD}
+      key-alias: jwt-sign-key
+      private-key-passphrase: ${KEYSTORE_PASSWORD}
+      #jwt:
+      #  jwt-key: ${secret-key}
