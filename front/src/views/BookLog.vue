@@ -1,49 +1,51 @@
 <template>
-  <!-- 책 리스트 -->
-  <el-table :data="state.bookList.items" style="margin-top: 20px" border>
-    <!-- Title -->
-    <el-table-column prop="title" label="Title">
-      <template #default="{ row }">
-        <BookCard :book="row" field="title" />
-      </template>
-    </el-table-column>
+  <h2>📘 끝까지 읽은 책</h2>
+  <div>
+    <!-- 책 리스트 -->
+    <el-table :data="state.bookList.items" border style="margin-top: 20px">
+      <!-- Title -->
+      <el-table-column label="Title" prop="title">
+        <template #default="{ row }">
+          <BookCard :book="row" field="title" />
+        </template>
+      </el-table-column>
 
-    <!-- Author -->
-    <el-table-column prop="author" label="Author">
-      <template #default="{ row }">
-        <BookCard :book="row" field="author" />
-      </template>
-    </el-table-column>
+      <!-- Author -->
+      <el-table-column label="Author" prop="author">
+        <template #default="{ row }">
+          <BookCard :book="row" field="author" />
+        </template>
+      </el-table-column>
 
-    <!-- Status -->
-    <el-table-column prop="status" label="Status">
-      <template #default="{ row }">
-        <BookCard :book="row" field="status" />
-      </template>
-    </el-table-column>
+      <!-- Status -->
+      <el-table-column label="Status" prop="status">
+        <template #default="{ row }">
+          <BookCard :book="row" field="status" />
+        </template>
+      </el-table-column>
 
-    <!-- Start Date -->
-    <el-table-column prop="startDate" label="Start Date">
-      <template #default="{ row }">
-        <BookCard :book="row" field="startDate" />
-      </template>
-    </el-table-column>
+      <!-- Start Date -->
+      <el-table-column label="Start Date" prop="startDate">
+        <template #default="{ row }">
+          <BookCard :book="row" field="startDate" />
+        </template>
+      </el-table-column>
 
-    <!-- End Date -->
-    <el-table-column prop="endDate" label="End Date">
-      <template #default="{ row }">
-        <BookCard :book="row" field="endDate" />
-      </template>
-    </el-table-column>
+      <!-- End Date -->
+      <el-table-column label="End Date" prop="endDate">
+        <template #default="{ row }">
+          <BookCard :book="row" field="endDate" />
+        </template>
+      </el-table-column>
 
-    <!-- Actions Column -->
-    <el-table-column label="Actions">
-      <template #default="{ row }">
-        <el-button type="danger" size="small" @click="deleteBook(row.id)">Delete</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
-
+      <!-- Actions Column -->
+      <el-table-column label="Actions">
+        <template #default="{ row }">
+          <el-button size="small" type="danger" @click="deleteBook(row.id)">Delete</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
   <!-- Pagination -->
   <div class="pagination-wrapper">
     <el-pagination

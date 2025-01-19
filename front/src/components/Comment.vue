@@ -6,16 +6,32 @@ import { DateTimeFormatter, LocalDateTime } from '@js-joda/core'
 const props = defineProps<{
   comment: any
 }>()
-
+// Helper 함수: 날짜 문자열 파싱
+// 입력 문자열을 파싱하기 위한 헬퍼 함수
+function parseDate(dateInput: string | LocalDateTime): LocalDateTime {
+  if (typeof dateInput === 'string') {
+    try {
+      // 소수점 이하 초의 길이를 조정
+      const normalizedDateString = dateInput.replace(/\.\d+/, (match) => match.slice(0, 4)) // 최대 3자리까지만 유지
+      return LocalDateTime.parse(normalizedDateString, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    } catch (error) {
+      console.error('Failed to parse date string:', dateInput, error)
+      return LocalDateTime.now()
+    }
+  } else if (dateInput instanceof LocalDateTime) {
+    return dateInput // 이미 LocalDateTime 객체인 경우 그대로 반환
+  } else {
+    console.warn('Invalid date input, using current time:', dateInput)
+    return LocalDateTime.now() // 예상치 못한 타입일 경우 현재 시간 반환
+  }
+}
 // CommentView 인스턴스 생성
 const commentView = ref<CommentView>(
   new CommentView(
     props.comment.postId,
     props.comment.author,
     props.comment.content,
-    props.comment.regDate
-      ? LocalDateTime.parse(props.comment.regDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-      : LocalDateTime.now()
+    parseDate(props.comment.regDate || LocalDateTime.now())
   )
 )
 </script>

@@ -13,7 +13,7 @@ const POST_REPOSITORY = container.resolve(PostRepository)
 const state = reactive<StateType>({
   postList: new Paging<PostView>()
 })
-function getList(page = 1): PostView {
+function getList(page = 1): Paging<PostView> {
   POST_REPOSITORY.getList(page).then((paging) => {
     state.postList = paging
   })

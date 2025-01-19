@@ -1,7 +1,7 @@
 <template>
   <div>
-    내가 작성한 글 리스트
-    <span class="totalCount">글 수: {{ totalCount }}</span>
+    <h2>📥 내가 작성한 글</h2>
+    <span class="totalCount"> 전체 개수: {{ totalCount }}</span>
 
     <div class="post-container">
       <el-timeline v-if="Object.keys(groupedPosts).length">

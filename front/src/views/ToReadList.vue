@@ -1,4 +1,5 @@
 <template>
+  <h2>📖 올해 읽을 책</h2>
   <div class="to-read-list">
     <!-- 책 추가 -->
     <el-form :model="state.bookSave" :rules="rules" ref="formRef" label-width="100px">
@@ -318,10 +319,5 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 20px;
-}
-.el-dialog {
-  margin: auto;
-  top: 50% !important;
-  transform: translateY(-50%);
 }
 </style>
