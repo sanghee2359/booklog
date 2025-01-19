@@ -2,7 +2,7 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Comment;
 import com.api.booklog.domain.Post;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.exception.CommentNotFound;
 import com.api.booklog.exception.InvalidPassword;
 import com.api.booklog.exception.PostNotFound;
@@ -40,7 +40,7 @@ public class CommentService {
             Post post = postRepository.findById(postId)
                     .orElseThrow(PostNotFound::new);
 
-            Users user = getUserIfExists(request.getUserId());
+            UserEntity user = getUserIfExists(request.getUserId());
             Comment comment = createComment(user, post, request);
 
             commentRepository.save(comment);
@@ -54,11 +54,11 @@ public class CommentService {
             throw e; // 원래 예외를 던져서 호출한 쪽에서 처리할 수 있도록
         }
     }
-    private Users getUserIfExists(Long userId) {
+    private UserEntity getUserIfExists(Long userId) {
         return userId != null ? usersRepository.findById(userId)
                 .orElseThrow(UserNotFound::new) : null;
     }
-    private Comment createComment(Users user, Post post, CommentCreate request) {
+    private Comment createComment(UserEntity user, Post post, CommentCreate request) {
         if (user != null) {
             return new Comment(user, post, user.getPassword(), request.getContent(), user.getName());
         } else {

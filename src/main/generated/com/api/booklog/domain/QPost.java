@@ -36,7 +36,7 @@ public class QPost extends EntityPathBase<Post> {
 
     public final StringPath title = createString("title");
 
-    public final QUsers user;
+    public final QUserEntity user;
 
     public QPost(String variable) {
         this(Post.class, forVariable(variable), INITS);
@@ -56,7 +56,7 @@ public class QPost extends EntityPathBase<Post> {
 
     public QPost(Class<? extends Post> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.user = inits.isInitialized("user") ? new QUsers(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new QUserEntity(forProperty("user")) : null;
     }
 
 }

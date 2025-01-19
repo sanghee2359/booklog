@@ -27,7 +27,7 @@ public class Post {
 
     @ManyToOne
     @JoinColumn
-    private Users user;
+    private UserEntity user;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<Comment> comments;
@@ -35,7 +35,7 @@ public class Post {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<Likes> likes;
     @Builder
-    public Post(String title, String content, Users user) {
+    public Post(String title, String content, UserEntity user) {
         this.title = title;
         this.content = content;
         this.user = user;

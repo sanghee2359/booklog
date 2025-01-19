@@ -1,6 +1,6 @@
 package com.api.booklog.response;
 
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,7 +11,7 @@ public class UserResponse {
     private final String name;
     private final String email;
 
-    public UserResponse(Users user) {
+    public UserResponse(UserEntity user) {
         this.id = user.getId();
         this.name = user.getName();
         this.email = user.getEmail();

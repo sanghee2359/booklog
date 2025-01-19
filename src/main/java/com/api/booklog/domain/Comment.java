@@ -24,7 +24,7 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn
-    private Users user; // 사용자 정보
+    private UserEntity user; // 사용자 정보
 
     @NotNull
     private String password;
@@ -40,7 +40,7 @@ public class Comment {
     private LocalDateTime regDate;
 
     @Builder
-    public Comment(Users user, Post post,String password, String content, String author) {
+    public Comment(UserEntity user, Post post, String password, String content, String author) {
         this.user = user;
         this.post = post;
         this.password = password;
@@ -51,7 +51,7 @@ public class Comment {
     public void setPost(Post post) {
         this.post = post;
     }
-    public void setUser(Users user) {
+    public void setUser(UserEntity user) {
         this.user = user;
     }
 }

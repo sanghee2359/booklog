@@ -26,7 +26,7 @@ public class Book {
     private String author;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private UserEntity user;
     @NotNull
     @Enumerated(EnumType.STRING)
     private BookStatus status;
@@ -41,7 +41,7 @@ public class Book {
     private String review;  // 서평 추가
 
     @Builder
-    public Book(String title, String author, Users user, BookStatus status, LocalDate startDate, LocalDate endDate, String review, boolean isYearBook) {
+    public Book(String title, String author, UserEntity user, BookStatus status, LocalDate startDate, LocalDate endDate, String review, boolean isYearBook) {
         this.title = title;
         this.author = author;
         this.user = user;

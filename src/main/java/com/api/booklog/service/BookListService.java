@@ -2,8 +2,7 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Book;
 import com.api.booklog.domain.BookStatus;
-import com.api.booklog.domain.Post;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.exception.*;
 import com.api.booklog.repository.BookRepository;
 import com.api.booklog.repository.UsersRepository;
@@ -11,7 +10,6 @@ import com.api.booklog.request.book.BookCreate;
 import com.api.booklog.request.book.BookEdit;
 import com.api.booklog.response.BookResponse;
 import com.api.booklog.response.PagingResponse;
-import com.api.booklog.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -102,7 +100,7 @@ public class BookListService {
 
     // 읽을 책 리스트 출력
     public PagingResponse<BookResponse> getPendingBooks(Long userId,int page, int size) {
-        Users user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+        UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
         List<BookStatus> status = List.of(BookStatus.NOT_STARTED, BookStatus.READING);
 
         // pageable 객체 생성하기 (작성 시기에 따라 sort)
@@ -112,7 +110,7 @@ public class BookListService {
     }
     // 완독한 리스트 출력
     public PagingResponse<BookResponse> getCompletedBooks(Long userId, int page, int size) {
-        Users user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+        UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
         // pageable 객체 생성할 것 (완독 날짜에 따라 sort)
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("endDate").descending());
         Page<Book> list = bookRepository.findByStatusAndUser(BookStatus.COMPLETED, user, pageable);

@@ -8,12 +8,12 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class SignUp {
+public class SignUpReq {
     private String name;
     private String email;
     private String password;
     @Builder
-    public SignUp(String name, String email, String password) {
+    public SignUpReq(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;

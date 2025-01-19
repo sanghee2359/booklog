@@ -28,7 +28,7 @@ public class BookMarkService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final PostRepository postRepository;
     private final UsersRepository userRepository;
-    private static final String BOOKMARK_KEY_PREFIX = "user:bookmarks:";
+    private static final String BOOKMARK_KEY_PREFIX = "bookmark:";
 
     public void addBookmark(Long userId, Long postId) {
         postRepository.findById(postId).orElseThrow(PostNotFound::new);

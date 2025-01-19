@@ -26,7 +26,7 @@ public class QLikes extends EntityPathBase<Likes> {
 
     public final QPost post;
 
-    public final QUsers user;
+    public final QUserEntity user;
 
     public QLikes(String variable) {
         this(Likes.class, forVariable(variable), INITS);
@@ -47,7 +47,7 @@ public class QLikes extends EntityPathBase<Likes> {
     public QLikes(Class<? extends Likes> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.post = inits.isInitialized("post") ? new QPost(forProperty("post"), inits.get("post")) : null;
-        this.user = inits.isInitialized("user") ? new QUsers(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new QUserEntity(forProperty("user")) : null;
     }
 
 }

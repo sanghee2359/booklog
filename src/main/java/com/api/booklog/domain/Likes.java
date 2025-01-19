@@ -18,8 +18,8 @@ public class Likes {
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
-    public Likes(Post post, Users user) {
+    private UserEntity user;
+    public Likes(Post post, UserEntity user) {
         this.post = post;
         this.user = user;
     }

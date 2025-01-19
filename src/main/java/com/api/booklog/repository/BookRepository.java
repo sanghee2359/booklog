@@ -3,7 +3,7 @@ package com.api.booklog.repository;
 
 import com.api.booklog.domain.Book;
 import com.api.booklog.domain.BookStatus;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +25,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     void deleteByIsYearBookAndUserIdAndId(boolean isYearBook, Long userId, Long bookId);
 
     // 읽을 책 리스트
-    Page<Book> findByStatusInAndUser(List<BookStatus> statuses, Users user, Pageable pageable);
+    Page<Book> findByStatusInAndUser(List<BookStatus> statuses, UserEntity user, Pageable pageable);
 
     // 완독한 리스트
-    Page<Book> findByStatusAndUser(BookStatus status, Users user, Pageable pageable);
+    Page<Book> findByStatusAndUser(BookStatus status, UserEntity user, Pageable pageable);
 
 }
