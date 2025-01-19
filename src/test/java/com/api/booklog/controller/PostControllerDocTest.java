@@ -3,7 +3,7 @@ package com.api.booklog.controller;
 
 import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.post.PostCreate;
@@ -57,7 +57,7 @@ public class PostControllerDocTest {
     @DisplayName("글 단건 조회")
     void Doc_findTest() throws Exception {
         // given
-        Users user = Users.builder()
+        UserEntity user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")

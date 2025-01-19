@@ -1,9 +1,8 @@
 package com.api.booklog.service;
 
-import com.api.booklog.domain.Users;
-import com.api.booklog.exception.AlreadyExistEmail;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.repository.UsersRepository;
-import com.api.booklog.request.auth.SignUp;
+import com.api.booklog.request.auth.SignUpReq;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,17 +29,17 @@ class AuthServiceTest {
     @DisplayName("회원가입 성공")
     void signUp_success() {
         // given
-        SignUp signUp = SignUp.builder()
+        SignUpReq signUpReq = SignUpReq.builder()
                 .name("정상희")
                 .password("1234")
                 .email("wjdtkdgml7352@naver.com").
                 build();
         // when
-        authService.signUp(signUp);
+        authService.signUp(signUpReq);
         // then
         Assertions.assertEquals(1, userRepository.count());
         // DB 저장된 내용 검증
-        Users user = userRepository.findAll().iterator().next();
+        UserEntity user = userRepository.findAll().iterator().next();
         assertEquals("wjdtkdgml7352@naver.com", user.getEmail());
         assertNotNull(user.getPassword());
         assertNotEquals("1234", user.getPassword());

@@ -2,7 +2,7 @@ package com.api.booklog.service;
 
 import com.api.booklog.domain.Comment;
 import com.api.booklog.domain.Post;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.repository.comment.CommentRepository;
 import com.api.booklog.repository.post.PostRepository;
@@ -49,7 +49,7 @@ class CommentServiceTest {
     @DisplayName("댓글 작성")
     void write() {
         // given
-        var user = Users.builder()
+        var user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")
@@ -86,7 +86,7 @@ class CommentServiceTest {
     @DisplayName("댓글 삭제")
     void delete() throws JsonProcessingException {
         // given
-        Users user = Users.builder()
+        UserEntity user = UserEntity.builder()
                 .name("호돌맨")
                 .email("hodolman88@gmail.com")
                 .password("1234")

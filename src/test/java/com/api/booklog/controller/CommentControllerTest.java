@@ -3,7 +3,7 @@ package com.api.booklog.controller;
 import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Comment;
 import com.api.booklog.domain.Post;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.repository.comment.CommentRepository;
 import com.api.booklog.repository.post.PostRepository;
@@ -59,7 +59,7 @@ class CommentControllerTest {
     @DisplayName("댓글 작성")
     void commentTset() throws Exception {
         // given
-        Users user = Users.builder()
+        UserEntity user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")
@@ -91,7 +91,7 @@ class CommentControllerTest {
     @DisplayName("댓글 삭제")
     void deleteTest() throws Exception {
         // given
-        Users user = Users.builder()
+        UserEntity user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")

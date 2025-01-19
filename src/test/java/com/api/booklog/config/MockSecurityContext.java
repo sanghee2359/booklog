@@ -1,6 +1,6 @@
 package com.api.booklog.config;
 
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +17,7 @@ public class MockSecurityContext implements WithSecurityContextFactory<CustomWit
     // test가 돌기 전 미리 사용자 컨텍스트를 만들어놓는 기능
     @Override
     public SecurityContext createSecurityContext(CustomWithMockUser annotation) {
-        var user = Users.builder()
+        var user = UserEntity.builder()
                 .email(annotation.email())
                 .name(annotation.name())
                 .password(annotation.password())

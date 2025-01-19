@@ -2,7 +2,7 @@ package com.api.booklog.controller;
 
 import com.api.booklog.config.CustomWithMockUser;
 import com.api.booklog.domain.Post;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.post.PostCreate;
@@ -103,7 +103,7 @@ class PostControllerTest {
     @Test
     @DisplayName("글 1개 조회")
     void findById() throws Exception {
-        Users user = Users.builder()
+        UserEntity user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")
@@ -132,7 +132,7 @@ class PostControllerTest {
     @DisplayName("글 조회 - 페이지를 0으로 요청하여도 첫 페이지를 가져온다.")
     void findAll() throws Exception {
         // given
-        Users user = Users.builder()
+        UserEntity user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")
@@ -165,7 +165,7 @@ class PostControllerTest {
     void editTitle() throws Exception {
         // given
         // MockUser에서 만든 user을 꺼내온다 -> 왜 7/16일 user이 userRepository에 남은거지?
-        Users user = userRepository.findAll().get(0);
+        UserEntity user = userRepository.findAll().get(0);
 
         Post post = Post.builder()
                 .title("제목 1")
@@ -193,7 +193,7 @@ class PostControllerTest {
     @DisplayName("글 삭제")
     void deleteTest() throws Exception {
         // given
-        Users user = userRepository.findAll().get(0);
+        UserEntity user = userRepository.findAll().get(0);
 
         Post post = Post.builder()
                 .title("제목 1")

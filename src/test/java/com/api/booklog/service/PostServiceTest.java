@@ -1,7 +1,7 @@
 package com.api.booklog.service;
 
 import com.api.booklog.domain.Post;
-import com.api.booklog.domain.Users;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UsersRepository;
@@ -37,7 +37,7 @@ class PostServiceTest {
     @DisplayName("글 작성")
     void write() {
         // given
-        var user = Users.builder()
+        var user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")
@@ -173,7 +173,7 @@ class PostServiceTest {
     @DisplayName("글 삭제")
     void delete() {
         // given
-        var user = Users.builder()
+        var user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")
@@ -235,7 +235,7 @@ class PostServiceTest {
     @DisplayName("글 삭제 - 존재 하지 않는 글")
     void delete_Fail() {
         // given
-        var user = Users.builder()
+        var user = UserEntity.builder()
                 .name("정상희")
                 .email("wjdtkdgml7352.naver.com")
                 .password("sanghee065")
