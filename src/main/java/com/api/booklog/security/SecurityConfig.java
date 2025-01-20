@@ -47,13 +47,13 @@ import static com.api.booklog.security.Constants.*;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    @Value("${app.security.jwt.keyStoreLocation}")
+    @Value("${app.security.jwt.keystore-location}")
     private String keyStoreLocation;
-    @Value("${app.security.jwt.keyStorePassword}")
+    @Value("${app.security.jwt.keystore-password}")
     private String keyStorePassword;
-    @Value("${app.security.jwt.keyAlias}")
+    @Value("${app.security.jwt.key-alias}")
     private String keyAlias;
-    @Value("${app.security.jwt.privateKeyPassphrase}")
+    @Value("${app.security.jwt.private-key-passphrase}")
     private String privateKeyPassphrase;
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
@@ -63,7 +63,7 @@ public class SecurityConfig {
     private final ObjectMapper mapper;
 
     public SecurityConfig(
-            UserDetailsService userService,
+            @Lazy UserDetailsService userService,
             @Lazy PasswordEncoder bCryptPasswordEncoder,
             @Lazy ObjectMapper mapper) {
         this.userService = userService;
@@ -72,11 +72,7 @@ public class SecurityConfig {
     }
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((auth) ->
-                        auth.anyRequest().permitAll())
-                .csrf(csrf-> csrf.ignoringRequestMatchers(API_URL_PREFIX))
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
-                .authorizeHttpRequests(req -> req
+        http.authorizeHttpRequests(req -> req
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(SIGNUP_URL, HttpMethod.POST.name())).permitAll()
@@ -84,6 +80,8 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher(POST_URL, HttpMethod.GET.name())).permitAll()
                         .requestMatchers("/api/v1/addresses/**").hasAuthority(Role.ADMIN.getAuthority())
                         .anyRequest().authenticated())
+                .csrf(csrf-> csrf.ignoringRequestMatchers(API_URL_PREFIX))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
                 .oauth2ResourceServer(oauth2ResourceServer ->
                         oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter())));
 
@@ -98,8 +96,9 @@ public class SecurityConfig {
         try {
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             InputStream resStream = Thread.currentThread()
-                    .getContextClassLoader().getResourceAsStream(keyStorePassword);
+                    .getContextClassLoader().getResourceAsStream(keyStoreLocation);
             keyStore.load(resStream, keyStorePassword.toCharArray());
+            LOG.info("Keystore loaded successfully from location: {}", keyStoreLocation);
             return keyStore;
         } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
             LOG.error("Unable to load keystore: {}", keyStoreLocation, e);
@@ -147,6 +146,8 @@ public class SecurityConfig {
             if(key instanceof RSAPrivateKey) {
                 return (RSAPrivateKey) key;
             }
+            LOG.error("Key is not an RSAPrivateKey: {}", key.getClass());
+
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e) {
             LOG.error("Unable to load private key from keystore: {}", keyStoreLocation, e);
         }
@@ -161,6 +162,7 @@ public class SecurityConfig {
             if(publicKey instanceof RSAPublicKey) {
                 return (RSAPublicKey) publicKey;
             }
+            LOG.error("PublicKey is not an RSAPublicKey: {}", publicKey.getClass());
         } catch (KeyStoreException e) {
             LOG.error("Unable to load private key from keystore: {}", keyStoreLocation, e);
         }
