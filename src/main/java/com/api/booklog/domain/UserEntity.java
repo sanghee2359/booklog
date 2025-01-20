@@ -2,6 +2,7 @@ package com.api.booklog.domain;
 
 import com.api.booklog.security.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class UserEntity {
-    @Id
+    @Id @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;

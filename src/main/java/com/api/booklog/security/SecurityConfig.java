@@ -1,5 +1,8 @@
 package com.api.booklog.security;
 
+import com.api.booklog.config.UserPrincipal;
+import com.api.booklog.domain.UserEntity;
+import com.api.booklog.repository.UsersRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -112,6 +116,7 @@ public class SecurityConfig {
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -135,8 +140,12 @@ public class SecurityConfig {
         return converter;
     }
     @Bean
-    protected UserDetailsService userDetailsService() {
-        return userService;
+    public UserDetailsService userDetailsService(UsersRepository userRepository) {
+        return username -> {
+            UserEntity user = userRepository.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException(username + "을/를 찾을 수 없습니다."));
+            return new UserPrincipal(user);
+        };
     }
 
     @Bean

@@ -1,4 +1,6 @@
 package com.api.booklog.service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.api.booklog.domain.UserEntity;
 import com.api.booklog.exception.AlreadyExistUserInformation;
@@ -25,6 +27,9 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import static org.hibernate.query.sqm.tree.SqmNode.log;
+
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService{
@@ -32,7 +37,7 @@ public class AuthServiceImpl implements AuthService{
     private final PasswordEncoder bCryptPasswordEncoder;
     private final JwtManager tokenManager;
     private final RedisTemplate<String, String> redisTemplate;
-
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     @Override
     public UserEntity findUserByEmail(String email) {
         if(Strings.isBlank(email)) {
@@ -49,6 +54,7 @@ public class AuthServiceImpl implements AuthService{
         if(count > 0) {
             throw new AlreadyExistUserInformation();
         }
+        LOG.info(request.getPassword());
         UserEntity user = repository.save(toEntity(request));
         return Optional.of(createSignedUserWithRefreshToken(user));
     }
@@ -127,6 +133,10 @@ public class AuthServiceImpl implements AuthService{
     }
 
     private UserEntity toEntity(SignUpReq request) {
+        // 비밀번호가 null일 경우 처리
+        if (request.getPassword() == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
         UserEntity user = new UserEntity();
         BeanUtils.copyProperties(request, user);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));

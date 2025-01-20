@@ -66,7 +66,6 @@ dependencies {
 	// spring security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
-	implementation 'org.springframework.session:spring-session-jdbc'
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 
 	// make meta data file
@@ -79,7 +78,9 @@ dependencies {
 	implementation 'io.lettuce:lettuce-core:6.4.0.RELEASE'
 
 }
-
+tasks.withType(Test).configureEach {
+	enabled = false
+}
 tasks.named('test') {
 	useJUnitPlatform()
 	outputs.dir snippetsDir

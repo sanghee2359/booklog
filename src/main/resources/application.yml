@@ -21,22 +21,10 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
-
-
-  session:
-    timeout: 86400 # 세션 기간 : 24시간
-    jdbc:
-      initialize-schema: always
-
   sql:
     init:
       mode: never
 
-server:
-  servlet:
-    session:
-      cookie:
-        max-age: 172800 # 쿠키 기간 : 48시간
 app:
   security:
     jwt:

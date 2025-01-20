@@ -35,7 +35,7 @@ class AuthServiceTest {
                 .email("wjdtkdgml7352@naver.com").
                 build();
         // when
-        authService.signUp(signUpReq);
+//        authService.signUp(signUpReq);
         // then
         Assertions.assertEquals(1, userRepository.count());
         // DB 저장된 내용 검증

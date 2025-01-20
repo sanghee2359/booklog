@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 
 import java.io.IOException;
 
+// username이 아닌 email로 인증 처리
 public class EmailPasswordAuthFilter extends AbstractAuthenticationProcessingFilter {
     private final ObjectMapper objectMapper; // json 형태로 입력받음
     public EmailPasswordAuthFilter(String loginUrl, ObjectMapper objectMapper) { // json 형태로 입력받기 위해

@@ -11,8 +11,7 @@ import java.util.Optional;
 public interface UsersRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findById(Long userId);
     Optional<UserEntity> findByEmail(String email);
-    @Query(value="SELECT u FROM UserEntity u WHERE u.name = :name OR u.email = :email"
-            , nativeQuery = true)
+    @Query(value="SELECT COUNT(u) FROM UserEntity u WHERE u.name = :name OR u.email = :email")
     Integer findByNameOrEmail(@Param("name") String name, @Param("email") String email);
 
 }

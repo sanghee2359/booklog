@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.ResponseEntity.*;
@@ -36,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/api/v1/auth/token")
-    public ResponseEntity<SignedInUser> signIn(@Valid SignInReq signInReq) {
+    public ResponseEntity<SignedInUser> signIn(@Valid @RequestBody SignInReq signInReq) {
         UserEntity userEntity = authService.findUserByEmail(signInReq.getEmail());
         if (passwordEncoder.matches(signInReq.getPassword(), userEntity.getPassword())) {
             return ok(authService.getSignedInUser(userEntity));
@@ -55,7 +56,7 @@ public class AuthController {
     }
 
     @PostMapping("/api/v1/users")
-    public ResponseEntity<SignedInUser> signUp(@Valid SignUpReq request) {
+    public ResponseEntity<SignedInUser> signUp(@Valid @RequestBody SignUpReq request) {
         // Have a validation for all required fields.
         return status(HttpStatus.CREATED).body(authService.createUser(request).get());
     }
