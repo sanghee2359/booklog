@@ -113,7 +113,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow((PostNotFound::new));
 
-        boolean isBookmarked = bookMarkService.isExistInZSet(bookMarkService.makeKey(userId), postId);
+        boolean isBookmarked = bookMarkService.isExistInZSet(bookMarkService.makeKey(userId), postId.toString());
         if(isBookmarked) {
             bookMarkService.removeBookmark(userId, postId);
         }

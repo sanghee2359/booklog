@@ -1,4 +1,7 @@
 package com.api.booklog.service;
+import com.api.booklog.config.UserPrincipal;
+import com.api.booklog.security.Role;
+import io.micrometer.common.lang.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +12,7 @@ import com.api.booklog.exception.UserNotFound;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.request.auth.SignUpReq;
 import com.api.booklog.response.auth.SignedInUser;
-import com.api.booklog.security.Constants;
+import com.api.booklog.security.config.Constants;
 import com.api.booklog.security.JwtManager;
 import com.api.booklog.security.RefreshToken;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 
 @Service
@@ -54,61 +55,57 @@ public class AuthServiceImpl implements AuthService{
         if(count > 0) {
             throw new AlreadyExistUserInformation();
         }
-        LOG.info(request.getPassword());
         UserEntity user = repository.save(toEntity(request));
+        LOG.info(user.toString());
+
         return Optional.of(createSignedUserWithRefreshToken(user));
     }
     private SignedInUser createSignedUserWithRefreshToken(UserEntity user) {
         return createSignedInUser(user)
                 .refreshToken(createRefreshToken(user));
     }
+    private String createRefreshToken(UserEntity user) {
+        String refreshToken = RandomHolder.randomKey(128); // 고유한 refreshToken 생성
+        // refreshToken -> userId 저장
+        redisTemplate.opsForValue().set(Constants.REFRESH_TOKEN_PREFIX + refreshToken
+                , user.getId().toString(), Constants.REFRESH_TOKEN_TTL_SECONDS, TimeUnit.SECONDS);
+        return refreshToken;
+    }
 
     private SignedInUser createSignedInUser(UserEntity user) {
+        UserPrincipal userPrincipal = new UserPrincipal(user);
         // accessToken 생성로직
-        String token = tokenManager.create(
-                org.springframework.security.core.userdetails.User.builder()
-                .username(user.getName()) // 사용자 이름
-                .password(user.getPassword()) // 암호화된 비밀번호
-                .authorities(Objects.nonNull(user.getRole()) ? user.getRole().name() : "ROLE_USER") // 권한
-                .build());
+        String token = tokenManager.create(userPrincipal);
         return new SignedInUser().name(user.getName()).accessToken(token)
                 .userId(user.getId());
     }
 
-    private String createRefreshToken(UserEntity user) {
-        // Redis에 refreshToken 저장
-        String refreshToken = RandomHolder.randomKey(128); // 고유한 refreshToken 생성
-        // userId -> refreshToken 저장
-        redisTemplate.opsForValue().set(Constants.USER_REFRESH_TOKEN + user.getId()
-                , refreshToken, 7, TimeUnit.DAYS);
 
-        // refreshToken -> userId 저장
-        redisTemplate.opsForValue().set(Constants.REFRESH_TOKEN_PREFIX + refreshToken
-                , user.getId().toString(), 7, TimeUnit.DAYS);
-        return refreshToken; // Redis에 저장된 refreshToken 반환
-    }
 
     @Override
     @Transactional
-    public SignedInUser getSignedInUser(UserEntity user) {
-        // Redis에서 기존 refreshToken 가져오기
-        String existingRefreshToken = redisTemplate.opsForValue().get(Constants.USER_REFRESH_TOKEN + user.getId());
-        // 기존 데이터 삭제 (existingRefreshToken이 있을 경우만)
-        if (existingRefreshToken != null) {
-            deleteTokensFromRedis(user.getId().toString(), existingRefreshToken);
+    public SignedInUser getSignedInUser(UserEntity user, @Nullable RefreshToken token) {
+        // 기존 Refresh Token이 존재하는 경우 Redis에서 해당 Token 삭제
+        if (token != null) {
+            deleteTokensFromRedis(token.refreshToken);
         }
+        // 새로운 SignedInUser 반환 (새 Refresh Token 생성 포함)
         return createSignedUserWithRefreshToken(user);
     }
 
-    private void deleteTokensFromRedis(String userId, String refreshToken) {
+    private void deleteTokensFromRedis(String refreshToken) {
         redisTemplate.delete(Constants.REFRESH_TOKEN_PREFIX + refreshToken);
-        redisTemplate.delete(Constants.USER_REFRESH_TOKEN + userId);
     }
     // AccessToken을 얻는 메소드
     public Optional<SignedInUser> getAccessToken(RefreshToken token) {
+        LOG.info(Constants.REFRESH_TOKEN_PREFIX + token.refreshToken);
         // Redis에서 해당 userId에 해당하는 refreshToken을 가져옴
         String storedTokenValue = redisTemplate.opsForValue().get(Constants.REFRESH_TOKEN_PREFIX + token.refreshToken);
+        LOG.info(storedTokenValue);
+
         if (storedTokenValue == null) {
+//            LOG.info(Constants.REFRESH_TOKEN_PREFIX + token.refreshToken);
+//            LOG.info(storedTokenValue);
             throw new InvalidRefreshToken();
         }
         // 사용자 조회
@@ -126,10 +123,11 @@ public class AuthServiceImpl implements AuthService{
         // Redis에서 refreshToken -> userId 가져오기
         String userId = redisTemplate.opsForValue().get(key);
         if (userId == null) {
+            LOG.warn("Attempt to remove invalid or expired Refresh Token: {}", token.getRefreshToken());
             throw new InvalidRefreshToken();
         }
         // Redis에서 관련 데이터 삭제
-        deleteTokensFromRedis(userId, token.getRefreshToken());
+        deleteTokensFromRedis(token.getRefreshToken());
     }
 
     private UserEntity toEntity(SignUpReq request) {
@@ -140,6 +138,7 @@ public class AuthServiceImpl implements AuthService{
         UserEntity user = new UserEntity();
         BeanUtils.copyProperties(request, user);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
         return user;
     }
     public static class RandomHolder {
@@ -151,4 +150,8 @@ public class AuthServiceImpl implements AuthService{
         }
     }
 
+//    public String sanitize(String input) {
+//        if (input == null) return null;
+//        return input.replace("\x00", "");
+//    }
 }

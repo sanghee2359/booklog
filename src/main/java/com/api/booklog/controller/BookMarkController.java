@@ -57,7 +57,7 @@ public class BookMarkController {
 
         return bookmarkService.isExistInZSet(bookmarkService.makeKey(
                         userPrincipal.getUserId()),
-                        postId);
+                        postId.toString());
     }
 
 }

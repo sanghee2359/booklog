@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class BookMarkService {
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final PostRepository postRepository;
     private final UsersRepository userRepository;
     private static final String BOOKMARK_KEY_PREFIX = "bookmark:";
@@ -35,12 +35,9 @@ public class BookMarkService {
 
         // 이미 북마크에 존재하는지 확인
         String key = makeKey(userId);
-        if(isExistInZSet(key, postId)) {
-            throw new AlreadyBookmark();
-        }
 
         // current time을 score로 사용하여 추가
-        redisTemplate.opsForZSet().add(key, postId, System.currentTimeMillis());
+        redisTemplate.opsForZSet().add(key, postId.toString(), System.currentTimeMillis());
         log.debug("Bookmark added: userId={}, postId={}, key={}", userId, postId, key); // 로그 추가
 
     }
@@ -57,12 +54,12 @@ public class BookMarkService {
         long end = start + size - 1;
 
         // 특정 범위의 데이터 가져오기 (ZSet에서 범위 가져오기)
-        Set<ZSetOperations.TypedTuple<Object>> bookmarkTuples = redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+        Set<ZSetOperations.TypedTuple<String>> bookmarkTuples = redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
 
         // 북마크 ID 리스트 생성
         assert bookmarkTuples != null;
         List<Long> bookmarkIds = bookmarkTuples.stream()
-                .map(tuple -> Long.valueOf(Objects.requireNonNull(tuple.getValue()).toString()))
+                .map(tuple -> Long.valueOf(Objects.requireNonNull(tuple.getValue())))
                 .toList();
 
 
@@ -85,10 +82,10 @@ public class BookMarkService {
         postRepository.findById(postId).orElseThrow(PostNotFound::new);
 
         String key = makeKey(userId);
-        if(!isExistInZSet(key, postId)) {
+        if(!isExistInZSet(key, postId.toString())) {
             throw new BookmarkNotFound();
         }
-        redisTemplate.opsForZSet().remove(key, postId);
+        redisTemplate.opsForZSet().remove(key, postId.toString());
         log.debug("Bookmark remove: userId={}, postId={}, key={}", userId, postId, key); // 로그 추가
     }
 
@@ -105,7 +102,7 @@ public class BookMarkService {
     }
 
 
-    public boolean isExistInZSet(String key, Object value) {
+    public boolean isExistInZSet(String key, String value) {
         Double score = redisTemplate.opsForZSet().score(key, value);
         return score != null;
     }
@@ -119,7 +116,7 @@ public class BookMarkService {
         userRepository.findById(userId)
                 .orElseThrow(UserNotFound::new);
 
-        boolean isBookmarked = isExistInZSet(makeKey(userId), postId);
+        boolean isBookmarked = isExistInZSet(makeKey(userId), postId.toString());
         boolean newStatus;
 
         if (isBookmarked) {
