@@ -1,19 +1,19 @@
 package com.api.booklog.security;
 
+import com.api.booklog.domain.UserEntity;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
+import java.util.stream.Collectors;
 
-import static com.api.booklog.security.Constants.EXPIRATION_TIME;
-import static com.api.booklog.security.Constants.ROLE_CLAIM;
-import static java.util.stream.Collectors.toList;
+import static com.api.booklog.security.config.Constants.EXPIRATION_TIME;
+import static com.api.booklog.security.config.Constants.ROLE_CLAIM;
 
 @Component
 public class JwtManager {
@@ -25,16 +25,16 @@ public class JwtManager {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
     }
-    public String create(UserDetails principal) {
+    public String create(UserEntity user) {
         final long now = System.currentTimeMillis();
         return JWT.create()
-                .withIssuer("development with Spring ...")
-                .withSubject(principal.getUsername())
+                .withIssuer("bookLog")
+                .withSubject(user.getEmail()) // email이 들어감
                 .withClaim(
                         ROLE_CLAIM,
-                        principal.getAuthorities().stream()
+                        user.getAuthorities().stream()
                                 .map(GrantedAuthority::getAuthority)
-                                .collect(toList()))
+                                .collect(Collectors.toList()))
                 .withIssuedAt(new Date(now))
                 .withExpiresAt(new Date(now + EXPIRATION_TIME))
                 .sign(Algorithm.RSA256(publicKey, privateKey));

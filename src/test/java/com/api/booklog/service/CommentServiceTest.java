@@ -70,7 +70,7 @@ class CommentServiceTest {
                 .build();
 
         // when
-        commentService.write(user.getId(), commentCreate);
+        commentService.writeAuthenticated(user.getId(), user.getEmail(), commentCreate);
 
         // then
         Assertions.assertEquals(1L,commentRepository.count());
@@ -111,7 +111,7 @@ class CommentServiceTest {
         CommentDelete request = new CommentDelete(encryptedPassword);
 
         // when
-        commentService.delete(comment.getId(), request);
+        commentService.delete(comment.getId(), post.getId(), user.getEmail(), request);
 
         // then
         assertEquals(0, commentRepository.count());
