@@ -3,10 +3,7 @@ package com.api.booklog.service;
 import com.api.booklog.domain.Comment;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.UserEntity;
-import com.api.booklog.exception.CommentNotFound;
-import com.api.booklog.exception.InvalidPassword;
-import com.api.booklog.exception.PostNotFound;
-import com.api.booklog.exception.UserNotFound;
+import com.api.booklog.exception.*;
 import com.api.booklog.repository.UsersRepository;
 import com.api.booklog.repository.comment.CommentRepository;
 import com.api.booklog.repository.post.PostRepository;
@@ -29,52 +26,83 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentService {
     private final PostRepository postRepository;
-    private final UsersRepository usersRepository;
+    private final UsersRepository userRepository;
     private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
     private static final Logger logger = LoggerFactory.getLogger(CommentService.class);
 
     @Transactional
-    public void write(Long postId, CommentCreate request) {
-        try {
-            Post post = postRepository.findById(postId)
-                    .orElseThrow(PostNotFound::new);
+    public void writeAuthenticated(Long postId, String email, CommentCreate request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFound::new);
 
-            UserEntity user = getUserIfExists(request.getUserId());
-            Comment comment = createComment(user, post, request);
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(UserNotFound::new);
+        Comment comment = new Comment(user, post, user.getPassword(), request.getContent(), request.getAuthor());
+        commentRepository.save(comment);
 
-            commentRepository.save(comment);
-
-            if (user != null) {
-                user.addComment(comment);
-                post.addComment(comment);
-            }
-        } catch (Exception e) {
-            log.error("Error occurred while writing comment: {}", e.getMessage(), e);
-            throw e; // 원래 예외를 던져서 호출한 쪽에서 처리할 수 있도록
-        }
+        user.addComment(comment);
+        post.addComment(comment);
     }
-    private UserEntity getUserIfExists(Long userId) {
-        return userId != null ? usersRepository.findById(userId)
-                .orElseThrow(UserNotFound::new) : null;
-    }
-    private Comment createComment(UserEntity user, Post post, CommentCreate request) {
-        if (user != null) {
-            return new Comment(user, post, user.getPassword(), request.getContent(), user.getName());
-        } else {
-            String encryptedPassword = passwordEncoder.encode(request.getPassword());
-            return new Comment(user, post, encryptedPassword, request.getContent(), request.getAuthor());
-        }
+    @Transactional
+    public void writeAnonymous(Long postId, CommentCreate request) {
+        // userId가 null일 경우 유동닉만 사용
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFound::new);
+
+        String encryptedPassword = passwordEncoder.encode(request.getPassword());
+        Comment comment = new Comment(null, post, encryptedPassword, request.getContent(), request.getAuthor());
+        commentRepository.save(comment);
+        post.addComment(comment);
     }
 
-    public void delete(Long commentId, CommentDelete request) {
+    @Transactional
+    public void delete(Long commentId, Long postId, String email, CommentDelete request) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFound::new);
-        String encryptedPassword = comment.getPassword();
-        if(!passwordEncoder.matches(encryptedPassword, request.getPassword())) {
+        // validation
+        if (!comment.getPost().getId().equals(postId)) {
+            throw new IllegalArgumentException("Comment does not belong to the specified post.");
+        }
+        deleteAsAuthenticatedUser(comment, email, request);
+        commentRepository.delete(comment);
+    }
+
+    @Transactional
+    public void deleteByAnonymous(Long commentId, Long postId, CommentDelete request) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(CommentNotFound::new);
+        // validation
+        if (!comment.getPost().getId().equals(postId)) {
+            throw new IllegalArgumentException("Comment does not belong to the specified post.");
+        }
+        deleteAsGuestUser(comment, request);
+        commentRepository.delete(comment);
+    }
+
+    // 로그인 유저 비밀번호 비교
+    private void deleteAsAuthenticatedUser(Comment comment, String email, CommentDelete request) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(UserNotFound::new);
+
+        if (!isCommentAuthor(comment, user)) {
+            throw new Unauthorized();
+        }
+
+        verifyPassword(user.getPassword(), request.getPassword());
+    }
+    // 비로그인 유저 비밀번호 비교
+    private void deleteAsGuestUser(Comment comment, CommentDelete request) {
+        verifyPassword(comment.getPassword(), request.getPassword());
+    }
+
+    private void verifyPassword(String encryptedPassword, String rawPassword) {
+        if (!passwordEncoder.matches(rawPassword, encryptedPassword)) {
             throw new InvalidPassword();
         }
-        commentRepository.delete(comment);
+    }
+
+    private boolean isCommentAuthor(Comment comment, UserEntity user) {
+        return comment.getUser() != null && comment.getUser().getId().equals(user.getId());
     }
 
     public PagingResponse<CommentResponse> getListByPost(Long postId, CommentSearch commentSearch) {
