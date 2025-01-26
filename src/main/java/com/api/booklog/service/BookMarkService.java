@@ -1,7 +1,7 @@
 package com.api.booklog.service;
 
 import com.api.booklog.domain.Post;
-import com.api.booklog.exception.AlreadyBookmark;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.exception.BookmarkNotFound;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.exception.UserNotFound;
@@ -19,8 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,21 +31,23 @@ public class BookMarkService {
     private final UsersRepository userRepository;
     private static final String BOOKMARK_KEY_PREFIX = "bookmark:";
 
-    public void addBookmark(Long userId, Long postId) {
+    public void addBookmark(String email, Long postId) {
+        UserEntity user = findUserByEmail(email);
         postRepository.findById(postId).orElseThrow(PostNotFound::new);
 
         // 이미 북마크에 존재하는지 확인
-        String key = makeKey(userId);
+        String key = makeKey(user.getId());
 
         // current time을 score로 사용하여 추가
         redisTemplate.opsForZSet().add(key, postId.toString(), System.currentTimeMillis());
-        log.debug("Bookmark added: userId={}, postId={}, key={}", userId, postId, key); // 로그 추가
+        log.debug("Bookmark added: userId={}, postId={}, key={}", user.getId(), postId, key); // 로그 추가
 
     }
 
-    public PagingResponse<PostResponse> getBookmarks(Long userId, int page, int size) {
-        userRepository.findById(userId).orElseThrow(UserNotFound::new);
-        String key = makeKey(userId);
+    public PagingResponse<PostResponse> getBookmarks(String email, int page, int size) {
+
+        UserEntity user = findUserByEmail(email);
+        String key = makeKey(user.getId());
         long totalElements = 0;
         // 전체 북마크 수
         if(redisTemplate.opsForZSet().size(key)!=null) {
@@ -62,14 +65,12 @@ public class BookMarkService {
                 .map(tuple -> Long.valueOf(Objects.requireNonNull(tuple.getValue())))
                 .toList();
 
-
         // 데이터베이스에서 정렬된 포스트 조회
         List<Post> posts =  postRepository.findPostsByIdsOrderByIdCustom(bookmarkIds);
 
         Page<Post> postPage = new PageImpl<>(posts,
                 PageRequest.of(page - 1, size),
                 totalElements);
-
 
         // PagingResponse 생성
         PagingResponse<PostResponse> pagingResponse = new PagingResponse<>(postPage, PostResponse.class);
@@ -90,13 +91,10 @@ public class BookMarkService {
     }
 
     public void removeBookmarkByKey(Long userId) {
-        // Redis에서 해당 키가 존재하는지 확인
-        String key = makeKey(userId);
-        // 해당 키의 데이터를 삭제
-        redisTemplate.delete(key);
-
-        log.debug("Bookmark remove: key={}", key); // 로그 추가
+        // Redis에서 해당 키가 존재하는지 확인 후 삭제
+        redisTemplate.delete(makeKey(userId));
     }
+
     public String makeKey(Long userId) {
         return BOOKMARK_KEY_PREFIX + userId;
     }
@@ -106,27 +104,38 @@ public class BookMarkService {
         Double score = redisTemplate.opsForZSet().score(key, value);
         return score != null;
     }
+
     public boolean isExistsKey(String key) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
-    public BookmarkResponse toggleBookmark(Long userId, Long postId) {
+    public BookmarkResponse toggleBookmark(String email, Long postId) {
+        UserEntity user = findUserByEmail(email);
         postRepository.findById(postId).orElseThrow(PostNotFound::new);
 
-        userRepository.findById(userId)
-                .orElseThrow(UserNotFound::new);
-
-        boolean isBookmarked = isExistInZSet(makeKey(userId), postId.toString());
+        boolean isBookmarked = isExistInZSet(makeKey(user.getId()), postId.toString());
         boolean newStatus;
 
         if (isBookmarked) {
-            removeBookmark(userId, postId);
+            removeBookmark(user.getId(), postId);
             newStatus = false;
         }
         else {
-            addBookmark(userId, postId);
+            addBookmark(user.getEmail(), postId);
             newStatus = true;
         }
         return new BookmarkResponse(postId, newStatus);
+    }
+
+    public boolean checkBookmarkStatus(String email, Long postId) {
+        UserEntity user = findUserByEmail(email);
+        postRepository.findById(postId).orElseThrow(PostNotFound::new);
+
+        return isExistInZSet(makeKey(user.getId()), postId.toString());
+    }
+
+    private UserEntity findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(UserNotFound::new);
     }
 }

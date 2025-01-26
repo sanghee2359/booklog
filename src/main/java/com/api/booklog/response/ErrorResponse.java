@@ -1,5 +1,6 @@
 package com.api.booklog.response;
 
+import com.api.booklog.security.exception.ErrorCode;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -28,5 +29,11 @@ public class ErrorResponse {
         this.code = code;
         this.message = message;
         this.validation = validation != null ? validation : new HashMap<>();
+    }
+
+    public ErrorResponse(ErrorCode errorCode) {
+        this.code = errorCode.getHttpStatus().toString();
+        this.message = errorCode.getMessage();
+        this.validation = null;
     }
 }

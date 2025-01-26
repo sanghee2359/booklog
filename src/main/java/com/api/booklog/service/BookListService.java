@@ -30,20 +30,16 @@ public class BookListService {
     private final UsersRepository userRepository;
     private final BookRepository bookRepository;
 
-    public void saveBook(Long userId, BookCreate bookCreate) {
-        // postCreate 라는 클래스를 entity 형태로 변환
-
+    public void saveBook(String email, BookCreate bookCreate) {
+        UserEntity user = findUserByEmail(email);
         if(bookCreate.getTitle() == null) {
             throw new InvalidRequest("title", "제목을 입력해주세요.");
         }
-        var user = userRepository.findById(userId)
-                .orElseThrow(UserNotFound::new);
-
         Book book = bookCreate.toEntity(user);
         validateDates(book);
-
         bookRepository.save(book);
     }
+    
     public BookResponse get (Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow((BookNotFound::new));
@@ -51,10 +47,11 @@ public class BookListService {
     }
     // date를 받으면 BookStatus 자동 업데이트
     @Transactional
-    public void updateBookStatus(Long userId, BookEdit request) {
+    public void updateBookStatus(String email, BookEdit request) {
+        UserEntity user = findUserByEmail(email);
         Book book = bookRepository.findById(request.bookId)
                 .orElseThrow(BookNotFound::new);
-        handleStatusUpdate(userId, book, request);
+        handleStatusUpdate(user.getId(), book, request);
     }
     // 상태 변경 로직
     private void handleStatusUpdate(Long userId, Book book, BookEdit request) {
@@ -87,10 +84,10 @@ public class BookListService {
     }
     // 책 데이터 삭제
     @Transactional
-    public void deleteBook(Long userId, Long bookId) {
-        userRepository.findById(userId).orElseThrow(UserNotFound::new);
+    public void deleteBook(String email, Long bookId) {
+        UserEntity user = findUserByEmail(email);
         Book book = bookRepository.findById(bookId).orElseThrow(BookNotFound::new);
-        if(!book.getUser().getId().equals(userId)) throw new Unauthorized();
+        if(!book.getUser().getId().equals(user.getId())) throw new Unauthorized();
         // 올해의 책이면 삭제 불가 예외 처리
         if (book.isYearBook()) {
             throw new IllegalStateException("올해의 책으로 선정된 책은 삭제할 수 없습니다.");
@@ -99,8 +96,8 @@ public class BookListService {
     }
 
     // 읽을 책 리스트 출력
-    public PagingResponse<BookResponse> getPendingBooks(Long userId,int page, int size) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+    public PagingResponse<BookResponse> getPendingBooks(String email, int page, int size) {
+        UserEntity user = findUserByEmail(email);
         List<BookStatus> status = List.of(BookStatus.NOT_STARTED, BookStatus.READING);
 
         // pageable 객체 생성하기 (작성 시기에 따라 sort)
@@ -109,17 +106,17 @@ public class BookListService {
         return new PagingResponse<>(list, BookResponse.class);
     }
     // 완독한 리스트 출력
-    public PagingResponse<BookResponse> getCompletedBooks(Long userId, int page, int size) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+    public PagingResponse<BookResponse> getCompletedBooks(String email, int page, int size) {
+        UserEntity user = findUserByEmail(email);
         // pageable 객체 생성할 것 (완독 날짜에 따라 sort)
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("endDate").descending());
         Page<Book> list = bookRepository.findByStatusAndUser(BookStatus.COMPLETED, user, pageable);
         return new PagingResponse<>(list, BookResponse.class);
     }
     // 올해의 책 리스트 출력 (년도에 따라 다르게 출력)
-    public List<BookResponse> getThisYearBooks(Long userId, int year) {
-        userRepository.findById(userId).orElseThrow(UserNotFound::new);
-        List<Book> books = bookRepository.findYearBooksByUserAndYear(userId, year);
+    public List<BookResponse> getThisYearBooks(String email, int year) {
+        UserEntity user = findUserByEmail(email);
+        List<Book> books = bookRepository.findYearBooksByUserAndYear(user.getId(), year);
         return books.stream()
                 .map(BookResponse::new)
                 .collect(Collectors.toList());
@@ -130,5 +127,9 @@ public class BookListService {
         if (book.getStatus() == BookStatus.READING && book.getStartDate() == null) {
             throw new IllegalArgumentException("읽기 시작일이 필요합니다.");
         }
+    }
+    private UserEntity findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(UserNotFound::new);
     }
 }

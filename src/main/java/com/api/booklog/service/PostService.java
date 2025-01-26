@@ -1,35 +1,25 @@
 package com.api.booklog.service;
 
-import com.api.booklog.config.UserPrincipal;
 import com.api.booklog.domain.Post;
 import com.api.booklog.domain.PostEditor;
+import com.api.booklog.domain.UserEntity;
 import com.api.booklog.exception.InvalidRequest;
 import com.api.booklog.exception.PostNotFound;
 import com.api.booklog.exception.Unauthorized;
 import com.api.booklog.exception.UserNotFound;
-import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.repository.UsersRepository;
+import com.api.booklog.repository.post.PostRepository;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
-import com.api.booklog.response.LikeResponse;
 import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
 import com.api.booklog.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -40,18 +30,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final UsersRepository userRepository;
     private final BookMarkService bookMarkService;
+
     // 게시글 생성
-
-    public void write(Long userId, PostCreate postCreate) {
-        // repository.save(postCreate)
-        // postCreate 라는 클래스를 entity 형태로 변환
-
+    public void write(String email, PostCreate postCreate) {
+        UserEntity user = findUserByEmail(email);
         if(postCreate.getTitle() == null) {
             throw new InvalidRequest("title", "제목을 입력해주세요.");
         }
-        var user = userRepository.findById(userId)
-                .orElseThrow(UserNotFound::new);
-
         Post post = Post.builder()
                 .user(user)
                 .title(postCreate.getTitle())
@@ -60,14 +45,15 @@ public class PostService {
 
         postRepository.save(post);
     }
-    // 게시글 조회
 
+    // 게시글 조회
     public PostResponse get (Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow((PostNotFound::new));
         return new PostResponse(post);
 
     }
+
     // 게시글의 작성자 조회
     public UserResponse getUser(Long id) {
         Post post = postRepository.findById(id)
@@ -75,6 +61,7 @@ public class PostService {
         return new UserResponse(post.getUserId(), post.getUser().getName(), post.getUser().getEmail());
 
     }
+
     public PagingResponse<PostResponse> getList(PostSearch postSearch) {
 ;
         Page<Post> postPage = postRepository.getList(postSearch);
@@ -82,10 +69,10 @@ public class PostService {
         return postList;
     }
 
-    public PagingResponse<PostResponse> getListByUser(Long userId, PostSearch postSearch) {
-
+    public PagingResponse<PostResponse> getListByUser(String email, PostSearch postSearch) {
+        UserEntity user = findUserByEmail(email);
         long start = (long)(postSearch.getPage() - 1) * postSearch.getSize();
-        Page<Post> postPage = postRepository.getListByUser(userId, postSearch);
+        Page<Post> postPage = postRepository.getListByUser(user.getId(), postSearch);
 
         PagingResponse<PostResponse> postList = new PagingResponse<>(postPage, PostResponse.class);
         postList.setHasNextPage(postPage.getTotalElements() > (start + postSearch.getSize()));
@@ -95,7 +82,8 @@ public class PostService {
 
     // 게시글 수정
     @Transactional
-    public void edit(Long id, PostEdit postEdit) {
+    public void edit(String email, Long id, PostEdit postEdit) {
+        UserEntity user = findUserByEmail(email);
         Post post = postRepository.findById(id)
                 .orElseThrow((PostNotFound::new));
         PostEditor.PostEditorBuilder postEditorBuilder = post.toEditor();
@@ -109,16 +97,21 @@ public class PostService {
         post.edit(postEditor);
     }
 
-    public void delete(Long userId, Long postId) {
+    public void delete(String email, Long postId) {
+        UserEntity user = findUserByEmail(email);
         Post post = postRepository.findById(postId)
                 .orElseThrow((PostNotFound::new));
 
-        boolean isBookmarked = bookMarkService.isExistInZSet(bookMarkService.makeKey(userId), postId.toString());
+        boolean isBookmarked = bookMarkService.isExistInZSet(bookMarkService.makeKey(user.getId()), postId.toString());
         if(isBookmarked) {
-            bookMarkService.removeBookmark(userId, postId);
+            bookMarkService.removeBookmark(user.getId(), postId);
         }
         postRepository.delete(post);
     }
 
+    private UserEntity findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(Unauthorized::new);
+    }
 
 }

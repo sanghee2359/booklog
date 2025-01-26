@@ -14,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.*;
 
@@ -32,26 +29,31 @@ public class AuthController {
 
     @PostMapping("/api/v1/auth/token/refresh")
     public ResponseEntity<SignedInUser> getAccessToken(
-            @Valid RefreshToken refreshToken) {
-        return ok(authService.getAccessToken(refreshToken).orElseThrow(InvalidRefreshToken::new));
+            @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken) {
+        RefreshToken token = new RefreshToken(refreshToken);
+        return ok(authService.getAccessToken(token).orElseThrow(InvalidRefreshToken::new));
     }
 
     @PostMapping("/api/v1/auth/token")
-    public ResponseEntity<SignedInUser> signIn(@Valid @RequestBody SignInReq signInReq) {
+    public ResponseEntity<SignedInUser> signIn(@Valid @RequestBody SignInReq signInReq
+            ,@CookieValue(value = "refreshToken", defaultValue = "") String refreshToken) {
         UserEntity userEntity = authService.findUserByEmail(signInReq.getEmail());
         if (passwordEncoder.matches(signInReq.getPassword(), userEntity.getPassword())) {
-            return ok(authService.getSignedInUser(userEntity));
+            // RefreshToken DTO를 생성하여 서비스로 넘김
+            RefreshToken token = new RefreshToken(refreshToken);
+            return ok(authService.getSignedInUser(userEntity, token));
         }
         throw new Unauthorized();
     }
 
     @DeleteMapping("/api/v1/auth/token")
     public ResponseEntity<Void> signOut(
-            @Valid RefreshToken refreshToken) {
+            @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken) {
         // We are using removeToken API for signout.
         // Ideally you would like to get tgit she user ID from Logged in user's request
         // and remove the refresh token based on retrieved user id from request.
-        authService.removeRefreshToken(refreshToken);
+        RefreshToken token = new RefreshToken(refreshToken);
+        authService.removeRefreshToken(token);
         return accepted().build();
     }
 

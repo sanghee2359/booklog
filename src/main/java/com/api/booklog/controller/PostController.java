@@ -1,12 +1,9 @@
 package com.api.booklog.controller;
 
-import com.api.booklog.config.UserPrincipal;
-import com.api.booklog.domain.Post;
-import com.api.booklog.exception.PostNotFound;
+import com.api.booklog.exception.Unauthorized;
 import com.api.booklog.request.post.PostCreate;
 import com.api.booklog.request.post.PostEdit;
 import com.api.booklog.request.post.PostSearch;
-import com.api.booklog.response.LikeResponse;
 import com.api.booklog.response.PagingResponse;
 import com.api.booklog.response.PostResponse;
 import com.api.booklog.response.UserResponse;
@@ -17,12 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 
 @Slf4j
@@ -31,11 +24,11 @@ import java.util.Map;
 public class PostController {
     private final PostService postService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/posts")
-    public void post(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid PostCreate request) throws Exception {
+    public void post(Authentication authentication , @RequestBody @Valid PostCreate request) throws Exception {
+        if(authentication == null) throw new Unauthorized();
         request.validate();
-        postService.write(userPrincipal.getUserId(), request);
+        postService.write(authentication.getName(), request);
     }
 
     // 조회 API
@@ -58,26 +51,25 @@ public class PostController {
 //    @PreAuthorize("isAuthenticated()")
     @GetMapping("/posts/myPage")
     public PagingResponse<PostResponse> getListByUser(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam int page,
-            @RequestParam int size) {
+            Authentication authentication , @RequestParam int page, @RequestParam int size) {
+        if(authentication == null) throw new Unauthorized();
         PostSearch postSearch = new PostSearch(page, size);
-        return postService.getListByUser(userPrincipal.getUserId(), postSearch);
+        return postService.getListByUser(authentication.getName(), postSearch);
     }
     // 수정 API
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#postId, 'POST', 'PATCH')")
     @PatchMapping("/posts/{postId}")
-    public void edit(@PathVariable Long postId
-            , @RequestBody @Valid PostEdit request) {
-        postService.edit(postId, request);
+    public void edit(
+            Authentication authentication ,
+            @PathVariable Long postId,
+            @RequestBody @Valid PostEdit request) {
+        if(authentication == null) throw new Unauthorized();
+        postService.edit(authentication.getName(), postId, request);
     }
 
-
-    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#postId, 'POST', 'DELETE')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @DeleteMapping("/posts/{postId}")
-    public void delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long postId) {
-        postService.delete(userPrincipal.getUserId(), postId);
+    public void delete(Authentication authentication , @PathVariable Long postId) {
+        if(authentication == null) throw new Unauthorized();
+        postService.delete(authentication.getName(), postId);
     }
 }

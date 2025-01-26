@@ -2,24 +2,33 @@ package com.api.booklog.domain;
 
 import com.api.booklog.security.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class UserEntity {
-    @Id @NotNull
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String email;
     private String password;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
+    @CreationTimestamp
+    @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Post> posts;
@@ -36,9 +45,15 @@ public class UserEntity {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.createdAt = LocalDateTime.now();
         this.role = role;
+        this.createdAt = LocalDateTime.now();
     }
+
+    // Role 정보를 GrantedAuthority 리스트로 변환
+    public List<GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.getAuthority()));
+    }
+
     public UserEditor.UserEditorBuilder toEditor() {
         return UserEditor.builder()
                 .name(name)
@@ -55,4 +70,5 @@ public class UserEntity {
         comment.setUser(this); // comment가 현재 포스트임을 명시
         this.comments.add(comment); // comment list에 add
     }
+
 }
