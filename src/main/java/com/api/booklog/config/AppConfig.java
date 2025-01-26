@@ -13,7 +13,7 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 
 import java.util.Map;
 
-import static com.api.booklog.security.Constants.ENCODER_ID;
+import static com.api.booklog.security.config.Constants.ENCODER_ID;
 
 @Configuration
 public class AppConfig {

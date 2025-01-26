@@ -1,8 +1,10 @@
-package com.api.booklog.security;
+package com.api.booklog.security.config;
 
-import com.api.booklog.config.UserPrincipal;
-import com.api.booklog.domain.UserEntity;
-import com.api.booklog.repository.UsersRepository;
+import com.api.booklog.security.JwtTokenFilter;
+import com.api.booklog.security.Role;
+import com.api.booklog.security.exception.CustomAccessDeniedHandler;
+import com.api.booklog.security.exception.CustomAuthenticationEntryPointHandler;
+import com.api.booklog.service.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -19,16 +21,16 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -41,10 +43,10 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.api.booklog.security.Constants.*;
+import static com.api.booklog.security.config.Constants.*;
 
 @Slf4j
 @Configuration
@@ -61,37 +63,45 @@ public class SecurityConfig {
     private String privateKeyPassphrase;
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
-    private final UserDetailsService userService;
-    private final PasswordEncoder bCryptPasswordEncoder;
+    private final CustomUserDetailsService userService;
+    private final ObjectMapper objectMapper;
+    private final JwtDecoder jwtDecoder;
 
-    private final ObjectMapper mapper;
 
     public SecurityConfig(
-            @Lazy UserDetailsService userService,
-            @Lazy PasswordEncoder bCryptPasswordEncoder,
-            @Lazy ObjectMapper mapper) {
+            @Lazy CustomUserDetailsService userService,
+            @Lazy JwtDecoder jwtDecoder,
+            @Lazy ObjectMapper objectMapper){
         this.userService = userService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.mapper = mapper;
+        this.jwtDecoder = jwtDecoder;
+        this.objectMapper = objectMapper;
     }
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http.authorizeHttpRequests(req -> req
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(SIGNUP_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(REFRESH_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher(POST_URL, HttpMethod.GET.name())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher(COMMENT_URL, HttpMethod.GET.name())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_URL, HttpMethod.POST.name())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_DEL_URL, HttpMethod.POST.name())).permitAll()
                         .requestMatchers("/api/v1/addresses/**").hasAuthority(Role.ADMIN.getAuthority())
                         .anyRequest().authenticated())
-                .csrf(csrf-> csrf.ignoringRequestMatchers(API_URL_PREFIX))
+                .userDetailsService(userService)
+                .csrf(csrf -> csrf.ignoringRequestMatchers(API_URL_PREFIX))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
-                .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter())));
-
-        // Jwt 기반 stateless -> 부모-자식 스레드 간 SecurityContext 공유
-        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless 세션 설정
+                )
+                .addFilterBefore(new JwtTokenFilter(jwtDecoder, userService), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(except -> except
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPointHandler(objectMapper))  // 인증 실패
+                        .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper)))  // 권한 부족                .authenticationEntryPoint(
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(getJwtAuthenticationConverter())));  // JWT 인증 처리기 설정
         return http.build();
     }
 
@@ -133,20 +143,14 @@ public class SecurityConfig {
     }
     private Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authorityConverter = new JwtGrantedAuthoritiesConverter();
-        authorityConverter.setAuthorityPrefix(AUTHORITY_PREFIX);
-        authorityConverter.setAuthoritiesClaimName(ROLE_CLAIM);
+        authorityConverter.setAuthorityPrefix(AUTHORITY_PREFIX); // 권한을 설정
+        authorityConverter.setAuthoritiesClaimName(ROLE_CLAIM);  // "roles" 클레임에서 권한을 추출
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(authorityConverter);
+
         return converter;
     }
-    @Bean
-    public UserDetailsService userDetailsService(UsersRepository userRepository) {
-        return username -> {
-            UserEntity user = userRepository.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException(username + "을/를 찾을 수 없습니다."));
-            return new UserPrincipal(user);
-        };
-    }
+
 
     @Bean
     public RSAPrivateKey jwtSigningKey (KeyStore keyStore) {
