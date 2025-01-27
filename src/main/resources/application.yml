@@ -32,5 +32,9 @@ app:
       keystore-password: ${KEYSTORE_PASSWORD}
       key-alias: jwt-sign-key
       private-key-passphrase: ${KEYSTORE_PASSWORD}
+
       #jwt:
       #  jwt-key: ${secret-key}
+logging:
+  level:
+    org.springframework.security.web.FilterChainProxy : debug
