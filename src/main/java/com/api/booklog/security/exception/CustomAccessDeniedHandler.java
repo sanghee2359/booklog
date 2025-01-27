@@ -24,12 +24,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
-        String uri = request.getRequestURI();
-
-        if (uri.matches("/public/posts/\\d+/comments.*")) {
-            response.setStatus(HttpServletResponse.SC_OK); // 권한 오류를 무시하고 진행
-            return;
-        }
         log.error("[인증오류] 403");
 
         ErrorResponse errorResponse = ErrorResponse.builder()

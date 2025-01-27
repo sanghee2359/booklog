@@ -28,11 +28,10 @@ public class CommentController {
 
         commentService.writeAuthenticated(postId, authentication.getName(), request);
     }
-    @PostMapping("/posts/{postId}/comments/public")
+    @PostMapping("/public/posts/{postId}/comments")
     public void writeCommentByAnonymous(
             @PathVariable Long postId,
             @RequestBody @Valid CommentCreate request) { // 현재 사용자 정보 가져오기
-        log.info("여기까지 오나?");
         commentService.writeAnonymous(postId, request);
     }
 
@@ -40,12 +39,12 @@ public class CommentController {
     @PostMapping("/posts/{postId}/comments/{commentId}/delete")
     public void deleteCommentByAuthenticated(
             Authentication authentication,
-            @PathVariable Long postId, @PathVariable Long commentId ,
+            @PathVariable Long postId, @PathVariable Long commentId,
             @RequestBody @Valid CommentDelete request){
 
         commentService.delete(commentId, postId, authentication.getName(), request);
     }
-    @PostMapping("/posts/{postId}/comments/{commentId}/public-delete")
+    @PostMapping("/public/posts/{postId}/comments/{commentId}/delete")
     public void deleteCommentByAnonymous(
             @PathVariable Long postId, @PathVariable Long commentId ,
             @RequestBody @Valid CommentDelete request){

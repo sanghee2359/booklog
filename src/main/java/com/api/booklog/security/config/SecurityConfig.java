@@ -79,29 +79,30 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests(req -> req
-                        .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(SIGNUP_URL, HttpMethod.POST.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(REFRESH_URL, HttpMethod.POST.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(POST_URL, HttpMethod.GET.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(COMMENT_URL, HttpMethod.GET.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_URL, HttpMethod.POST.name())).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_DEL_URL, HttpMethod.POST.name())).permitAll()
-                        .requestMatchers("/api/v1/addresses/**").hasAuthority(Role.ADMIN.getAuthority())
-                        .anyRequest().authenticated())
-                .userDetailsService(userService)
-                .csrf(csrf -> csrf.ignoringRequestMatchers(API_URL_PREFIX))
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless 세션 설정
-                )
-                .addFilterBefore(new JwtTokenFilter(jwtDecoder, userService), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(except -> except
-                        .authenticationEntryPoint(new CustomAuthenticationEntryPointHandler(objectMapper))  // 인증 실패
-                        .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper)))  // 권한 부족                .authenticationEntryPoint(
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(getJwtAuthenticationConverter())));  // JWT 인증 처리기 설정
+        http.csrf(csrf -> csrf.ignoringRequestMatchers(API_URL_PREFIX, ANONYMOUS_COMMENT_URL, ANONYMOUS_COMMENT_DEL_URL)) // CSRF가 제외된 경로
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
+            .authorizeHttpRequests(req -> req
+                    .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(SIGNUP_URL, HttpMethod.POST.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(REFRESH_URL, HttpMethod.POST.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(POST_URL, HttpMethod.GET.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(COMMENT_URL, HttpMethod.GET.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_URL, HttpMethod.POST.name())).permitAll() // 인증에서 제외된 경로
+                    .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_DEL_URL, HttpMethod.POST.name())).permitAll()
+                    .requestMatchers("/api/v1/addresses/**").hasAuthority(Role.ADMIN.getAuthority())
+                    .anyRequest().authenticated())
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless 세션 설정
+            )
+            .addFilterBefore(new JwtTokenFilter(jwtDecoder, userService), UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(except -> except
+                    .authenticationEntryPoint(new CustomAuthenticationEntryPointHandler(objectMapper))  // 인증 실패
+                    .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper)))  // 권한 부족                .authenticationEntryPoint(
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
+                            .jwtAuthenticationConverter(getJwtAuthenticationConverter()))) // JWT 인증 처리기 설정
+            .userDetailsService(userService);
+
         return http.build();
     }
 

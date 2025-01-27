@@ -9,9 +9,9 @@ public class Constants {
     public static final String TOKEN_URL = "/api/v1/auth/token";
     public static final String REFRESH_URL = "/api/v1/auth/token/refresh";
     public static final String POST_URL = "/posts/**";
-    public static final String COMMENT_URL = "/posts/**/comments";
-    public static final String ANONYMOUS_COMMENT_URL = "/posts/**/comments/public";
-    public static final String ANONYMOUS_COMMENT_DEL_URL = "/posts/**/comments/**/public-delete";
+    public static final String COMMENT_URL = "/posts/{postId}/comments";
+    public static final String ANONYMOUS_COMMENT_URL = "/public/posts/{postId}/comments";
+    public static final String ANONYMOUS_COMMENT_DEL_URL = "/public/posts/{postId}/comments/{commentId}/delete";
     public static final String AUTHORIZATION = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String SECRET_KEY = "SECRET_KEY";

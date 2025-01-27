@@ -86,5 +86,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return false;
         }
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        // 특정 경로 제외 (익명 댓글 작성 경로)
+        return request.getRequestURI().startsWith("/public/posts/**/comments");
+    }
 
 }

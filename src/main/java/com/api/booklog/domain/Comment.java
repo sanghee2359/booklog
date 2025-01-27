@@ -2,13 +2,10 @@ package com.api.booklog.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
-
+@ToString
 @Entity
 @Getter
 @Table(
@@ -23,7 +20,7 @@ public class Comment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(nullable = true)
     private UserEntity user; // 사용자 정보
 
     @NotNull

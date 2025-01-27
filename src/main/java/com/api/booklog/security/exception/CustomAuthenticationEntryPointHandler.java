@@ -30,15 +30,7 @@ public class CustomAuthenticationEntryPointHandler implements AuthenticationEntr
         return ErrorCode.EXPIRED_TOKEN;  // 토큰 만료
     }
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        String uri = request.getRequestURI();
-        // 인증이 필요 없는 경로를 제외
-        if (uri.matches("/public/posts/\\d+/comments.*")) {
-            log.info("[인증 예외 경로] 인증이 필요하지 않은 경로입니다: {}", uri);
-            response.setStatus(HttpServletResponse.SC_OK); // 200 상태 코드 반환
-            return;
-        }
-
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.error("[인증오류] 로그인이 필요합니다.");
         final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         ErrorCode errorCode = determineErrorCode(authorization);
