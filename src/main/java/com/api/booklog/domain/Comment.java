@@ -42,7 +42,7 @@ public class Comment {
         this.post = post;
         this.password = password;
         this.content = content;
-        this.author = author; // 유동닉 저장
+        this.author = author.isEmpty() ? user.getName() : author; // 유동닉 저장
         this.regDate = LocalDateTime.now();
     }
     public void setPost(Post post) {

@@ -56,14 +56,14 @@ public class CommentService {
     }
 
     @Transactional
-    public void delete(Long commentId, Long postId, String email, CommentDelete request) {
+    public void delete(Long commentId, Long postId, String email) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFound::new);
         // validation
         if (!comment.getPost().getId().equals(postId)) {
             throw new IllegalArgumentException("Comment does not belong to the specified post.");
         }
-        deleteAsAuthenticatedUser(comment, email, request);
+        deleteAsAuthenticatedUser(comment, email);
         commentRepository.delete(comment);
     }
 
@@ -80,29 +80,22 @@ public class CommentService {
     }
 
     // 로그인 유저 비밀번호 비교
-    private void deleteAsAuthenticatedUser(Comment comment, String email, CommentDelete request) {
+    private void deleteAsAuthenticatedUser(Comment comment, String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(UserNotFound::new);
-
         if (!isCommentAuthor(comment, user)) {
             throw new Unauthorized();
         }
-
-        verifyPassword(user.getPassword(), request.getPassword());
     }
-    // 비로그인 유저 비밀번호 비교
-    private void deleteAsGuestUser(Comment comment, CommentDelete request) {
-        verifyPassword(comment.getPassword(), request.getPassword());
-    }
-
-    private void verifyPassword(String encryptedPassword, String rawPassword) {
-        if (!passwordEncoder.matches(rawPassword, encryptedPassword)) {
-            throw new InvalidPassword();
-        }
-    }
-
     private boolean isCommentAuthor(Comment comment, UserEntity user) {
         return comment.getUser() != null && comment.getUser().getId().equals(user.getId());
+    }
+
+    // 비로그인 유저 비밀번호 비교
+    private void deleteAsGuestUser(Comment comment, CommentDelete request) {
+        if (!passwordEncoder.matches(comment.getPassword(), request.getPassword())) {
+            throw new InvalidPassword();
+        }
     }
 
     public PagingResponse<CommentResponse> getListByPost(Long postId, CommentSearch commentSearch) {

@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -25,7 +24,6 @@ public class CommentController {
             Authentication authentication,
             @PathVariable Long postId,
             @RequestBody @Valid CommentCreate request) { // 현재 사용자 정보 가져오기
-
         commentService.writeAuthenticated(postId, authentication.getName(), request);
     }
     @PostMapping("/public/posts/{postId}/comments")
@@ -39,10 +37,8 @@ public class CommentController {
     @PostMapping("/posts/{postId}/comments/{commentId}/delete")
     public void deleteCommentByAuthenticated(
             Authentication authentication,
-            @PathVariable Long postId, @PathVariable Long commentId,
-            @RequestBody @Valid CommentDelete request){
-
-        commentService.delete(commentId, postId, authentication.getName(), request);
+            @PathVariable Long postId, @PathVariable Long commentId){
+        commentService.delete(commentId, postId, authentication.getName());
     }
     @PostMapping("/public/posts/{postId}/comments/{commentId}/delete")
     public void deleteCommentByAnonymous(

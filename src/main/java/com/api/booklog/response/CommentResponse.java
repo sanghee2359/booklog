@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @Getter
 public class CommentResponse {
-
+    private final Long commentId;
     private final Long postId;
     private final String author;
     private final String content;
@@ -17,6 +17,7 @@ public class CommentResponse {
 
     // 생성자 오버로딩
     public CommentResponse(Comment comment) {
+        this.commentId = comment.getId();
         this.postId = comment.getPost().getId();
         this.author = (comment.getUser() != null) ? comment.getUser().getName() : comment.getAuthor(); // 유저가 null일 경우 author 사용
         this.content = comment.getContent();
