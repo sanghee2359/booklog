@@ -93,7 +93,8 @@ public class CommentService {
 
     // 비로그인 유저 비밀번호 비교
     private void deleteAsGuestUser(Comment comment, CommentDelete request) {
-        if (!passwordEncoder.matches(comment.getPassword(), request.getPassword())) {
+        // raw password, encrypted password
+        if (!passwordEncoder.matches(request.getPassword(), comment.getPassword())) {
             throw new InvalidPassword();
         }
     }
