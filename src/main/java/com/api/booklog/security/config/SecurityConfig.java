@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -80,7 +81,7 @@ public class SecurityConfig {
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf -> csrf.ignoringRequestMatchers(API_URL_PREFIX, ANONYMOUS_COMMENT_URL, ANONYMOUS_COMMENT_DEL_URL)) // CSRF가 제외된 경로
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(req -> req
                     .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()
@@ -96,9 +97,10 @@ public class SecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless 세션 설정
             )
             .addFilterBefore(new JwtTokenFilter(jwtDecoder, userService), UsernamePasswordAuthenticationFilter.class)
+//            .addFilterBefore(new CorsLoggingFilter(), JwtTokenFilter.class)
             .exceptionHandling(except -> except
                     .authenticationEntryPoint(new CustomAuthenticationEntryPointHandler(objectMapper))  // 인증 실패
-                    .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper)))  // 권한 부족                .authenticationEntryPoint(
+                    .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper)))  // 권한 부족
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
                             .jwtAuthenticationConverter(getJwtAuthenticationConverter()))) // JWT 인증 처리기 설정
             .userDetailsService(userService);
@@ -131,20 +133,19 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://book-log.shop"));  // 요청을 허용할 Origin 설정
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH"));
-        // configuration.setAllowCredentials(true);
-        // For CORS response headers
-        configuration.addAllowedOrigin("*"); // 허용할 도메인
-        configuration.addAllowedHeader("*"); // 모든 헤더 허용
-        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+        configuration.setAllowCredentials(true);  // 인증 정보 포함 허용
+        configuration.setAllowedHeaders(Arrays.asList(HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION)); // 허용할 헤더 설정
+        configuration.setExposedHeaders(Arrays.asList(HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION));  // 노출할 헤더 설정
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 URL에 대해 위 설정 적용
+        source.registerCorsConfiguration("/**", configuration);  // 모든 URL에 대해 설정 적용
         return source;
     }
     private Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authorityConverter = new JwtGrantedAuthoritiesConverter();
-        authorityConverter.setAuthorityPrefix(AUTHORITY_PREFIX); // 권한을 설정
+        authorityConverter.setAuthorityPrefix(""); // 권한을 설정
         authorityConverter.setAuthoritiesClaimName(ROLE_CLAIM);  // "roles" 클레임에서 권한을 추출
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(authorityConverter);

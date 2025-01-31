@@ -12,14 +12,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import static com.api.booklog.security.config.Constants.REFRESH_TOKEN_TTL_SECONDS;
-import static org.springframework.http.ResponseEntity.*;
+import static org.springframework.http.ResponseEntity.accepted;
+import static org.springframework.http.ResponseEntity.ok;
 
 
 @RestController
@@ -29,7 +29,7 @@ public class AuthController {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
 
-
+    @CrossOrigin(origins = "http://localhost:5173", exposedHeaders = "Authorization")
     @PostMapping("/v1/auth/token/refresh")
     public ResponseEntity<Void> getAccessToken(
             @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken
@@ -40,6 +40,7 @@ public class AuthController {
         return ok().build();
     }
 
+    @CrossOrigin(origins = "http://localhost:5173", exposedHeaders = "Authorization")
     @PostMapping("/v1/auth/token")
     public ResponseEntity<Void> signIn(@Valid @RequestBody SignInReq signInReq
             ,@CookieValue(value = "refreshToken", defaultValue = "") String refreshToken
@@ -68,12 +69,13 @@ public class AuthController {
         return accepted().build();
     }
 
+    @CrossOrigin(origins = "http://localhost:5173", exposedHeaders = "Authorization")
     @PostMapping("/v1/users")
     public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpReq request, HttpServletResponse response) {
         // Have a validation for all required fields.
         SignedInUser tokens = authService.createUser(request).get();
         setRefreshTokenInCookie(tokens.getRefreshToken(), response);
-        response.setHeader("Authorization", "Bearer " + tokens.getAccessToken());
+        response.setHeader("Authorization",  "Bearer " + tokens.getAccessToken());
 
         return ResponseEntity.ok().build();
     }
@@ -85,6 +87,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(REFRESH_TOKEN_TTL_SECONDS)  // 7일
+                .sameSite("Strict")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
