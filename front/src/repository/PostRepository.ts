@@ -21,7 +21,8 @@ export default class PostRepository {
   public get(postId: number) {
     return this.httpRepository.get<PostView>(
       {
-        path: `/api/posts/${postId}`
+        path: `/api/posts/${postId}`,
+        skipAuth: true
       },
       PostView
     )
@@ -29,7 +30,8 @@ export default class PostRepository {
   public getUserName(postId: number): Promise<UserProfile> {
     return this.httpRepository.get<UserProfile>(
       {
-        path: `/api/posts/${postId}/getuser`
+        path: `/api/posts/${postId}/getuser`,
+        skipAuth: true
       },
       UserProfile
     )
@@ -38,7 +40,8 @@ export default class PostRepository {
   public getList(page: number) {
     return this.httpRepository.getList<PostView>(
       {
-        path: `/api/posts?page=${page}&size=3`
+        path: `/api/posts?page=${page}&size=3`,
+        skipAuth: true
       },
       PostView
     )
@@ -64,10 +67,12 @@ export default class PostRepository {
       body: request
     })
   }
-  public async getLikesCount(postId: number): Promise<LikeResponse> {
+  public async getLikesCount(postId: number, isAuthenticated: boolean): Promise<LikeResponse> {
+    const path = isAuthenticated ? `/api/posts/${postId}/like` : `/api/posts/${postId}/like/count`
     return this.httpRepository.get<LikeResponse>(
       {
-        path: `/api/posts/${postId}/like`
+        path: path,
+        skipAuth: !isAuthenticated // 비로그인 상태면 skipAuth: true
       },
       LikeResponse
     )
