@@ -35,14 +35,11 @@ public class CommentService {
     public void writeAuthenticated(Long postId, String email, CommentCreate request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFound::new);
-
         UserEntity user = userRepository.findByEmail(email).orElseThrow(UserNotFound::new);
-        Comment comment = new Comment(user, post, user.getPassword(), request.getContent(), request.getAuthor());
+        Comment comment = new Comment(user, post, user.getPassword(), request.getContent(), user.getName());
         commentRepository.save(comment);
-
-        user.addComment(comment);
-        post.addComment(comment);
     }
+
     @Transactional
     public void writeAnonymous(Long postId, CommentCreate request) {
         // userId가 null일 경우 유동닉만 사용

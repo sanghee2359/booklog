@@ -66,9 +66,5 @@ public class UserEntity {
         email = userEditor.getEmail();
         password = userEditor.getPassword();
     }
-    public void addComment(Comment comment) {
-        comment.setUser(this); // comment가 현재 포스트임을 명시
-        this.comments.add(comment); // comment list에 add
-    }
 
 }
