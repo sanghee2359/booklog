@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, reactive } from 'vue'
+import { onBeforeMount, onMounted, reactive } from 'vue'
 import { container } from 'tsyringe'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Edit } from '@element-plus/icons-vue'
-import PostView from '@/entity/post/PostView'
+import type PostView from '@/entity/post/PostView'
 import Comments from '@/components/Comments.vue'
 import BookmarkButton from '@/components/BookmarkButton.vue'
 import HeartButton from '@/components/LikeButton.vue'
@@ -11,8 +11,8 @@ import LikeResponse from '@/entity/LikeResponse'
 import UserProfile from '@/entity/user/UserProfile'
 import UserRepository from '@/repository/UserRepository'
 import PostRepository from '@/repository/PostRepository'
-import ProfileRepository from '@/repository/ProfileRepository'
 import BookmarkRepository from '@/repository/BookmarkRepository'
+import ProfileRepository from '@/repository/ProfileRepository'
 
 const props = defineProps<{
   postId: number
@@ -25,29 +25,18 @@ const BOOKMARK_REPOSITORY = container.resolve(BookmarkRepository)
 type StateType = {
   profile: UserProfile | null
   post: PostView | null
-  isBookmarked: boolean | null
+  isBookmarked: Boolean | null
   likeStatus: LikeResponse | null
   author: String | null
+  isAuthenticated: boolean
 }
 const state = reactive<StateType>({
   profile: null,
   post: null,
   isBookmarked: null,
   likeStatus: null,
-  author: null
-})
-// 로그인 여부를 computed로 설정
-const isLoggedIn = computed(() => !!state.profile)
-
-onBeforeMount(() => {
-  USER_REPOSITORY.getProfile()
-    .then((profile) => {
-      PROFILE_REPOSITORY.setProfile(profile)
-      state.profile = profile
-    })
-    .catch(() => {
-      state.profile = null
-    })
+  author: null,
+  isAuthenticated: false
 })
 function getPost() {
   POST_REPOSITORY.get(props.postId)
@@ -106,6 +95,20 @@ function getUserName(postId: number) {
       return 'Unknown User'
     })
 }
+onBeforeMount(async () => {
+  state.isAuthenticated = USER_REPOSITORY.isAuthenticated() // 로그인 여부 확인
+  console.log(state.isAuthenticated)
+  if (state.isAuthenticated) {
+    USER_REPOSITORY.getProfile()
+      .then((profile) => {
+        PROFILE_REPOSITORY.setProfile(profile)
+        state.profile = profile
+      })
+      .catch(() => {
+        state.profile = null
+      })
+  }
+})
 
 onMounted(() => {
   getUserName(props.postId)
@@ -132,21 +135,21 @@ onMounted(() => {
         <BookmarkButton
           :postId="Number(props.postId, 10)"
           :status="state.isBookmarked"
-          :isLoggedIn="isLoggedIn"
+          :isAuthenticated="state.isAuthenticated"
         />
       </div>
       <div class="radius-container">
         <HeartButton
           :postId="Number(props.postId)"
-          :initialStatus="isLoggedIn ? Boolean(state.likeStatus?.liked) : false"
+          :initialStatus="Boolean(state.isAuthenticated) ? Boolean(state.likeStatus?.liked) : false"
           :count="Number(state.likeStatus?.likesCount)"
-          :isLoggedIn="isLoggedIn"
+          :isAuthenticated="Boolean(state.isAuthenticated)"
         />
       </div>
 
       <div
         class="edit"
-        v-if="state.profile && state.post && state.profile.id === state.post.userId"
+        v-if="state.isAuthenticated && state.post && state.profile.id === state.post.userId"
       >
         <router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button">
           <el-button type="" :icon="Edit" circle />
@@ -159,7 +162,11 @@ onMounted(() => {
     <el-main class="comments">
       <!-- postId로 해당 commentlist 출력, userId로 로그인 상태 확인 -->
 
-      <Comments v-if="state.post" :postId="Number(props.postId)" />
+      <Comments
+        v-if="state.post"
+        :isAuthenticated="Boolean(state.isAuthenticated)"
+        :postId="Number(props.postId)"
+      />
     </el-main>
   </el-container>
 </template>

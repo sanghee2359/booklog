@@ -3,6 +3,7 @@ import HttpRepository from '@/repository/HttpRepository'
 import Paging from '@/entity/data/Paging'
 import type CommentWrite from '@/entity/comment/CommentWrite'
 import CommentView from '@/entity/comment/CommentView'
+import CommentDelete from '@/entity/comment/CommentDelete'
 
 @singleton()
 export default class CommentRepository {
@@ -41,7 +42,10 @@ export default class CommentRepository {
       ? `/api/posts/${postId}/comments/${commentId}/delete`
       : `/api/public/posts/${postId}/comments/${commentId}/delete`
 
-    const body = isAuthenticated ? {} : { password }
+    const body = isAuthenticated ? {} : new CommentDelete()
+    if (!isAuthenticated && password) {
+      body.password = password // 비회원인 경우 비밀번호 설정
+    }
 
     return this.httpRepository.post({
       path,

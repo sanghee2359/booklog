@@ -9,26 +9,27 @@ import CommentWrite from '@/entity/comment/CommentWrite' // CommentWrite를 impo
 import { ElForm, ElMessage } from 'element-plus'
 import UserRepository from '@/repository/UserRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
-import UserProfile from '@/entity/user/UserProfile'
+import type UserProfile from '@/entity/user/UserProfile'
+
 // Props 설정
 const props = defineProps<{
   postId: number
+  isAuthenticated: boolean
 }>()
 // 기본값을 설정
 type StateType = {
-  profile: UserProfile | null
   commentList: Paging<CommentView>
   commentWrite: CommentWrite
+  profile: UserProfile | null
 }
 const state = reactive<StateType>({
-  profile: null,
   commentList: new Paging<CommentView>(),
-  commentWrite: new CommentWrite() // 댓글 작성 상태 초기화
+  commentWrite: new CommentWrite(),
+  profile: null
 })
 const USER_REPOSITORY = container.resolve(UserRepository)
-const PROFILE_REPOSITORY = container.resolve(ProfileRepository)
 const COMMENT_REPOSITORY = container.resolve(CommentRepository)
-
+const PROFILE_REPOSITORY = container.resolve(ProfileRepository)
 const formRef = ref<InstanceType<typeof ElForm>>() // Form 참조
 const loading = ref(false)
 const page = ref(1)
@@ -94,7 +95,11 @@ const loadMoreComments = async () => {
 // 댓글 작성 메소드
 const writeComment = async () => {
   try {
-    const newComment = await COMMENT_REPOSITORY.writeComment(props.postId, state.commentWrite)
+    const newComment = await COMMENT_REPOSITORY.writeComment(
+      props.postId,
+      state.commentWrite,
+      props.isAuthenticated
+    )
     state.commentWrite = new CommentWrite() // 댓글 작성 후 상태 초기화
     ElMessage.success('댓글이 성공적으로 작성되었습니다.')
     // 댓글 목록 비동기적으로 다시 가져오기
@@ -121,14 +126,16 @@ watch(
 )
 
 onBeforeMount(async () => {
-  await USER_REPOSITORY.getProfile()
-    .then((profile) => {
-      PROFILE_REPOSITORY.setProfile(profile)
-      state.profile = profile
-    })
-    .catch(() => {
-      state.profile = null
-    })
+  if (props.isAuthenticated) {
+    USER_REPOSITORY.getProfile()
+      .then((profile) => {
+        PROFILE_REPOSITORY.setProfile(profile)
+        state.profile = profile
+      })
+      .catch(() => {
+        state.profile = null
+      })
+  }
 })
 onMounted(() => {
   fetchComments()
@@ -140,11 +147,11 @@ onMounted(() => {
 
   <div class="write">
     <el-form label-position="top" :model="state.commentWrite" ref="formRef" :rules="rules">
-      <el-form-item v-if="!state.profile" label="작성자" prop="author">
+      <el-form-item v-if="!props.isAuthenticated" label="작성자" prop="author">
         <el-input v-model="state.commentWrite.author" placeholder="작성자를 입력해주세요" />
       </el-form-item>
 
-      <el-form-item v-if="!state.profile" label="비밀번호" prop="password">
+      <el-form-item v-if="!props.isAuthenticated" label="비밀번호" prop="password">
         <el-input
           type="password"
           v-model="state.commentWrite.password"
@@ -172,7 +179,12 @@ onMounted(() => {
 
   <ul class="comments" ref="commentsContainer" v-if="state.commentList.items.length">
     <li class="comment" v-for="commentView in state.commentList.items" :key="commentView.id">
-      <Comment :comment="commentView" v-if="commentView" />
+      <Comment
+        :comment="commentView"
+        :cur-user-id="state.profile?.id"
+        :isAuthenticated="props.isAuthenticated"
+        @commentDeleted="refetchComments"
+      />
     </li>
   </ul>
 

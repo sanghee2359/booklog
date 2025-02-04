@@ -33,7 +33,7 @@ public class CommentController {
         commentService.writeAnonymous(postId, request);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping("/posts/{postId}/comments/{commentId}/delete")
     public void deleteCommentByAuthenticated(
             Authentication authentication,
