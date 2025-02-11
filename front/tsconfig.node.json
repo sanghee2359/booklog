@@ -6,8 +6,10 @@
     "cypress.config.*",
     "nightwatch.conf.*",
     "playwright.config.*"
+
   ],
   "compilerOptions": {
+    "jsx": "preserve",
     "composite": true,
     "noEmit": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
