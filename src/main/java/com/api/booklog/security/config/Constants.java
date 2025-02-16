@@ -2,12 +2,12 @@ package com.api.booklog.security.config;
 
 public class Constants {
     public static final String ENCODER_ID = "bcrypt";
-    public static final String API_URL_PREFIX = "/api/v1/**";
+    public static final String API_URL_PREFIX = "/v1/**";
     public static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
     public static final String H2_URL_PREFIX = "/h2-console/**";
-    public static final String SIGNUP_URL = "/api/v1/users";
-    public static final String TOKEN_URL = "/api/v1/auth/token";
-    public static final String REFRESH_URL = "/api/v1/auth/token/refresh";
+    public static final String SIGNUP_URL = "/v1/users";
+    public static final String TOKEN_URL = "/v1/auth/token";
+    public static final String REFRESH_URL = "/v1/auth/token/refresh";
     public static final String POST_URL = "/posts/**";
     public static final String COMMENT_URL = "/posts/{postId}/comments";
     public static final String ANONYMOUS_COMMENT_URL = "/public/posts/{postId}/comments";

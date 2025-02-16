@@ -84,10 +84,10 @@ public class AuthController {
     private void setRefreshTokenInCookie(String refreshToken, HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .maxAge(REFRESH_TOKEN_TTL_SECONDS)  // 7일
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());

@@ -8,7 +8,6 @@ import static java.lang.Math.*;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 public class PostSearch {
 
