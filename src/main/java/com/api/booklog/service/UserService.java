@@ -6,6 +6,7 @@ import com.api.booklog.exception.AlreadyExistUserInformation;
 import com.api.booklog.exception.Unauthorized;
 import com.api.booklog.exception.UserNotFound;
 import com.api.booklog.repository.UsersRepository;
+import com.api.booklog.repository.comment.CommentRepository;
 import com.api.booklog.request.UserEdit;
 import com.api.booklog.response.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UsersRepository userRepository;
+    private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
     private final BookMarkService bookMarkService;
     private final Logger LOG = LoggerFactory.getLogger(getClass());
@@ -66,6 +68,8 @@ public class UserService {
         if(isBookmarked) {
             bookMarkService.removeBookmarkByKey(user.getId());
         }
+        //
+        commentRepository.updateAuthorNameToDeleted(user.getId());
         // 삭제된 유저에 대해 이름만 변경했기 때문에 실제 데이터는 삭제되지 않음
         user.deleteUser();
         LOG.info("User is soft deleted, user name: {} ", user.getName());
