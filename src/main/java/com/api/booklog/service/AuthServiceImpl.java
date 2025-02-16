@@ -49,12 +49,13 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public Optional<SignedInUser> createUser(SignUpReq request) {
-        Integer count = userRepository.findByNameOrEmail(request.getName(), request.getEmail());
+        LOG.info("user:{}",request.toString());
+        Long count = userRepository.countByEmail(request.getEmail());
         if(count > 0) {
             throw new AlreadyExistUserInformation();
         }
         UserEntity user = userRepository.save(toEntity(request));
-        LOG.info(user.toString());
+        LOG.info("user:{}",user.toString());
 
         return Optional.of(createSignedUserWithRefreshToken(user));
     }

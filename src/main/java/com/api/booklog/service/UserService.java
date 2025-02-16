@@ -10,6 +10,8 @@ import com.api.booklog.request.UserEdit;
 import com.api.booklog.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ public class UserService {
     private final UsersRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BookMarkService bookMarkService;
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public UserResponse getUserProfile(String email) {
         UserEntity user = findUserByEmail(email);
@@ -33,7 +36,7 @@ public class UserService {
         log.info("현재 정보 출력 : {}", user.getName());
 
         //validate : 이름 또는 이메일 중 하나라도 중복된 경우를 확인
-        Integer count = userRepository.findByNameOrEmail(userEdit.getName(), userEdit.getEmail());
+        Long count = userRepository.countByEmail(userEdit.getEmail());
         if(count > 0){
             throw new AlreadyExistUserInformation();
         }
@@ -56,13 +59,16 @@ public class UserService {
         user.edit(userEditor);
     }
 
-    public void delete(String email) {
+    @Transactional
+    public void softDelete(String email) {
         UserEntity user = findUserByEmail(email);
         boolean isBookmarked = bookMarkService.isExistsKey(bookMarkService.makeKey(user.getId()));
         if(isBookmarked) {
             bookMarkService.removeBookmarkByKey(user.getId());
         }
-        userRepository.delete(user);
+        // 삭제된 유저에 대해 이름만 변경했기 때문에 실제 데이터는 삭제되지 않음
+        user.deleteUser();
+        LOG.info("User is soft deleted, user name: {} ", user.getName());
     }
 
     private UserEntity findUserByEmail(String email) {

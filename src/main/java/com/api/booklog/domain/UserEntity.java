@@ -4,6 +4,8 @@ import com.api.booklog.security.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -15,7 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
+@SQLDelete(sql = "UPDATE user_entity SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor
 public class UserEntity {
     @Id
@@ -27,15 +29,16 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+    private boolean isDeleted;
     @CreationTimestamp
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<Likes> likes;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<Comment> comments;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Book> books;
@@ -65,6 +68,10 @@ public class UserEntity {
         name = userEditor.getName();
         email = userEditor.getEmail();
         password = userEditor.getPassword();
+    }
+    public void deleteUser() {
+        this.name = "(삭제된 유저)";
+        this.isDeleted = true;
     }
 
 }

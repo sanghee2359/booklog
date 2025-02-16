@@ -31,4 +31,11 @@ public class UserController {
         userService.edit(authentication.getName(), request);
         return ResponseEntity.ok(null);
     }
+
+    @DeleteMapping("/users/delete")
+    public ResponseEntity<Void> edit(Authentication authentication) {
+        if(authentication == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        userService.softDelete(authentication.getName());
+        return ResponseEntity.ok(null);
+    }
 }
