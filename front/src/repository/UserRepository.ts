@@ -29,4 +29,10 @@ export default class UserRepository {
       body: request
     })
   }
+
+  // 인증 상태 확인
+  public isAuthenticated(): boolean {
+    const token = localStorage.getItem('accessToken')
+    return !!token // 토큰이 존재하면 true 반환, 아니면 false 반환
+  }
 }

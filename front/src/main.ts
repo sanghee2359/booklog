@@ -33,4 +33,3 @@ app.use(ConfirmationService)
 
 app.use(ElementPlus)
 app.mount('#app')
-app.component('Toast', Toast)
