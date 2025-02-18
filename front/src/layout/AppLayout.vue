@@ -21,14 +21,6 @@ onBeforeMount(() => {
 const { layoutConfig, layoutState, isSidebarActive } = useLayout()
 const outsideClickListener = ref(null)
 
-watch(isSidebarActive, (newVal) => {
-  if (newVal) {
-    bindOutsideClickListener()
-  } else {
-    unbindOutsideClickListener()
-  }
-})
-
 const containerClass = computed(() => {
   return {
     'layout-overlay': layoutConfig.menuMode === 'overlay',
@@ -40,37 +32,7 @@ const containerClass = computed(() => {
   }
 })
 
-function bindOutsideClickListener() {
-  if (!outsideClickListener.value) {
-    outsideClickListener.value = (event) => {
-      if (isOutsideClicked(event)) {
-        layoutState.overlayMenuActive = false
-        layoutState.staticMenuMobileActive = false
-        layoutState.menuHoverActive = false
-      }
-    }
-    document.addEventListener('click', outsideClickListener.value)
-  }
-}
 
-function unbindOutsideClickListener() {
-  if (outsideClickListener.value) {
-    document.removeEventListener('click', outsideClickListener)
-    outsideClickListener.value = null
-  }
-}
-
-function isOutsideClicked(event) {
-  const sidebarEl = document.querySelector('.layout-sidebar')
-  const topbarEl = document.querySelector('.layout-menu-button')
-
-  return !(
-    sidebarEl.isSameNode(event.target) ||
-    sidebarEl.contains(event.target) ||
-    topbarEl.isSameNode(event.target) ||
-    topbarEl.contains(event.target)
-  )
-}
 </script>
 
 <template>
@@ -78,7 +40,7 @@ function isOutsideClicked(event) {
     <div
       class="py-6 px-6 mx-0 md:mx-12 lg:mx-20 lg:px-20 flex items-center justify-between relative lg:static"
     >
-      <TopbarWidget></TopbarWidget>
+      <TopbarWidget :isAuthenticated="Boolean(state.isAuthenticated)" ></TopbarWidget>
     </div>
     <div class="layout-main-container">
       <div class="layout-main">

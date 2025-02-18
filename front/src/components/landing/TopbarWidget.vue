@@ -1,12 +1,48 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import { ref, watch } from 'vue'
-const router = useRouter()
+import {onBeforeMount, reactive, ref, watch} from 'vue'
+import {container} from "tsyringe";
+import UserRepository from "@/repository/UserRepository";
+import ProfileRepository from "@/repository/ProfileRepository";
+import UserProfile from "@/entity/user/UserProfile";
+import {ElMessage} from "element-plus";
 
+const USER_REPOSITORY = container.resolve(UserRepository)
+const PROFILE_REPOSITORY = container.resolve(ProfileRepository)
+const router = useRouter()
 const isActive = ref(false)
 const toggleMenu = () => {
   isActive.value = !isActive.value
 }
+type StateType = {
+  profile: UserProfile | null
+}
+
+const state = reactive<StateType>({
+  profile: null
+})
+// 로그아웃 함수
+function logout() {
+  if (state.profile) {
+    ElMessage({ type: 'success', message: '로그아웃 되었습니다.' })
+    PROFILE_REPOSITORY.clear(state.profile.id)
+  }
+  USER_REPOSITORY.logout()
+}
+// 프로필 설정
+onBeforeMount(async () => {
+  try {
+    const profile = await USER_REPOSITORY.getProfile()
+    if (profile) {
+      PROFILE_REPOSITORY.setProfile(profile)
+      state.profile = profile
+    } else {
+      console.error('No profile data found')
+    }
+  } catch (error) {
+    console.error('Error fetching profile:', error)
+  }
+})
 // 페이지 이동 후 메뉴 닫기
 watch(
   () => router.currentRoute.value.path,
@@ -73,7 +109,7 @@ watch(
           <span>소개</span>
         </a>
       </li>
-      <li>
+      <li  v-show="state.profile">
         <a
           class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl"
           @click="$router.push('/myPage')"
@@ -81,7 +117,7 @@ watch(
           <span>마이페이지</span>
         </a>
       </li>
-      <li>
+      <li  v-show="state.profile">
         <a
           class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl"
           @click="$router.push('/write')"
@@ -89,10 +125,21 @@ watch(
           <span>글 작성</span>
         </a>
       </li>
+      <li  v-show="state.profile">
+        <a
+            class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl"
+            @click="$router.push('/users/bookmarks')"
+        >
+          <span>북마크</span>
+        </a>
+      </li>
     </ul>
-    <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
+    <div v-if="state.profile === null"  class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2" >
       <Button as="router-link" label="Login" rounded text to="/login"></Button>
       <Button label="Register" rounded @click="$router.push('/register')"></Button>
+    </div>
+    <div v-else class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
+      <Button label="Logout" outlined severity="contrast" @click="$router.push('/logout')"></Button>
     </div>
   </div>
 </template>
