@@ -15,20 +15,20 @@ export default {
       type: Boolean,
       required: false
     },
-    isLoggedIn: {
+    isAuthenticated: {
       type: Boolean,
       required: true
     }
   },
   setup: function (props) {
     const bookmark = ref<BookmarkResponse>(
-      new BookmarkResponse(props.postId, { status: props.status })
+      new BookmarkResponse(props.postId, props.status )
     )
     const loading = ref(true)
 
     // 현재 북마크 상태에 따라 이미지 선택
     const currentImage = computed(() => {
-      if (!props.isLoggedIn) {
+      if (!props.isAuthenticated) {
         return false_bookmark
       }
       return bookmark.value.status ? true_bookmark : false_bookmark
@@ -52,7 +52,7 @@ export default {
     }
     const toggleBookmark = async () => {
       // 로그인하지 않은 경우 liked를 false로 설정
-      if (!props.isLoggedIn) {
+      if (!props.isAuthenticated) {
         ElMessage({ type: 'error', message: `로그인이 필요합니다.` })
         location.href = '/login'
         return
@@ -78,7 +78,7 @@ export default {
     })
 
     watch(
-      () => props.initialStatus,
+      () => props.status,
       (newStatus) => {
         if (bookmark.value) {
           bookmark.value.status = newStatus

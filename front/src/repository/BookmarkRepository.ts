@@ -10,7 +10,7 @@ export default class BookmarkRepository {
     // class
     return this.httpRepository.post<BookmarkResponse>(
       {
-        path: `/api/bookmarks/${postId}`
+        path: `/api/users/bookmarks/${postId}`
       },
       BookmarkResponse
     )

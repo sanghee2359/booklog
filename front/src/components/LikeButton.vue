@@ -12,7 +12,7 @@ export default {
       type: Number,
       required: true
     },
-    initialStatus: {
+    status: {
       type: Boolean,
       required: true
     },
@@ -20,7 +20,7 @@ export default {
       type: Number,
       required: true
     },
-    isLoggedIn: {
+    isAuthenticated: {
       type: Boolean,
       required: true
     }
@@ -47,7 +47,7 @@ export default {
 
     // 좋아요 상태에 따른 이미지 선택
     const currentImage = computed(() => {
-      if (!props.isLoggedIn) {
+      if (!props.isAuthenticated) {
         return false_like
       }
       return likeResponse.value.liked ? true_like : false_like
@@ -56,7 +56,7 @@ export default {
     // 좋아요 상태와 개수를 가져오는 함수
     const fetchLikesCount = async () => {
       try {
-        likeResponse.value = await POST_REPOSITORY.getLikesCount(props.postId)
+        likeResponse.value = await POST_REPOSITORY.getLikesCount(props.postId, props.isAuthenticated)
       } catch (error) {
         console.error('Error fetching likes count:', error)
       } finally {
@@ -65,7 +65,7 @@ export default {
     }
     const toggleLike = async () => {
       // 로그인하지 않은 경우 liked를 false로 설정
-      if (!props.isLoggedIn) {
+      if (!props.isAuthenticated) {
         ElMessage({ type: 'error', message: `로그인이 필요합니다.` })
         location.href = '/login'
         return
@@ -96,7 +96,7 @@ export default {
 
     // props의 initialStatus 변경 감지
     watch(
-      () => props.initialStatus,
+      () => props.status,
       (newStatus) => {
         if (likeResponse.value) {
           likeResponse.value.liked = newStatus

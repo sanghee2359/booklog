@@ -48,7 +48,7 @@ function getPost() {
     })
 }
 function checkLikeStatus() {
-  POST_REPOSITORY.getLikesCount(props.postId)
+  POST_REPOSITORY.getLikesCount(props.postId, state.isAuthenticated)
     .then((response: LikeResponse) => {
       state.likeStatus = response
     })
@@ -141,7 +141,7 @@ onMounted(() => {
       <div class="radius-container">
         <HeartButton
           :postId="Number(props.postId)"
-          :initialStatus="Boolean(state.isAuthenticated) ? Boolean(state.likeStatus?.liked) : false"
+          :status="Boolean(state.isAuthenticated) ? Boolean(state.likeStatus?.liked) : false"
           :count="Number(state.likeStatus?.likesCount)"
           :isAuthenticated="Boolean(state.isAuthenticated)"
         />
