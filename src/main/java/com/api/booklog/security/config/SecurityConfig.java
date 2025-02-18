@@ -23,8 +23,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -44,8 +42,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.api.booklog.security.config.Constants.*;
 
@@ -85,7 +83,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(req -> req
                     .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.POST.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(TOKEN_URL, HttpMethod.DELETE.name())).permitAll()
-                    .requestMatchers(new AntPathRequestMatcher(SIGNUP_URL, HttpMethod.POST.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(SIGN_OUT, HttpMethod.POST.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(SIGN_UP, HttpMethod.POST.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(REFRESH_URL, HttpMethod.POST.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(POST_URL, HttpMethod.GET.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(COMMENT_URL, HttpMethod.GET.name())).permitAll()

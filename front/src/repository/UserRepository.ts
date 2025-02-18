@@ -10,7 +10,7 @@ export default class UserRepository {
   public signup(request: SignUp) {
     // class
     return this.httpRepository.post({
-      path: '/api/v1/users',
+      path: '/api/v1/auth/register',
       body: request,
       skipAuth: true
     })

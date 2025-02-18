@@ -29,18 +29,22 @@ public class AuthController {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
 
-    @CrossOrigin(origins = "http://localhost:5173", exposedHeaders = "Authorization")
-    @PostMapping("/v1/auth/token/refresh")
+    @CrossOrigin(origins = "http://localhost:5173",
+            allowCredentials = "true",  // 쿠키 허용 설정 추가
+            exposedHeaders = "Authorization")    @PostMapping("/v1/auth/token/refresh")
     public ResponseEntity<Void> getAccessToken(
             @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken
             ,HttpServletResponse response) {
+        if(refreshToken == null) throw new InvalidRefreshToken();
         RefreshToken token = new RefreshToken(refreshToken);
         SignedInUser tokens = authService.getAccessToken(token).orElseThrow(InvalidRefreshToken::new);
         response.setHeader("Authorization", "Bearer " + tokens.getAccessToken());
         return ok().build();
     }
 
-    @CrossOrigin(origins = "http://localhost:5173", exposedHeaders = "Authorization")
+    @CrossOrigin(origins = "http://localhost:5173",
+            allowCredentials = "true",  // 쿠키 허용 설정 추가
+            exposedHeaders = "Authorization")
     @PostMapping("/v1/auth/token")
     public ResponseEntity<Void> signIn(@Valid @RequestBody SignInReq signInReq
             ,@CookieValue(value = "refreshToken", defaultValue = "") String refreshToken
@@ -58,19 +62,26 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/v1/auth/token")
+    @CrossOrigin(origins = "http://localhost:5173",
+            allowCredentials = "true",  // 쿠키 허용 설정 추가
+            exposedHeaders = "Authorization")
+    @PostMapping("/v1/auth/logout")
     public ResponseEntity<Void> signOut(
-            @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken) {
+            @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken
+            ,HttpServletResponse response){
         // We are using removeToken API for signout.
         // Ideally you would like to get tgit she user ID from Logged in user's request
         // and remove the refresh token based on retrieved user id from request.
         RefreshToken token = new RefreshToken(refreshToken);
         authService.removeRefreshToken(token);
+        deleteRefreshTokenInCookie(response);
         return accepted().build();
     }
 
-    @CrossOrigin(origins = "http://localhost:5173", exposedHeaders = "Authorization")
-    @PostMapping("/v1/users")
+    @CrossOrigin(origins = "http://localhost:5173",
+            allowCredentials = "true",  // 쿠키 허용 설정 추가
+            exposedHeaders = "Authorization")
+    @PostMapping("/v1/auth/register")
     public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpReq request, HttpServletResponse response) {
         // Have a validation for all required fields.
         SignedInUser tokens = authService.createUser(request).get();
@@ -87,10 +98,23 @@ public class AuthController {
                 .secure(false)
                 .path("/")
                 .maxAge(REFRESH_TOKEN_TTL_SECONDS)  // 7일
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private void deleteRefreshTokenInCookie(HttpServletResponse response) {
+        // ✅ RefreshToken 쿠키 삭제 (만료 처리)
+        ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)  // 만료 시간 0초로 설정하여 삭제
+                .sameSite("Lax")
+                .build();
+        response.addHeader("Set-Cookie", expiredCookie.toString());
+
     }
 
 }
