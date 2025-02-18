@@ -1,19 +1,35 @@
 import HttpRepository from '@/repository/HttpRepository'
-import type Login from '@/entity/user/Login'
 import { inject, singleton } from 'tsyringe'
 import UserProfile from '@/entity/user/UserProfile'
 import type UserEdit from '@/entity/user/UserEdit'
+import type Login from '@/entity/user/Login'
+import type SignUp from "@/entity/user/SignUp";
 @singleton()
 export default class UserRepository {
   constructor(@inject(HttpRepository) private readonly httpRepository: HttpRepository) {}
+  public signup(request: SignUp) {
+    // class
+    return this.httpRepository.post({
+      path: '/api/v1/users',
+      body: request,
+      skipAuth: true
+    })
+  }
   public login(request: Login) {
     // class
     return this.httpRepository.post({
-      path: '/api/auth/login',
-      body: request
+      path: '/api/v1/auth/token',
+      body: request,
+      skipAuth: true
     })
   }
-
+  public logout() {
+    // class
+    return this.httpRepository.post({
+      path: '/api/v1/auth/logout',
+      skipAuth: true
+    })
+  }
   getProfile() {
     return this.httpRepository.get<UserProfile>(
       {

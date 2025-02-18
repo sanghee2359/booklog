@@ -5,8 +5,7 @@ import WriteView from '../views/WriteView.vue'
 import ReadView from '../views/ReadView.vue'
 import EditView from '@/views/EditView.vue'
 import LoginView from '@/views/LoginView.vue'
-// import SignUpView2 from '@/views/SignUpView2.vue'
-// import SignUpView from '@/views/SignUpView.vue'
+import SignUpView from '@/views/SignUpView.vue'
 import BookmarkView from '@/views/BookmarkView.vue'
 import ToReadList from '@/views/ToReadList.vue'
 import MyPageView from '@/views/MyPageView.vue'
@@ -50,11 +49,11 @@ const router = createRouter({
           name: 'login',
           component: LoginView
         },
-        // {
-        //   path: '/register',
-        //   name: 'signUp',
-        //   component: SignUpView2
-        // },
+        {
+          path: '/register',
+          name: 'register',
+          component: SignUpView
+        },
         {
           path: '/posts/:postId',
           name: 'post',
