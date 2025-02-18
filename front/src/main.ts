@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-
+import { createPinia } from 'pinia' // Pinia import
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from '@/router'
@@ -30,6 +30,6 @@ app.use(PrimeVue, {
 
 app.use(ToastService)
 app.use(ConfirmationService)
-
+app.use(createPinia()) // Pinia 사용
 app.use(ElementPlus)
 app.mount('#app')
