@@ -1,8 +1,9 @@
 <template>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
+
   <div class="bookmark-wrapper">
-    <div class="header">
-      <h2>📚 북마크</h2>
-    </div>
     <span class="totalCount">북마크 수: {{ totalCount }} </span>
     <div class="bookmark-container" ref="bookmarkContainer">
       <!--북마크 포스트 리스트-->
@@ -39,6 +40,8 @@ import Paging from '@/entity/data/Paging'
 import PostView from '@/entity/post/PostView'
 import PostViewComponent from '@/components/PostView.vue'
 
+import { useRouter } from 'vue-router'
+const router = useRouter()
 export default {
   components: {
     PostView: PostViewComponent
@@ -50,6 +53,7 @@ export default {
     const state = reactive<StateType>({
       postList: new Paging<PostView>()
     })
+    const router = useRouter()
     const BOOKMARK_REPOSITORY = container.resolve(BookmarkRepository)
     const loading = ref(false)
     const page = ref(1)
@@ -94,6 +98,9 @@ export default {
         }
       }
     }
+    const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+    const breadcrumbItems = ref([
+      { label: '📚 북마크'}])
 
     onMounted(() => {
       fetchBookmarks(page.value)
@@ -111,7 +118,9 @@ export default {
       state,
       loading,
       totalCount,
-      bookmarkContainer
+      bookmarkContainer,
+      breadcrumbHome,
+      breadcrumbItems
     }
   }
 }

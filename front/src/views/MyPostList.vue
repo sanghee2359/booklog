@@ -1,6 +1,9 @@
 <template>
   <div>
-    <h2>📥 내가 작성한 글</h2>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
+  <div>
+
     <span class="totalCount"> 전체 개수: {{ totalCount }}</span>
 
     <div class="post-container">
@@ -46,13 +49,13 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted, defineProps } from 'vue'
-import { container } from 'tsyringe'
+import {onMounted, ref} from 'vue'
+import {container} from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import Paging from '@/entity/data/Paging'
 import type PostView from '@/entity/data/PostView'
-import { DateTimeFormatter } from '@js-joda/core'
-import { useRouter } from 'vue-router'
+import {DateTimeFormatter} from '@js-joda/core'
+import {useRouter} from 'vue-router'
 
 export default {
   setup() {
@@ -105,10 +108,14 @@ export default {
       router.push({ name: 'post', params: { postId } }) // postId를 params로 넘겨서 이동
     }
 
-    onMounted(() => {
+    const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+    const breadcrumbItems = ref([
+      { label: '마이페이지', command: () => router.push('/myPage') },
+      { label: '📥 내 작성글 목록'}])
+
+      onMounted(() => {
       fetchList(page.value)
     })
-
     return {
       paging,
       loading,
@@ -117,8 +124,10 @@ export default {
       page,
       pageSize,
       handlePageChange,
-      detail // detail 메소드를 리턴
-    }
+      detail,
+      breadcrumbHome,
+      breadcrumbItems
+  }
   }
 }
 </script>

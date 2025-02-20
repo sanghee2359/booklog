@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
   <div class="year-of-books">
     <section class="intro-section">
       <h1>📚 올해의 책</h1>
@@ -87,6 +90,7 @@ import List from '@/entity/data/List'
 import { container } from 'tsyringe'
 import BookRepository from '@/repository/BookRepository'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'ToReadList',
@@ -101,7 +105,7 @@ export default {
       bookView: new BookView()
     })
     const year = ref(new Date())
-
+    const router = useRouter()
     const loading = ref(false)
     const dialogVisible = ref(false) // 다이얼로그 상태
     const detailBook = '/images/books/detailbook.png' // 첫 번째 이미지 경로 (절대 경로로 수정)
@@ -253,6 +257,9 @@ export default {
       localStorage.setItem('bookImages', JSON.stringify(newImages))
       await getBookList()
     }
+    const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+    const breadcrumbItems = ref([
+      { label: '마이페이지'}])
 
     onMounted(() => {
       getBookList()
@@ -272,7 +279,9 @@ export default {
       getBookDetail,
       handleClose,
       dialogVisible,
-      detailBook
+      detailBook,
+      breadcrumbHome,
+      breadcrumbItems
     }
     function getBookStyle(index: number) {
       const angle = (Math.random() - 0.5) * 10

@@ -1,5 +1,7 @@
 <template>
-  <h2>📘 끝까지 읽은 책</h2>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
   <div>
     <!-- 책 리스트 -->
     <el-table :data="state.bookList.items" border style="margin-top: 20px">
@@ -66,6 +68,7 @@ import Paging from '@/entity/data/Paging'
 import { container } from 'tsyringe'
 import BookRepository from '@/repository/BookRepository'
 import { ElForm } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'ToReadList',
@@ -77,6 +80,7 @@ export default {
     const state = reactive<StateType>({
       bookList: new Paging<BookView>()
     })
+    const router = useRouter()
     const formRef = ref<InstanceType<typeof ElForm>>() // ElForm 타입을 명시적으로 지정
     // 페이지네이션 처리
     const pageSize = 6
@@ -117,6 +121,10 @@ export default {
         getBookList(newPage) // 페이지 변경 시, reset 플래그를 true로 설정하여 새 데이터로 교체
       }
     }
+    const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+    const breadcrumbItems = ref([
+      { label: '마이페이지', command: () => router.push('/myPage') },
+      { label: '📘 완독 목록'}])
 
     onMounted(() => {
       getBookList(page.value)
@@ -130,7 +138,9 @@ export default {
       deleteBook,
       handlePageChange,
       loading,
-      formRef
+      formRef,
+      breadcrumbHome,
+      breadcrumbItems
     }
   }
 }

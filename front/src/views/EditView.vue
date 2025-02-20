@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, watch } from 'vue'
+import {computed, onMounted, reactive, ref, watch} from 'vue'
 import PostEdit from '@/entity/post/PostEdit'
-import { container } from 'tsyringe'
+import {container} from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
-import { ElMessage } from 'element-plus'
+import {ElMessage} from 'element-plus'
 import PostView from '@/entity/post/PostView'
+import {useRouter, useRoute} from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+const postId = Number(route.params.postId);
 
 // Define props to receive postId
 const props = defineProps<{
@@ -28,11 +33,10 @@ function getPost() {
   POST_REPOSITORY.get(props.postId, PostView)
     .then((post: PostView) => {
       state.post = post
-      state.edit = new PostEdit({
-        title: post.title,
-        content: post.content
+      state.edit = new PostEdit(
+          {title: post.title},
+          {content: post.content})
       })
-    })
     .catch((e) => {
       console.error(e)
       ElMessage({ type: 'error', message: `${props.postId}번 글 조회 실패` })
@@ -57,6 +61,11 @@ const isButtonDisabled = computed(() => {
   const edit = state.edit
   return !edit?.title.trim() || !edit?.content.trim()
 })
+
+const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+const breadcrumbItems = ref([
+  { label: '글 상세', command: () => router.push('/posts/'+postId) },
+  { label: '글 수정'}])
 
 // On component mounted, fetch the post
 onMounted(() => {
@@ -84,6 +93,9 @@ watch(
 </script>
 
 <template>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
   <el-row v-if="state.post && state.edit" class="edit-page">
     <el-col :span="24" class="edit-col">
       <el-card class="edit-card">

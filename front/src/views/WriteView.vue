@@ -5,11 +5,12 @@ import { container } from 'tsyringe'
 import PostRepository from '@/repository/PostRepository'
 import { ElForm, ElMessage } from 'element-plus'
 import type HttpError from '@/http/HttpError'
+import { useRouter } from 'vue-router'
 
 const state = reactive({
   postWrite: new PostWrite()
 })
-
+const router = useRouter()
 const POST_REPOSITORY = container.resolve(PostRepository)
 const formRef = ref<InstanceType<typeof ElForm>>() // el-form의 메서드를 사용한다면 필수적
 
@@ -47,12 +48,18 @@ function updateButtonState() {
 // ref로 버튼 상태를 관리
 const buttonDisabled = ref(true)
 
+const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+const breadcrumbItems = ref([
+  { label: '글 작성' }])
 // title과 content의 변경 감지하여 updateButtonState 호출
 watch(() => state.postWrite.title, updateButtonState)
 watch(() => state.postWrite.content, updateButtonState)
 </script>
 
 <template>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
   <el-form label-position="top" :model="state.postWrite" ref="formRef" :rules="rules">
     <el-form-item label="제목" prop="title">
       <el-input v-model="state.postWrite.title" size="large" placeholder="제목을 입력해주세요" />

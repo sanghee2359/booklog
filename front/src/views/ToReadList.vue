@@ -1,5 +1,8 @@
 <template>
-  <h2>📖 올해 읽을 책</h2>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
+
   <div class="to-read-list">
     <!-- 책 추가 -->
     <el-form :model="state.bookSave" :rules="rules" ref="formRef" label-width="100px">
@@ -282,6 +285,10 @@ export default {
         getBookList(newPage) // 페이지 변경 시, reset 플래그를 true로 설정하여 새 데이터로 교체
       }
     }
+    const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+    const breadcrumbItems = ref([
+      { label: '마이페이지', command: () => router.push('/myPage') },
+      { label: '📖 읽을 책 목록'}])
 
     onMounted(() => {
       getBookList(page.value)
@@ -305,7 +312,9 @@ export default {
       handleDialogSubmit,
       dialogVisible,
       isYearBook,
-      review
+      review,
+      breadcrumbHome,
+      breadcrumbItems
     }
   }
 }

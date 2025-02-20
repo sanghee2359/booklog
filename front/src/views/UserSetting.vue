@@ -6,6 +6,7 @@ import UserRepository from '@/repository/UserRepository'
 import UserEdit from '@/entity/user/UserEdit'
 import UserProfile from '@/entity/user/UserProfile'
 import HttpError from '@/http/HttpError'
+import { useRouter } from 'vue-router'
 
 type StateType = {
   profile: UserProfile | null
@@ -16,7 +17,7 @@ const state = reactive<StateType>({
   profile: null,
   edit: new UserEdit()
 })
-
+const router = useRouter()
 const USER_REPOSITORY = container.resolve(UserRepository)
 
 const formRef = ref<InstanceType<typeof ElForm>>()
@@ -69,6 +70,10 @@ const isButtonDisabled = computed(() => {
   return !edit?.name || !edit?.email || !edit?.password
 })
 
+const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+const breadcrumbItems = ref([
+  { label: '마이페이지', command: () => router.push('/myPage') },
+  { label: '설정 변경'}])
 // On component mounted, fetch the profile
 onMounted(() => {
   getProfile()
@@ -105,6 +110,9 @@ const passwordRule = [
 </script>
 
 <template>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
   <el-row v-if="state.profile && state.edit" class="edit-page">
     <el-col :span="24" class="edit-col">
       <el-card class="edit-card">

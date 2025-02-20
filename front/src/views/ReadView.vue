@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive } from 'vue'
+import {onBeforeMount, onMounted, reactive, ref} from 'vue'
 import { container } from 'tsyringe'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Edit } from '@element-plus/icons-vue'
@@ -13,7 +13,8 @@ import UserRepository from '@/repository/UserRepository'
 import PostRepository from '@/repository/PostRepository'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const props = defineProps<{
   postId: number
 }>()
@@ -95,6 +96,10 @@ function getUserName(postId: number) {
       return 'Unknown User'
     })
 }
+const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
+const breadcrumbItems = ref([
+  { label: '글 상세'}])
+
 onBeforeMount(async () => {
   state.isAuthenticated = USER_REPOSITORY.isAuthenticated() // 로그인 여부 확인
   console.log(state.isAuthenticated)
@@ -119,6 +124,9 @@ onMounted(() => {
 </script>
 
 <template>
+  <div>
+    <Breadcrumb :home="breadcrumbHome" :model="breadcrumbItems" />
+  </div>
   <el-container>
     <el-header class="header">
       <h1 class="title">{{ state.post?.title }}</h1>
