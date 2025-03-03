@@ -54,4 +54,9 @@ export default class BookRepository {
       body: request
     })
   }
+  public deleteBook(bookId: number) {
+    return this.httpRepository.delete({
+      path: `/api/users/bookList/${bookId}`
+    })
+  }
 }

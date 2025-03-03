@@ -9,7 +9,7 @@ export default class BookView {
   public endDate: LocalDate | null = null
   public createdAt: LocalDateTime | null = null
   public isYearBook: boolean = false
-  public review = ''
+  public review:string | null = null;
 
   // 생성자 추가
   constructor(data?: Partial<BookView>) {
@@ -21,7 +21,7 @@ export default class BookView {
       this.endDate = data.endDate ?? null
       this.createdAt = data.createdAt ?? null
       this.isYearBook = data.isYearBook ?? false // undefined인 경우 false 처리
-      this.review = data.review ?? '' // undefined인 경우 빈 문자열 처리
+      this.review = data.review ?? null // undefined인 경우 빈 문자열 처리
     }
   }
 }

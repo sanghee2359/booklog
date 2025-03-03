@@ -88,10 +88,7 @@ public class BookListService {
         UserEntity user = findUserByEmail(email);
         Book book = bookRepository.findById(bookId).orElseThrow(BookNotFound::new);
         if(!book.getUser().getId().equals(user.getId())) throw new Unauthorized();
-        // 올해의 책이면 삭제 불가 예외 처리
-        if (book.isYearBook()) {
-            throw new IllegalStateException("올해의 책으로 선정된 책은 삭제할 수 없습니다.");
-        }
+
         bookRepository.deleteById(bookId);
     }
 

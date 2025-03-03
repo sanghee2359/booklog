@@ -3,7 +3,11 @@
     <!-- 필드에 따라 데이터 출력 -->
     <span v-if="field === 'title'">{{ book?.title || 'No Title' }}</span>
     <span v-else-if="field === 'author'">{{ book?.author || 'No Author' }}</span>
-    <span v-else-if="field === 'status'">{{ book?.status || 'No Status' }}</span>
+    <span v-else-if="field === 'status'">
+      <Tag :severity="getStatusLabel( book?.status)" :value="book?.status" />
+    </span>
+    <span v-else-if="field === 'review'">{{ book?.review }}</span>
+
     <!--    <span v-else-if="field === 'startDate'">{{ book?.startDate || '-' }}</span>-->
     <!--    <span v-else-if="field === 'endDate'">{{ book?.endDate || '-' }}</span>-->
 
@@ -19,7 +23,7 @@
           v-model="editableStartDate"
           type="date"
           placeholder="읽기 시작일"
-          @change="notifyChange(editableStartDate)"
+          @change="notifyChange('startDate', editableStartDate)"
           size="small"
           class="date-picker"
         />
@@ -37,9 +41,11 @@
           v-model="editableEndDate"
           type="date"
           placeholder="완독일"
-          @change="notifyChange(editableEndDate)"
+          :disabled="!editableStartDate && !book?.startDate"
           size="small"
           class="date-picker"
+          :disabled-date="disableEndDate"
+          @change="notifyChange('endDate', editableEndDate)"
         />
       </template>
     </div>
@@ -47,12 +53,13 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue'
-import { defineComponent, ref } from 'vue'
+import type {PropType} from 'vue'
+import {defineComponent, ref, watch} from 'vue'
 import type BookView from '@/entity/book/BookView'
 
 export default defineComponent({
   name: 'BookCard',
+
   props: {
     book: {
       // 부모로부터 받는 book data
@@ -68,14 +75,46 @@ export default defineComponent({
     const editableStartDate = ref<Date | null>(null)
     const editableEndDate = ref<Date | null>(null)
 
-    const notifyChange = (value: Date | null) => {
-      emit('update-book', { id: props.book.bookId, value })
+    const notifyChange = (field: 'startDate' | 'endDate', value: Date | null) => {
+      emit('update-book', { id: props.book.bookId, field, value })
+    }
+
+    // startDate가 변경되면 editableStartDate 업데이트
+    watch(() => props.book.startDate, (newStartDate) => {
+      editableStartDate.value = newStartDate ? new Date(newStartDate.toString()) : null
+    })
+
+    // endDate 비활성화 함수
+    const disableEndDate = (currentDate: Date) => {
+      // startDate가 있으면, endDate가 startDate 이후여야만 선택 가능
+      if (editableStartDate.value) {
+        return currentDate < editableStartDate.value
+      }
+      return false
+    }
+
+    function getStatusLabel(status) {
+      switch (status) {
+        case 'NOT_STARTED':
+          return "success";
+
+        case 'READING':
+          return "warn";
+
+        case 'COMPLETED':
+          return "danger";
+
+        default:
+          return undefined;
+      }
     }
 
     return {
       editableStartDate,
       editableEndDate,
-      notifyChange
+      notifyChange,
+      getStatusLabel,
+      disableEndDate
     }
   }
 })

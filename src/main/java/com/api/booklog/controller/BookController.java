@@ -46,7 +46,7 @@ public class BookController {
         PagingResponse<BookResponse> response = bookListService.getPendingBooks(authentication.getName(), page, size );
         return ResponseEntity.ok(response);
     }
-    // 읽을 책 리스트
+    // 완독 리스트
     @GetMapping("/users/bookList/completed")
     public ResponseEntity<PagingResponse<BookResponse>> getCompletedBooks(
             Authentication authentication ,
@@ -58,7 +58,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    // 읽을 책 리스트에서 삭제
+    // 완독 목록 삭제
     @DeleteMapping("/users/bookList/{bookId}")
     public ResponseEntity<Void> deleteBook(
             Authentication authentication ,
