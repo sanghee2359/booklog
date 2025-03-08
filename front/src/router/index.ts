@@ -12,9 +12,10 @@ import MyPageView from '@/views/MyPageView.vue'
 import UserSetting from '@/views/UserSetting.vue'
 import MyPostList from '@/views/MyPostList.vue'
 import BookLog from '@/views/BookLog.vue'
-import YearOfBooks from '@/views/YearOfBooks.vue'
+import UserYearOfBooks from '@/views/UserYearOfBooks.vue'
 import Landing from '@/views/Landing.vue'
 import AppLayout from '@/layout/AppLayout.vue'
+import MyYearOfBooks from "@/views/MyYearOfBooks.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -73,10 +74,16 @@ const router = createRouter({
           props: true
         },
         {
+          path: '/yearOfBooks/:userId',
+          name: 'yearOfBooks',
+          component: UserYearOfBooks,
+          props: true
+        },
+        {
           path: '/myPage',
           name: 'MyPage',
           component: MyPageView,
-          redirect: '/yearOfBooks', // 기본 경로를 /yearOfBooks로 리다이렉트
+          redirect: '/myYearOfBooks', // 기본 경로를 '/myPage/yearOfBooks'로 설정
           children: [
             {
               path: '/toReadList',
@@ -99,9 +106,9 @@ const router = createRouter({
               component: BookLog
             },
             {
-              path: '/yearOfBooks',
-              name: 'yearOfBooks',
-              component: YearOfBooks
+              path: '/myYearOfBooks',
+              name: 'myYearOfBooks',
+              component: MyYearOfBooks
             }
           ]
         }

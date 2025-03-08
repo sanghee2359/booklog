@@ -32,6 +32,15 @@ export default class BookRepository {
       BookView // BookView 타입을 넘겨줍니다.
     )
   }
+
+  public getUsersBooksOfYear(year: number, userId: number): Promise<List<BookView>> {
+    return this.httpRepository.getArray<BookView>(
+        {
+          path: `/api/users/${userId}/year-books/${year}`
+        },
+        BookView // BookView 타입을 넘겨줍니다.
+    )
+  }
   public getCompletedBooks(page: number, size: number): Promise<Paging<BookView>> {
     return this.httpRepository.getList<BookView>(
       {

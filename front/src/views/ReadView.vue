@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {onBeforeMount, onMounted, reactive, ref} from 'vue'
-import { container } from 'tsyringe'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Delete, Edit } from '@element-plus/icons-vue'
+import {container} from 'tsyringe'
+import {ElMessage, ElMessageBox} from 'element-plus'
+import {Delete, Edit} from '@element-plus/icons-vue'
 import type PostView from '@/entity/post/PostView'
 import Comments from '@/components/Comments.vue'
 import BookmarkButton from '@/components/BookmarkButton.vue'
@@ -13,7 +13,8 @@ import UserRepository from '@/repository/UserRepository'
 import PostRepository from '@/repository/PostRepository'
 import BookmarkRepository from '@/repository/BookmarkRepository'
 import ProfileRepository from '@/repository/ProfileRepository'
-import { useRouter } from 'vue-router'
+import {useRouter} from 'vue-router'
+
 const router = useRouter()
 const props = defineProps<{
   postId: number
@@ -28,7 +29,7 @@ type StateType = {
   post: PostView | null
   isBookmarked: Boolean | null
   likeStatus: LikeResponse | null
-  author: String | null
+  author: UserProfile | null
   isAuthenticated: boolean
 }
 const state = reactive<StateType>({
@@ -39,6 +40,8 @@ const state = reactive<StateType>({
   author: null,
   isAuthenticated: false
 })
+
+
 function getPost() {
   POST_REPOSITORY.get(props.postId)
     .then((post: PostView) => {
@@ -66,12 +69,11 @@ function checkBookmarkStatus() {
       console.log(`>>> 게시글 페이지 : 북마크 상태 확인 실패`)
     })
 }
-
 function remove() {
-  ElMessageBox.confirm('삭제하시겠습니까?', '경고', {
-    title: '삭제',
-    confirmButtonText: '삭제',
+  ElMessageBox.confirm('글을 삭제하시겠습니까?', '경고', {
+    title: 'Confirmation',
     cancelButtonText: '취소',
+    confirmButtonText: '삭제',
     type: 'warning'
   })
     .then(() => {
@@ -84,14 +86,15 @@ function remove() {
       ElMessage({ type: 'info', message: '삭제가 취소되었습니다.' })
     })
 }
-function getUserName(postId: number) {
+function getAuthor(postId: number) {
   // POST_REPOSITORY를 통해 postId에 해당하는 유저 이름을 가져옴
   POST_REPOSITORY.getUserName(postId)
     .then((profile) => {
-      state.author = profile.name
+      state.author = profile
+      state.author.deleted = profile.deleted === undefined ? true : profile.deleted
+      console.log(state.author)
     })
     .catch((error) => {
-      console.error(state.author)
       console.error(error)
       return 'Unknown User'
     })
@@ -113,10 +116,11 @@ onBeforeMount(async () => {
         state.profile = null
       })
   }
+
+  getAuthor(props.postId)
 })
 
 onMounted(() => {
-  getUserName(props.postId)
   checkBookmarkStatus()
   checkLikeStatus()
   getPost()
@@ -131,7 +135,18 @@ onMounted(() => {
     <el-header class="header">
       <h1 class="title">{{ state.post?.title }}</h1>
       <div class="regDate">{{ state.post?.getDisplayRegDate() }}</div>
-      <div class="author">Posted by {{ state.author }}</div>
+      <div class="author">Posted by
+        <router-link
+            v-if="!state.author?.deleted"
+            :to="`/yearOfBooks/${state.author?.id}`"
+            class="text-black decoration-0 hover:underline"
+        >
+          {{ state.author?.name }}
+        </router-link>
+        <span v-else class="text-gray-400">
+          {{ state.author?.name }}
+        </span>
+      </div>
     </el-header>
 
     <el-main class="content">
@@ -157,7 +172,7 @@ onMounted(() => {
 
       <div
         class="edit"
-        v-if="state.isAuthenticated && state.post && state.profile.id === state.post.userId"
+        v-if="state.isAuthenticated && state.post && state.profile?.id === state.post.userId"
       >
         <router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button">
           <el-button type="" :icon="Edit" circle />

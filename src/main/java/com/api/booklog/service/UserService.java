@@ -31,6 +31,10 @@ public class UserService {
         UserEntity user = findUserByEmail(email);
         return new UserResponse(user);
     }
+    public UserResponse getProfile(Long id) {
+        UserEntity user = userRepository.findById(id).orElseThrow(UserNotFound::new);
+        return new UserResponse(user);
+    }
 
     @Transactional
     public void edit(String email, UserEdit userEdit) {

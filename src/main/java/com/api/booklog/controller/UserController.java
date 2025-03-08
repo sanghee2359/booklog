@@ -23,6 +23,12 @@ public class UserController {
         UserResponse userResponse = userService.getUserProfile(authentication.getName());
         return ResponseEntity.ok(userResponse);
     }
+    // 포스팅한 사용자(author)의 프로필 출력
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<UserResponse> getUserProfile(@PathVariable Long userId) {
+        UserResponse userResponse = userService.getProfile(userId);
+        return ResponseEntity.ok(userResponse);
+    }
 
     @PatchMapping("/users/setting")
     public ResponseEntity<Void> edit(Authentication authentication
@@ -33,7 +39,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/delete")
-    public ResponseEntity<Void> edit(Authentication authentication) {
+    public ResponseEntity<Void> delete(Authentication authentication) {
         if(authentication == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         userService.softDelete(authentication.getName());
         return ResponseEntity.ok(null);

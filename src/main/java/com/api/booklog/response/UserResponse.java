@@ -10,10 +10,12 @@ public class UserResponse {
     private final Long id;
     private final String name;
     private final String email;
+    private final boolean isDeleted;
 
     public UserResponse(UserEntity user) {
         this.id = user.getId();
         this.name = user.getName();
         this.email = user.getEmail();
+        this.isDeleted = user.isDeleted();
     }
 }

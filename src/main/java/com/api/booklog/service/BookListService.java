@@ -119,6 +119,15 @@ public class BookListService {
                 .collect(Collectors.toList());
 
     }
+    // 특정 유저의 올해의 책 리스트 출력
+    public List<BookResponse> getUsersYearBooks(Long userId, int year) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+        List<Book> books = bookRepository.findYearBooksByUserAndYear(user.getId(), year);
+        return books.stream()
+                .map(BookResponse::new)
+                .collect(Collectors.toList());
+
+    }
     // 상태에 맞는 날짜 필드 유효성 검사
     public void validateDates(Book book) {
         if (book.getStatus() == BookStatus.READING && book.getStartDate() == null) {

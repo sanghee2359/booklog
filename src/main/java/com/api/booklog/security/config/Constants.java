@@ -11,6 +11,8 @@ public class Constants {
     public static final String REFRESH_URL = "/v1/auth/token/refresh";
     public static final String POST_URL = "/posts/**";
     public static final String COMMENT_URL = "/posts/{postId}/comments";
+    public static final String YEARS_BOOK_URL = "/users/{userId}/year-books/{year}";
+    public static final String USER_PROFILE = "/users/{userId}";
     public static final String ANONYMOUS_COMMENT_URL = "/public/posts/{postId}/comments";
     public static final String ANONYMOUS_COMMENT_DEL_URL = "/public/posts/{postId}/comments/{commentId}/delete";
     public static final String AUTHORIZATION = "Authorization";

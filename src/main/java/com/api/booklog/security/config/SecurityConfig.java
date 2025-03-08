@@ -88,6 +88,8 @@ public class SecurityConfig {
                     .requestMatchers(new AntPathRequestMatcher(REFRESH_URL, HttpMethod.POST.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(POST_URL, HttpMethod.GET.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(COMMENT_URL, HttpMethod.GET.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(USER_PROFILE, HttpMethod.GET.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher(YEARS_BOOK_URL, HttpMethod.GET.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_URL, HttpMethod.POST.name())).permitAll() // 인증에서 제외된 경로
                     .requestMatchers(new AntPathRequestMatcher(ANONYMOUS_COMMENT_DEL_URL, HttpMethod.POST.name())).permitAll()
                     .requestMatchers("/api/v1/addresses/**").hasAuthority(Role.ADMIN.getAuthority())

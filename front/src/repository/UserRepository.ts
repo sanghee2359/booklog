@@ -38,6 +38,15 @@ export default class UserRepository {
       UserProfile
     )
   }
+  getUserProfile(userId: number) {
+    return this.httpRepository.get<UserProfile>(
+        {
+          path: `/api/users/${userId}`,
+          skipAuth: true
+        },
+        UserProfile
+    )
+  }
 
   edit(request: UserEdit) {
     return this.httpRepository.patch({

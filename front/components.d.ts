@@ -14,6 +14,7 @@ declare module 'vue' {
     Comment: typeof import('./src/components/Comment.vue')['default']
     Comments: typeof import('./src/components/Comments.vue')['default']
     Content: typeof import('./src/components/Content.vue')['default']
+    Dialog: typeof import('primevue/dialog')['default']
     FeaturesWidget: typeof import('./src/components/landing/FeaturesWidget.vue')['default']
     FloatingConfigurator: typeof import('./src/components/FloatingConfigurator.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
@@ -29,6 +30,8 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchBar: typeof import('./src/components/SearchBar.vue')['default']
+    Tag: typeof import('primevue/tag')['default']
+    ToggleButton: typeof import('primevue/togglebutton')['default']
     TopbarWidget: typeof import('./src/components/landing/TopbarWidget.vue')['default']
     UserProfile: typeof import('./src/components/UserProfile.vue')['default']
   }

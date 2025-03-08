@@ -4,31 +4,30 @@
   </div>
   <div class="year-of-books">
     <section class="intro-section">
-      <h1>📚 올해의 책</h1>
-      <p>한 해 읽은 책 중 특별히 선정된 책입니다!</p>
-      <p>
+      <h1>📚 {{ state.user.name }}님의 올해의 책</h1>
+      <p v-if="state.bookList.items.length > 0">한 해 읽은 책 중 특별히 선정된 책입니다!</p>
+      <p v-if="state.bookList.items.length > 0">
         최대 <strong>10권</strong> 중 <strong>{{ state.bookList.items.length }}</strong
         >권이 선정되었습니다.
       </p>
+      <br/>
       <el-date-picker
-        v-model="year"
-        type="year"
-        placeholder="Select Year"
-        @update:modelValue="handleYearChange"
-        class="year-picker"
+          v-model="year"
+          class="year-picker"
+          placeholder="Select Year"
+          type="year"
+          @update:modelValue="handleYearChange"
       />
-
-      <!--      <p>지금까지 <strong>{{ totalBooksRead }}</strong>권의 책을 읽었어요.</p>-->
     </section>
 
     <!-- 책 리스트 -->
-    <div class="book-list" v-if="state.bookList.getCount() > 0">
+    <div v-if="state.bookList.getCount() > 0" class="book-list">
       <ul class="book-container">
         <li
           v-for="(book, index) in state.bookList.items"
           :key="book.bookId"
-          class="book-item"
           :style="getBookStyle(index)"
+          class="book-item"
           @click="getBookDetail(book.bookId)"
         >
           <img :src="getBookImage(index)" alt="Book image" class="book-image" />
@@ -38,27 +37,20 @@
 
     <!-- 데이터 없음 -->
     <div v-else-if="!loading && state.bookList.getCount() === 0" class="no-data-message">
-      No books found for the selected year.
+     선정된 올해의 책이 없습니다.
     </div>
 
     <!-- 로딩 상태 -->
     <div v-if="loading" class="loading-indicator">Loading...</div>
 
-    <!-- 이미지 변경 버튼 -->
-    <el-button
-      type="primary"
-      icon="el-icon-picture-outline"
-      @click="changeBookImages"
-      class="custom-button"
-      >Change Book Images
-    </el-button>
+
   </div>
   <!-- BookView 다이얼로그 -->
   <el-dialog
     v-model="dialogVisible"
     :title="state.bookView.title"
-    width="500px"
     class="book-dialog"
+    width="500px"
     @close="handleClose"
   >
     <div v-if="state.bookView" class="book-dialog-content">
@@ -82,7 +74,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import {onBeforeMount, onMounted, reactive, ref} from 'vue'
 import BookCard from '@/components/BookCard.vue'
 import BookView from '@/entity/book/BookView'
 import BookUI from '@/entity/book/BookUI'
@@ -90,19 +82,26 @@ import List from '@/entity/data/List'
 import { container } from 'tsyringe'
 import BookRepository from '@/repository/BookRepository'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import UserProfile from "@/entity/user/UserProfile";
+import UserRepository from "@/repository/UserRepository";
+import ProfileRepository from "@/repository/ProfileRepository";
 
 export default {
   name: 'ToReadList',
   components: { BookCard },
   setup() {
+    const route = useRoute()
+    const userId = route.params.userId
     type StateType = {
       bookList: List<BookUI>
-      bookView: BookView
+      bookView: BookView,
+      user: UserProfile
     }
     const state = reactive<StateType>({
       bookList: new List<BookUI>(),
-      bookView: new BookView()
+      bookView: new BookView(),
+      user: new UserProfile()
     })
     const year = ref(new Date())
     const router = useRouter()
@@ -111,8 +110,10 @@ export default {
     const detailBook = '/images/books/detailbook.png' // 첫 번째 이미지 경로 (절대 경로로 수정)
 
     const BOOK_REPOSITORY = container.resolve(BookRepository)
+    const USER_REPOSITORY = container.resolve(UserRepository)
+    const PROFILE_REPOSITORY = container.resolve(ProfileRepository)
 
-    // 연도별 책 리스트 가져오기
+// 연도별 책 리스트 가져오기
     const handleYearChange = async (newYear) => {
       if (!newYear) {
         console.error('Invalid year:', newYear)
@@ -121,12 +122,13 @@ export default {
       year.value = newYear // Date 객체로 업데이트
       await getBookList() // 서버에 년도만 전달
     }
+
     const getBookList = async (): Promise<List<BookUI>> => {
       if (loading.value) return // 이미 로딩 중이라면 무시
       loading.value = true
       try {
-        const bookViewList: List<BookView> = await BOOK_REPOSITORY.getBooksOfYear(
-          year.value.getFullYear()
+        const bookViewList: List<BookView> = await BOOK_REPOSITORY.getUsersBooksOfYear(
+          year.value.getFullYear(), userId
         )
         if (bookViewList && bookViewList.items) {
           // 서버에서 데이터 가져오기
@@ -157,15 +159,7 @@ export default {
         ElMessage({ type: 'error', message: `${bookId}번 책 조회 실패` })
         console.log(e)
       }
-      // BOOK_REPOSITORY.get(bookId)
-      //   .then((book: BookView) => {
-      //     console.log(book)
-      //     state.bookView = book as BookView
-      //     dialogVisible.value = true
-      //   })
-      //   .catch((e) => {
-      //     ElMessage({ type: 'error', message: `${bookId}번 책 조회 실패` })
-      //   })
+
     }
     const handleBookClick = async (book: BookView) => {
       console.log('Book clicked:', book) // 클릭된 책 정보 확인
@@ -174,10 +168,7 @@ export default {
     const handleClose = () => {
       console.log('다이얼로그가 닫혔습니다')
     }
-    // 책 삭제
-    const deleteBook = (bookId: number) => {
-      state.bookList.items = state.bookList.items.filter((b) => b.bookId !== bookId)
-    }
+
     /**
      * 책 리스트 이미지들을 랜덤으로 출력
      * @param index
@@ -259,18 +250,26 @@ export default {
     }
     const breadcrumbHome = ref({ icon: 'pi pi-home', command: () => router.push('/') })
     const breadcrumbItems = ref([
-      { label: '마이페이지'}])
+      { label: '올해의 책'}])
 
     onMounted(() => {
       getBookList()
     })
-
+    onBeforeMount(async () => {
+      USER_REPOSITORY.getUserProfile(userId)
+          .then((profile) => {
+            PROFILE_REPOSITORY.setProfile(profile)
+            state.user = profile
+          })
+          .catch(() => {
+            state.user = null
+          })
+    })
     return {
       state,
       year,
       loading,
       getBookList,
-      deleteBook,
       getRandomBookImage,
       getBookStyle,
       getBookImage,

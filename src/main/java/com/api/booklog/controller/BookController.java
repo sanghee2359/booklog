@@ -5,6 +5,7 @@ import com.api.booklog.request.book.BookCreate;
 import com.api.booklog.request.book.BookEdit;
 import com.api.booklog.response.BookResponse;
 import com.api.booklog.response.PagingResponse;
+import com.api.booklog.response.PostResponse;
 import com.api.booklog.service.BookListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +87,17 @@ public class BookController {
         if(authentication == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         List<BookResponse> response = bookListService.getThisYearBooks(authentication.getName(), year);
         return ResponseEntity.ok(response);
+    }
+
+    // 다른 사용자의 올해의 책 출력
+    @GetMapping("/users/{userId}/year-books/{year}")
+    public ResponseEntity<List<BookResponse>> get(
+            @PathVariable(name = "userId") Long userId,
+            @PathVariable int year) {
+
+        List<BookResponse> response = bookListService.getUsersYearBooks(userId, year);
+        return ResponseEntity.ok(response);
+
     }
 
 }

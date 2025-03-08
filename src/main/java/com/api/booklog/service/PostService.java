@@ -58,7 +58,7 @@ public class PostService {
     public UserResponse getUser(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow((PostNotFound::new));
-        return new UserResponse(post.getUserId(), post.getUser().getName(), post.getUser().getEmail());
+        return new UserResponse(post.getUserId(), post.getUser().getName(), post.getUser().getEmail(), post.getUser().isDeleted());
 
     }
 
