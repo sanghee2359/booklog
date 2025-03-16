@@ -5,11 +5,15 @@
   <div class="year-of-books">
     <section class="intro-section">
       <h1>📚 올해의 책</h1>
-      <p v-if="state.bookList.items.length > 0">한 해 읽은 책 중 특별히 선정된 책입니다!</p>
-      <p v-if="state.bookList.items.length > 0">
-        최대 <strong>10권</strong> 중 <strong>{{ state.bookList.items.length }}</strong
-      >권이 선정되었습니다.
-      </p>
+      <p>한 해 동안 읽은 책 중, 특별히 선정한 책들을 모아둔 공간입니다.</p>
+
+      <template v-if="state.bookList.items.length > 0">
+        <p>최대 <strong>10권</strong> 중 <strong>{{ state.bookList.items.length }}</strong>권이 선정되었습니다.</p>
+      </template>
+      <template v-else>
+        <br/>
+        <p>마이페이지 > 📖 읽을 책 목록에서 올해의 책을 등록해 보세요!</p>
+      </template>
       <br/>
       <el-date-picker
         v-model="year"
@@ -18,9 +22,18 @@
         @update:modelValue="handleYearChange"
         class="year-picker"
       />
+      <!-- 이미지 변경 버튼 -->
 
       <!--      <p>지금까지 <strong>{{ totalBooksRead }}</strong>권의 책을 읽었어요.</p>-->
     </section>
+    <br/>
+    <el-button
+        class="custom-button"
+        icon="el-icon-picture-outline"
+        type="primary"
+        @click="changeBookImages"
+    >Change Book Images
+    </el-button>
 
     <!-- 책 리스트 -->
     <div class="book-list" v-if="state.bookList.getCount() > 0">
@@ -45,14 +58,6 @@
     <!-- 로딩 상태 -->
     <div v-if="loading" class="loading-indicator">Loading...</div>
 
-    <!-- 이미지 변경 버튼 -->
-    <el-button
-      type="primary"
-      icon="el-icon-picture-outline"
-      @click="changeBookImages"
-      class="custom-button"
-      >Change Book Images
-    </el-button>
   </div>
   <!-- BookView 다이얼로그 -->
   <el-dialog
@@ -327,14 +332,6 @@ export default {
   border-radius: 15px; /* 모서리를 둥글게 설정 */
 }
 
-.book-details {
-  width: 100%;
-  height: 200px; /* 이미지 높이 */
-  background-size: cover;
-  background-position: center;
-  margin-bottom: 20px;
-  border-radius: 10px; /* 이미지 영역의 테두리 모서리를 둥글게 설정 */
-}
 
 /*책 쌓는 이미지*/
 .book-item {
@@ -373,37 +370,43 @@ export default {
   z-index: 9999;
 }
 .custom-button {
-  background-color: #4caf50; /* 버튼 배경색 */
+  z-index: 9999; /* 다른 요소들보다 위에 위치하도록 설정 */
+  background-color: #3498db; /* 버튼 배경색 */
   color: white; /* 텍스트 색상 */
-  font-size: 14px; /* 글꼴 크기 */
-  font-weight: 600; /* 글꼴 두께 */
-  border-radius: 8px; /* 둥근 모서리 */
-  padding: 10px 20px; /* 버튼 안쪽 여백 */
-  display: flex; /* 플렉스박스로 변경 */
+  font-size: 16px; /* 글꼴 크기 */
+  font-weight: 700; /* 글꼴 두께 */
+  border-radius: 50px; /* 둥근 모서리 (더 부드럽게) */
+  padding: 12px 25px; /* 버튼 안쪽 여백 (더 넓게) */
+  display: inline-flex; /* 인라인 플렉스박스로 변경 */
   align-items: center; /* 수직 중앙 정렬 */
   justify-content: center; /* 수평 중앙 정렬 */
-  text-align: center; /* 텍스트 중앙 정렬 (혹시 필요할 경우) */
+  text-align: center; /* 텍스트 중앙 정렬 */
   cursor: pointer; /* 마우스 포인터 */
   border: none; /* 버튼의 기본 테두리 제거 */
   transition:
-    background-color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+      background-color 0.3s ease,
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
 
-  /* 중앙 위치 설정 */
-  position: absolute; /* 절대 위치 */
-  top: 100%; /* 화면 중앙에서 수직 정렬 */
-  left: 41%; /* 화면 중앙에서 수평 정렬 */
+  /* 화면 상단 중앙에 위치 */
+  //position: fixed; /* 고정 위치 */
+  //top: 20px; /* 상단에서 20px 간격 */
+  //left: 50%; /* 화면의 수평 중앙 */
+  //transform: translateX(-50%); /* 정확한 수평 중앙 정렬을 위해 이동 */
 
-  &:hover {
-    background-color: #45a049; /* 호버 시 배경색 변경 */
-    transform: scale(1.05); /* 호버 시 버튼 커지기 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 호버 시 그림자 효과 */
-  }
-
-  &:active {
-    background-color: #388e3c; /* 클릭 시 배경색 변경 */
-    transform: scale(0.98); /* 클릭 시 버튼 크기 축소 */
-  }
+  /* 버튼 그림자 추가 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+
+.custom-button:hover {
+  background-color: #2980b9; /* 호버 시 배경색 변경 */
+  transform: scale(1.1); /* 호버 시 버튼 크기 확대 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* 호버 시 그림자 확대 */
+}
+
+.custom-button:active {
+  background-color: #1f7db7; /* 클릭 시 배경색 변경 */
+  transform: scale(0.95); /* 클릭 시 버튼 크기 축소 */
+}
+
 </style>

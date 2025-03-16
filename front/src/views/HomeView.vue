@@ -49,25 +49,35 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .content {
-  padding: 0 1rem 0 1rem;
-  margin-bottom: 2rem;
+  width: 100%; /* 콘텐츠가 부모에 맞게 100% 차지하도록 설정 */
+  max-width: 1200px; /* 너무 커지는 걸 방지 */
+  margin: 0 auto; /* 가운데 정렬 */
+  padding: 1rem; /* 여백 조정 */
 }
 .pagination-container {
   display: flex;
   justify-content: center;
-  margin-top: 1px; /* 여백 조절 가능 */
+  margin-top: 1rem; /* 여백 조절 가능 */
 }
 .totalCount {
   font-size: 0.88rem;
 }
 .posts {
-  list-style: none;
-  padding: 20px;
-  li {
-    margin-bottom: 2.2rem;
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
+  width: 100%; /* 부모 크기에 맞게 조정 */
+  max-width: 1200px; /* 최대 크기 제한 */
+  display: flex;
+  flex-direction: column; /* 세로 정렬 */
+  padding: 10px;
+}
+.posts li {
+  width: 100%; /* 리스트 아이템이 부모 너비를 차지하도록 설정 */
+  max-width: 100%;
+  margin-bottom: 2.2rem;
+}
+.app-footer {
+  width: 100%;
+  max-width: 1200px; /* 푸터의 최대 너비를 넓힘 */
+  margin: 20px auto;
+  padding: 10px 0;
 }
 </style>

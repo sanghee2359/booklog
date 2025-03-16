@@ -4,12 +4,16 @@
   </div>
   <div class="year-of-books">
     <section class="intro-section">
-      <h1>📚 {{ state.user.name }}님의 올해의 책</h1>
-      <p v-if="state.bookList.items.length > 0">한 해 읽은 책 중 특별히 선정된 책입니다!</p>
-      <p v-if="state.bookList.items.length > 0">
-        최대 <strong>10권</strong> 중 <strong>{{ state.bookList.items.length }}</strong
-        >권이 선정되었습니다.
-      </p>
+      <h2>📚 {{ state.user.name }}님의 올해의 책</h2>
+      <p>한 해 동안 읽은 책 중, 특별히 선정한 책들을 모아둔 공간입니다.</p>
+
+      <template v-if="state.bookList.items.length > 0">
+        <p>최대 <strong>10권</strong> 중 <strong>{{ state.bookList.items.length }}</strong>권이 선정되었습니다.</p>
+      </template>
+      <template v-else>
+        <p>아직 올해의 책이 선정되지 않았어요.</p>
+        <p v-if="state.isMyPage">마이페이지에서 올해의 책을 등록해 보세요!</p>
+      </template>
       <br/>
       <el-date-picker
           v-model="year"
@@ -37,7 +41,7 @@
 
     <!-- 데이터 없음 -->
     <div v-else-if="!loading && state.bookList.getCount() === 0" class="no-data-message">
-     선정된 올해의 책이 없습니다.
+     아직 선정된 올해의 책이 없습니다.
     </div>
 
     <!-- 로딩 상태 -->
@@ -370,38 +374,5 @@ export default {
   width: 200px; /* 원하는 너비로 설정 */
   z-index: 9999;
 }
-.custom-button {
-  background-color: #4caf50; /* 버튼 배경색 */
-  color: white; /* 텍스트 색상 */
-  font-size: 14px; /* 글꼴 크기 */
-  font-weight: 600; /* 글꼴 두께 */
-  border-radius: 8px; /* 둥근 모서리 */
-  padding: 10px 20px; /* 버튼 안쪽 여백 */
-  display: flex; /* 플렉스박스로 변경 */
-  align-items: center; /* 수직 중앙 정렬 */
-  justify-content: center; /* 수평 중앙 정렬 */
-  text-align: center; /* 텍스트 중앙 정렬 (혹시 필요할 경우) */
-  cursor: pointer; /* 마우스 포인터 */
-  border: none; /* 버튼의 기본 테두리 제거 */
-  transition:
-    background-color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
 
-  /* 중앙 위치 설정 */
-  position: absolute; /* 절대 위치 */
-  top: 100%; /* 화면 중앙에서 수직 정렬 */
-  left: 41%; /* 화면 중앙에서 수평 정렬 */
-
-  &:hover {
-    background-color: #45a049; /* 호버 시 배경색 변경 */
-    transform: scale(1.05); /* 호버 시 버튼 커지기 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 호버 시 그림자 효과 */
-  }
-
-  &:active {
-    background-color: #388e3c; /* 클릭 시 배경색 변경 */
-    transform: scale(0.98); /* 클릭 시 버튼 크기 축소 */
-  }
-}
 </style>

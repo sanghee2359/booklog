@@ -219,15 +219,14 @@ onMounted(() => {
 }
 
 .content {
-  margin-top: 4rem;
+  margin-top: 6rem;
   padding-left: 50px;
   padding-bottom: 30px;
   font-weight: 300;
-
   word-break: normal;
   white-space: break-spaces;
   line-height: 1;
-  min-height: 5rem;
+  min-height: 160px; /* 최소 높이를 300px로 설정, 필요에 따라 조정 */
 }
 
 .post-content {
@@ -246,7 +245,6 @@ onMounted(() => {
 .bookmark-container {
   display: flex;
   justify-content: flex-start;
-
   align-items: center;
   height: 30px; /* footer와 같은 높이 */
 }

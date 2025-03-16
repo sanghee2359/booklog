@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { DateTimeFormatter, LocalDateTime } from '@js-joda/core'
 import { container } from 'tsyringe'
 import CommentRepository from '@/repository/CommentRepository'
-import { ElMessage } from 'element-plus'
+import {ElMessage, ElMessageBox} from 'element-plus'
 
 const props = defineProps<{
   comment: any
@@ -34,15 +34,26 @@ const emit = defineEmits(['commentDeleted']) // 부모에게 이벤트 전달
 const isAuthenticated = props.curUserId != null
 const showPasswordPopup = ref(false)
 const password = ref('')
+
 function deleteIfUser() {
-  COMMENT_REPOSITORY.deleteComment(props.comment.postId, props.comment.commentId, isAuthenticated)
-    .then(() => {
-      ElMessage({ type: 'success', message: '댓글이 삭제되었습니다' })
-      emit('commentDeleted') // 댓글 삭제 후 부모에게 새로고침 요청
-    })
-    .catch((err) => {
-      console.error('삭제 실패:', err)
-    })
+  ElMessageBox.confirm('댓글을 삭제하시겠습니까?', '경고', {
+    title: 'Confirmation',
+    cancelButtonText: '취소',
+    confirmButtonText: '삭제',
+    type: 'warning'
+  }).then(()=> {
+    COMMENT_REPOSITORY.deleteComment(props.comment.postId, props.comment.commentId, isAuthenticated)
+        .then(() => {
+          ElMessage({ type: 'success', message: '댓글이 삭제되었습니다' })
+          emit('commentDeleted') // 댓글 삭제 후 부모에게 새로고침 요청
+        })
+        .catch((err) => {
+          console.error('삭제 실패:', err)
+        })
+  }).catch(() => {
+    ElMessage({ type: 'info', message: '삭제가 취소되었습니다.' })
+  })
+
 }
 
 function deleteIfGuest() {

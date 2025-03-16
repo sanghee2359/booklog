@@ -62,7 +62,9 @@ watch(
 </script>
 
 <template>
+  <div class="topbar-wrapper">
   <a class="flex items-center" href="#">
+    <div class="logo-container flex items-center">
     <img alt="logo" class="h-12 mr-2" src="/images/logo_1.png" />
     <span
       class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20"
@@ -87,6 +89,7 @@ watch(
     >
       Book Log
     </span>
+    </div>
   </a>
 
   <Button class="lg:!hidden" rounded severity="secondary" @click="toggleMenu">
@@ -96,7 +99,7 @@ watch(
     :class="[
       isActive ? 'block animate-scalein' : 'hidden animate-fadeout',
       'items-center bg-surface-0 dark:bg-surface-900 grow justify-between absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border',
-      'lg:block' // lg 이상에서 div를 보이도록 설정
+      'lg:flex' // lg 이상에서 div를 보이도록 설정
     ]"
   >
     <ul
@@ -143,12 +146,39 @@ watch(
         </a>
       </li>
     </ul>
-    <div v-if="!props.isAuthenticated"  class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2" >
-      <Button as="router-link" label="Login" rounded text to="/login"></Button>
-      <Button label="Register" rounded @click="$router.push('/register')"></Button>
-    </div>
-    <div v-if="props.isAuthenticated"  class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
-      <Button label="Logout" outlined severity="contrast" @click="logout()"></Button>
+    <div class="topbar-buttons flex lg:ml-auto gap-2 justify-start lg:ml-auto mt-4 lg:mt-0">
+      <div v-if="!props.isAuthenticated"  class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2" >
+        <Button as="router-link" label="Login" rounded text to="/login"></Button>
+        <Button label="Register" rounded @click="$router.push('/register')"></Button>
+      </div>
+      <div v-if="props.isAuthenticated"  class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
+        <Button label="Logout" outlined severity="contrast" @click="logout()"></Button>
+      </div>
     </div>
   </div>
+  </div>
 </template>
+<style scoped>
+.topbar-wrapper {
+  position: relative;
+}
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px; /* 최소 너비 설정 (메뉴바와 겹치지 않도록) */
+  flex-shrink: 0; /* 크기 줄어들지 않도록 설정 */
+}
+
+.topbar-buttons {
+  display: flex;
+  justify-content: flex-end; /* 버튼들을 오른쪽으로 정렬 */
+  align-items: center; /* 수직 정렬 */
+  margin-left: 10px; /* 버튼들 간의 간격을 조절 */
+
+}
+
+.topbar-buttons div {
+  margin-top: 0 !important; /* 상단 마진 제거 */
+}
+</style>

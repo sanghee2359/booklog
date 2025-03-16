@@ -90,7 +90,7 @@
     <!-- Actions Column -->
     <el-table-column label="Actions">
       <template #default="{ row }">
-        <el-button type="danger" size="small" @click="deleteBook(row.id)">Delete</el-button>
+        <Button icon="pi pi-times" outlined rounded severity="danger" @click="deleteBook(row)" />
       </template>
     </el-table-column>
   </el-table>
@@ -106,21 +106,35 @@
     />
   </div>
   <!-- 다이얼로그 (책 수정) -->
-  <el-dialog v-model="dialogVisible" title="책 상태 업데이트" width="400px">
-    <p>올해의 책으로 선정하시겠습니까?</p>
-    <el-button @click="selectYearBook(true)" type="primary">Yes</el-button>
-    <el-button @click="selectYearBook(false)" type="default">No</el-button>
-    <el-input
-      v-model="review"
-      type="textarea"
-      placeholder="책에 대한 한 줄 서평을 입력해주세요."
-    ></el-input>
+  <el-dialog v-model="dialogVisible" title="📔 책을 완독했습니다!" width="500px">
+    <div class="dialog-content">
+      <!-- 축하문구와 토글버튼을 옆에 배치 -->
+      <div class="congratulations-toggle">
+        <p>축하합니다! 책을 다 읽으셨습니다.<br>
+        이 책을 <strong>🏆올해의 책</strong>으로 선정하시겠습니까?</p>
+        <ToggleButton v-model="isYearBook" :style="{ width: '10em' }" offLabel="No" onLabel="Yes" />
+      </div>
+    </div>
+    <br>
+    <!-- 리뷰 작성 -->
+    <div class="dialog-content">
+      <el-input
+          v-model="review"
+          maxlength="500"
+          placeholder="책에 대한 한 줄 서평을 작성해 주세요. (선택사항)"
+          rows="4"
+          type="textarea"
+      ></el-input>
+    </div>
+
     <template #footer>
+      <!-- 버튼 -->
       <el-button @click="dialogVisible = false">취소</el-button>
       <el-button type="primary" @click="handleDialogSubmit">확인</el-button>
     </template>
-    <router-link to="/bookLog" />
   </el-dialog>
+
+
 </template>
 
 <script lang="ts">
@@ -132,7 +146,7 @@ import BookEdit from '@/entity/book/BookEdit'
 import Paging from '@/entity/data/Paging'
 import { container } from 'tsyringe'
 import BookRepository from '@/repository/BookRepository'
-import { ElForm, ElMessage } from 'element-plus'
+import {ElForm, ElMessage, ElMessageBox} from 'element-plus'
 import type { Router } from 'vue-router'
 import { useRouter } from 'vue-router'
 
@@ -249,10 +263,6 @@ export default {
       dialogVisible.value = true
     }
 
-    // 'Yes' 또는 'No' 선택 함수
-    const selectYearBook = (value: boolean) => {
-      isYearBook.value = value
-    }
     const handleDialogSubmit = async () => {
       // 다이얼로그 닫기
       dialogVisible.value = false
@@ -276,9 +286,23 @@ export default {
     }
 
     // 책 삭제
-    const deleteBook = (bookId: number) => {
-      state.bookList.content = state.bookList.content.filter((b) => b.id !== bookId)
-    }
+    const deleteBook = (book: BookView) => {
+      ElMessageBox.confirm('책을 삭제하시겠습니까?', '경고', {
+        title: 'Confirmation',
+        cancelButtonText: '취소',
+        confirmButtonText: '삭제',
+        type: 'warning'
+      })
+          .then(() => {
+            BOOK_REPOSITORY.deleteBook(book.bookId).then(() => {
+              ElMessage({ type: 'success', message: '성공적으로 삭제되었습니다!' })
+              refetchList()  // 삭제 후 목록 새로고침(refetch)
+            })
+          })
+          .catch(() => {
+            ElMessage({ type: 'info', message: '삭제가 취소되었습니다.' })
+          })    }
+
     const handlePageChange = (newPage: number) => {
       if (newPage !== page.value) {
         page.value = newPage // 페이지 번호 업데이트
@@ -289,6 +313,7 @@ export default {
     const breadcrumbItems = ref([
       { label: '마이페이지', command: () => router.push('/myPage') },
       { label: '📖 읽을 책 목록'}])
+    const toggleValue = ref(false); // 초기값은 No (false)
 
     onMounted(() => {
       getBookList(page.value)
@@ -308,7 +333,6 @@ export default {
       formRef,
       rules,
       setEndDate,
-      selectYearBook,
       handleDialogSubmit,
       dialogVisible,
       isYearBook,
@@ -328,5 +352,10 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+.congratulations-toggle {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* 버튼과 문구 간 간격 */
 }
 </style>
