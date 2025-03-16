@@ -27,7 +27,7 @@ export default {
   },
   setup(props) {
     const likeResponse = ref<LikeResponse>(
-      new LikeResponse(props.postId, { liked: props.initialStatus }, props.count)
+      new LikeResponse(props.postId, props.status , props.count)
     )
     const POST_REPOSITORY = container.resolve(PostRepository)
     const loading = ref(true)
