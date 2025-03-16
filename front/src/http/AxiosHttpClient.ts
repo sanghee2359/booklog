@@ -57,6 +57,7 @@ export default class AxiosHttpClient {
                 if (error.response?.status === 401 && !config._retry) {
                     config._retry = true
                     try {
+                        authStore.clearAccessToken()
                         const newToken = await this.refreshAccessToken(authStore)
                         if (newToken) {
                             config.headers['Authorization'] = `Bearer ${newToken}`
@@ -65,7 +66,7 @@ export default class AxiosHttpClient {
                     } catch {
                         console.error('❌ Refresh token expired or invalid.')
                         authStore.clearAccessToken()
-                        window.location.href = '/login'
+
                     }
                 }
                 return Promise.reject(new HttpError(error))
