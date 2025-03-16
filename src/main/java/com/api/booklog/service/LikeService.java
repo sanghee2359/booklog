@@ -66,4 +66,9 @@ public class LikeService {
         return userRepository.findByEmail(email)
                 .orElseThrow(UserNotFound::new);
     }
+
+    public LikeResponse getLikeCount(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(PostNotFound::new);
+        return new LikeResponse(post.getId(), false, likeRepository.countByPost(post));
+    }
 }

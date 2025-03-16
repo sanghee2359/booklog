@@ -26,6 +26,15 @@ public class LikeController {
         return ResponseEntity.ok(response);
     }
 
+    // 좋아요 개수만 출력
+    @GetMapping("/posts/{postId}/like/count")
+    public ResponseEntity<LikeResponse> getLikeCount(
+            @PathVariable Long postId) {
+        LikeResponse response = likeService.getLikeCount(postId);
+        return ResponseEntity.ok(response);
+    }
+
+
     // 좋아요 토글
     @PostMapping("/posts/{postId}/like")
     public ResponseEntity<LikeResponse> toggleLike(
