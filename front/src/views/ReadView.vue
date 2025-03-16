@@ -55,6 +55,7 @@ function checkLikeStatus() {
   POST_REPOSITORY.getLikesCount(props.postId, state.isAuthenticated)
     .then((response: LikeResponse) => {
       state.likeStatus = response
+      console.log(response)
     })
     .catch(() => {
       console.log(`>>> 게시글 페이지 : 좋아요 상태 확인 실패`)
@@ -156,29 +157,31 @@ onMounted(() => {
     <el-footer class="footer">
       <div class="bookmark-container">
         <BookmarkButton
-          :postId="Number(props.postId, 10)"
+          :postId="Number(props.postId)"
           :status="state.isBookmarked"
           :isAuthenticated="state.isAuthenticated"
         />
       </div>
-      <div class="radius-container">
-        <HeartButton
-          :postId="Number(props.postId)"
-          :status="Boolean(state.isAuthenticated) ? Boolean(state.likeStatus?.liked) : false"
-          :count="Number(state.likeStatus?.likesCount)"
-          :isAuthenticated="Boolean(state.isAuthenticated)"
-        />
-      </div>
+      <div class="right-container">
+        <div class="radius-container">
+          <HeartButton
+            :count="Number(state.likeStatus?.likesCount)"
+            :isAuthenticated="Boolean(state.isAuthenticated)"
+            :postId="Number(props.postId)"
+            :status="Boolean(state.isAuthenticated) ? Boolean(state.likeStatus?.liked) : false"
+          />
+        </div>
 
-      <div
-        class="edit"
-        v-if="state.isAuthenticated && state.post && state.profile?.id === state.post.userId"
-      >
-        <router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button">
-          <el-button type="" :icon="Edit" circle />
-        </router-link>
-        <el-button type="danger" :icon="Delete" circle @click="remove" />
-        <!--      <el-button type="danger" @click="remove" class="delete-button">삭제</el-button>-->
+        <div
+          v-if="state.isAuthenticated && state.post && state.profile?.id === state.post.userId"
+          class="edit"
+        >
+          <router-link :to="{ name: 'edit', params: { postId: props.postId } }" class="edit-button">
+            <el-button :icon="Edit" circle type="" />
+          </router-link>
+          <el-button :icon="Delete" circle type="danger" @click="remove" />
+          <!--      <el-button type="danger" @click="remove" class="delete-button">삭제</el-button>-->
+        </div>
       </div>
     </el-footer>
 
@@ -236,18 +239,23 @@ onMounted(() => {
 
 .footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between; /* 양 끝으로 배치 */
   align-items: center;
-  .bookmark-container {
-    position: absolute; /* footer 안에서 위치를 고정 */
-    left: 30px; /* 왼쪽 아래에 위치 */
-    height: 30px; /* footer와 같은 높이 */
-    //bottom: 100%;
-    display: flex;
-    justify-content: flex-start;
-  }
+  width: 100%;
+}
+.bookmark-container {
+  display: flex;
+  justify-content: flex-start;
+
+  align-items: center;
+  height: 30px; /* footer와 같은 높이 */
 }
 
+.right-container {
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  align-items: center;
+}
 .edit-button {
   font-size: 0.875rem;
   font-color: black;
